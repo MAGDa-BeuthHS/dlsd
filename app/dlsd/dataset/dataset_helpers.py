@@ -1,5 +1,5 @@
 import numpy as np
-
+from dlsd import Common as c
 
 '''
     dataset_helpers
@@ -26,9 +26,14 @@ import numpy as np
     @   return  train,test  Two pandas dataframes                 
 '''
 def splitDataToTrainAndTest(data_df,train_frac):
+    c.debugInfo(__name__,"Splitting data to train and test fraction %.2f"%(train_frac))
     train = data_df.sample(frac=train_frac,random_state=1)
     test = data_df.loc[~data_df.index.isin(train.index)]
     return train,test
+
+def normalizeData(data_df):
+    max_value = np.amax(data_df.values)
+    return ((data_df/max_value)*.99) + 0.01
 
 '''
     Wrapper for a training and test dataset
@@ -36,21 +41,28 @@ def splitDataToTrainAndTest(data_df,train_frac):
     Dataset objects then each contain input/output data
 '''
 class FullDataSet:
-    def __init__(self):
+    def __init__(self, trainInput, trainOutput, testInput, testOutput):
         self.test = DataSet()
-        self.training = DataSet()
-    def setTrain_input(self,data):
-        self.training.inputData = data
-    def setTrain_output(self,data):
-        self.training.outputData = data
-    def setTest_input(self,data):
-        self.test.inputData = data
-    def setTest_output(self,data):
-        self.test.outputData = data
+        self.train = DataSet()
+        self.train.inputData = trainInput
+        self.train.outputData = trainOutput
+        self.test.inputData = testInput
+        self.test.outputData = testOutput
+
     def getNumberInputs(self):
         return self.test.inputData.shape[1]
     def getNumberOutputs(self):
         return self.test.outputData.shape[1]
+    def toString(self):
+        c.debugInfo(__name__,"FullDataSet Object : [ Train : input (%d, %d)  output (%d, %d) ]\t [ Test : input (%d, %d)  output (%d, %d) ]"%(
+            self.train.inputData.shape[0],
+            self.train.inputData.shape[1],
+            self.train.outputData.shape[0],
+            self.train.outputData.shape[1],
+            self.test.inputData.shape[0],
+            self.test.inputData.shape[1],
+            self.test.outputData.shape[0],
+            self.test.outputData.shape[1]))
 
 '''
     Wrapper for a single input/output numpy array of values

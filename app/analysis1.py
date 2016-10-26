@@ -32,7 +32,7 @@ if __name__ == "__main__":
         sess.run(tf.initialize_all_variables())
 
         for step in range(max_steps):
-            myFeedDict = dsg.fill_feed_dict(data.training,
+            myFeedDict = dsg.fill_feed_dict(data.train,
                                        pl_input,
                                        pl_output,
                                        batch_size)

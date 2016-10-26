@@ -1,5 +1,6 @@
 from .decorators import tf_attributeLock
 import tensorflow as tf
+from dlsd import Common as c
 
 '''
     Simplest deep neural network that can be created
@@ -13,17 +14,22 @@ import tensorflow as tf
     once and that 2. nodes contained within are given a variable_scope name
 
     Alex Hartenstein 14/10/2016
+
+==============================================================================
 '''
 
 
 class SimpleNeuralNetwork:
-    '''
-        @ param data        tensorflow placeholder to hold input data
-        @ param target      tensorflow placeholder to hold (true) output data (target value)
-        @ param number_hidden_nodes
-        @ param learning_rate
-    '''
+    
     def __init__(self, data, target, number_hidden_nodes, learning_rate):
+        '''
+            Args : 
+                data :                      tensorflow placeholder to hold input data
+                target :                    tensorflow placeholder to hold (true) output data (target value)
+                number_hidden_nodes : 
+                learning_rate :
+
+        '''
         # data and target are placeholders
         self.data = data
         self.target = target
@@ -32,17 +38,19 @@ class SimpleNeuralNetwork:
         self.n_hidden = number_hidden_nodes
         self.n_output = int(self.target.get_shape()[1])
         self.learningRate = learning_rate
+
+        c.debugInfo(__name__,"#input : %d   #hidden : %d   #output : %d   learningRate : %.2f"%(self.n_input,self.n_hidden,self.n_output,self.learningRate))
         # reference operation attributes of model
+        self.global_step = tf.Variable(0,name='global_step',trainable=False)
+
         self.prediction
         self.optimize
         self.error
+        self.evaluation
     
-    
-    '''
-
-    '''
     @tf_attributeLock
     def prediction(self):
+        c.debugInfo(__name__,"Adding Prediction nodes to the graph")
         with tf.name_scope('layer1'):
             weights = tf.Variable(tf.truncated_normal((self.n_input,self.n_hidden),stddev=0.1), name="lay1_weights")
             bias = tf.Variable(tf.constant(0.1,shape=[self.n_hidden]), name = "lay1_bias")
@@ -55,13 +63,26 @@ class SimpleNeuralNetwork:
        
     @tf_attributeLock
     def optimize(self):
+        c.debugInfo(__name__,"Adding Optimize nodes to the graph")
         optimizer = tf.train.GradientDescentOptimizer(self.learningRate, name = "gradientDescent")
-        global_step = tf.Variable(0,name='global_step',trainable=False)
-        optimizer_op = optimizer.minimize(self.error,global_step = global_step,name="minimizeGradientDescent")
+        optimizer_op = optimizer.minimize(self.error,global_step = self.global_step,name="minimizeGradientDescent")
         return optimizer_op
     
     @tf_attributeLock
     def error(self):
-        final_error = tf.square(tf.sub(self.target,self.prediction),name="myError")
+        c.debugInfo(__name__,"Adding Error nodes to the graph")
+        # using l2 norm (sum of) square error
+        final_error = tf.square(tf.sub(self.target,self.prediction),name="trainError")
         tf.histogram_summary("final_error",final_error)
+        mean = tf.reduce_mean(final_error)
+        tf.scalar_summary("mean_error",mean)
         return final_error
+    
+    @tf_attributeLock
+    def evaluation(self):
+        c.debugInfo(__name__,"Adding Evaluation nodes to graph")
+        test_error = tf.square(tf.sub(self.target,self.prediction),name="testError")
+        tf.histogram_summary("test_error",test_error)
+        test_mean = tf.reduce_mean(test_error,name="mean_of_testError")
+        tf.scalar_summary("test_mean_error",test_mean)
+        return test_mean
