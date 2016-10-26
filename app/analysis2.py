@@ -10,7 +10,8 @@ if __name__ == "__main__":
     c.verbose = True
     
     # create a FullDataSet object containing train/test data as well as next_batch() method
-    data = dsg.makeData_allSensorsInAllOutWithTimeOffset('/Users/ahartens/Desktop/Temporary/24_10_16_wideTimeSeriesBelegung_naDropped.csv',False)
+    #data = dsg.makeData_allSensorsInAllOutWithTimeOffset('/Users/ahartens/Desktop/Temporary/24_10_16_wideTimeSeriesBelegung_naDropped.csv',False)
+    data = dsg.makeData_allSensorsInOneOutWithTimeOffset('/Users/ahartens/Desktop/Temporary/24_10_16_wideTimeSeriesBelegung_naDropped.csv',False)
     
     # remake data from SQL output
     '''
@@ -58,6 +59,8 @@ if __name__ == "__main__":
                                        pl_input,
                                        pl_output,
                                        batch_size)
+                testMeanErrorValue = sess.run(nn.evaluation,feed_dict = myFeedDict)
+
                 c.debugInfo(__name__,"Training step : %d of %d"%(step,max_steps))
 
 

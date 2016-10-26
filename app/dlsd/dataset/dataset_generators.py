@@ -35,6 +35,55 @@ def fill_feed_dict(data_set,input_pl, output_pl, batch_size):
     return feed_dict
 
 
+def makeData_allSensorsInOneOutWithTimeOffset(inputFilePath,
+                                            remakeData = False,
+                                            outputFilePath = "",
+                                            saveOutputFile = False, 
+                                            timeOffset = 15,
+                                            trainTestFraction =.8):
+    '''
+        Args : 
+            inputFilePath :         Path to csv file 26_8_16_PZS_Belgugn_All_Wide_NanOmitec.csv or similar
+            remakeData :            Boolean : if True then inputFilePath refers to an SQL output file and the data is remade
+            outputFilePath :        Path to outputfile if saveOutputFile is True
+            timeOffset :            Int : number of minutes that 
+        
+        Return :
+            theData :       FullDataSet object from dataset_helpers containing two DataSet 
+                            objects containing two numpy arrays(input/target), contains next_batch() function!
+    '''
+    if (remakeData == True):
+        c.debugInfo(__name__,"Processing data from an SQL file")
+        data_df = dsh.normalizeData(stn.sqlToNumpy_allSensorsInAllOutWithTimeOffset(inputFilePath,saveOutputFile = saveOutputFile,outputFilePath = outputFilePath,timeOffset=timeOffset))
+    else:
+        c.debugInfo(__name__,"Opening preprocessed data file %s"%inputFilePath)
+        data_df = dsh.normalizeData(pd.read_csv(inputFilePath))
+    
+    train_df, test_df = dsh.splitDataToTrainAndTest(data_df,trainTestFraction)
+    c.debugInfo(__name__,"train_df (%d,%d)\ttest_df (%d,%d)"%(train_df.shape[0],train_df.shape[1],test_df.shape[0],test_df.shape[1]))
+    
+    # first half of data is input
+    indexOutputBegin = int((data_df.shape[1])/2)
+
+    # define index of single output sensor (the output is at some time in the future)
+    outputSensorIndex = 0
+    c.debugInfo(__name__,"Single output sensor at index %d, sensor name : %s"%(outputSensorIndex,data_df.columns.values[outputSensorIndex]))
+    train_input = train_df.iloc[:,0:indexOutputBegin]
+    train_output = train_df.iloc[:,indexOutputBegin+outputSensorIndex]
+
+    test_input = test_df.iloc[:,0:indexOutputBegin]
+    test_output = test_df.iloc[:,indexOutputBegin+outputSensorIndex]
+
+    c.debugInfo(__name__,"Making FullDataSet object containing train/test data")
+
+    # create FullDataSet object with appropriate data
+    theData = dsh.FullDataSet(trainInput = train_input.values,
+                                trainOutput = train_output.values.reshape(-1,1),
+                                testInput = test_input.values,
+                                testOutput = test_output.values.reshape(-1,1))
+    theData.toString()
+    return theData
+
 def makeData_allSensorsInAllOutWithTimeOffset(inputFilePath,
                                             remakeData = False,
                                             outputFilePath = "",
