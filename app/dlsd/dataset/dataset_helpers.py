@@ -18,14 +18,13 @@ from dlsd import Common as c
 '''
 
 
-
-'''
-    @   param data_df       Pandas dataframe object of all data, each row is data point
-    @   param train_frac    Float determining how much reserved for training
-    
-    @   return  train,test  Two pandas dataframes                 
-'''
 def splitDataToTrainAndTest(data_df,train_frac):
+    '''
+        @   param data_df       Pandas dataframe object of all data, each row is data point
+        @   param train_frac    Float determining how much reserved for training
+        
+        @   return  train,test  Two pandas dataframes                 
+    '''
     c.debugInfo(__name__,"Splitting data to train and test fraction %.2f"%(train_frac))
     train = data_df.sample(frac=train_frac,random_state=1)
     test = data_df.loc[~data_df.index.isin(train.index)]
@@ -33,14 +32,16 @@ def splitDataToTrainAndTest(data_df,train_frac):
 
 def normalizeData(data_df):
     max_value = np.amax(data_df.values)
+    c.debugInfo(__name__,"Max value in maxMinNormalization is %d"%max_value)
     return ((data_df/max_value)*.99) + 0.01
 
-'''
-    Wrapper for a training and test dataset
-    Contains two 'DataSet' objects, one for training test respectively
-    Dataset objects then each contain input/output data
-'''
+
 class FullDataSet:
+    '''
+        Wrapper for a training and test dataset
+        Contains two 'DataSet' objects, one for training test respectively
+        Dataset objects then each contain input/output data
+    '''
     def __init__(self, trainInput, trainOutput, testInput, testOutput):
         self.test = DataSet()
         self.train = DataSet()
@@ -64,11 +65,11 @@ class FullDataSet:
             self.test.outputData.shape[0],
             self.test.outputData.shape[1]))
 
-'''
-    Wrapper for a single input/output numpy array of values
-    Call 'next_batch' to get a batch of values
-'''
 class DataSet:
+    '''
+        Wrapper for a single input/output numpy array of values
+        Call 'next_batch' to get a batch of values
+    '''
     def __init__(self):
         self.inputData = []
         self.outputData = []

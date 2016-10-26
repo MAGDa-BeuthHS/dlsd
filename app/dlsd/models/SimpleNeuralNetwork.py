@@ -41,8 +41,6 @@ class SimpleNeuralNetwork:
 
         c.debugInfo(__name__,"#input : %d   #hidden : %d   #output : %d   learningRate : %.2f"%(self.n_input,self.n_hidden,self.n_output,self.learningRate))
         # reference operation attributes of model
-        self.global_step = tf.Variable(0,name='global_step',trainable=False)
-
         self.prediction
         self.optimize
         self.error
@@ -65,24 +63,27 @@ class SimpleNeuralNetwork:
     def optimize(self):
         c.debugInfo(__name__,"Adding Optimize nodes to the graph")
         optimizer = tf.train.GradientDescentOptimizer(self.learningRate, name = "gradientDescent")
-        optimizer_op = optimizer.minimize(self.error,global_step = self.global_step,name="minimizeGradientDescent")
+        global_step = tf.Variable(0,name='global_step',trainable=False)
+        optimizer_op = optimizer.minimize(self.error,global_step = global_step,name="minimizeGradientDescent")
         return optimizer_op
     
     @tf_attributeLock
     def error(self):
         c.debugInfo(__name__,"Adding Error nodes to the graph")
         # using l2 norm (sum of) square error
-        final_error = tf.square(tf.sub(self.target,self.prediction),name="trainError")
+        final_error = tf.square(tf.sub(self.target,self.prediction),name="myError")
         tf.histogram_summary("final_error",final_error)
-        mean = tf.reduce_mean(final_error)
-        tf.scalar_summary("mean_error",mean)
+        mean = tf.reduce_mean(final_error,0)
+        tf.histogram_summary("mean_error",mean)
         return final_error
-    
+
     @tf_attributeLock
     def evaluation(self):
-        c.debugInfo(__name__,"Adding Evaluation nodes to graph")
-        test_error = tf.square(tf.sub(self.target,self.prediction),name="testError")
-        tf.histogram_summary("test_error",test_error)
-        test_mean = tf.reduce_mean(test_error,name="mean_of_testError")
-        tf.scalar_summary("test_mean_error",test_mean)
-        return test_mean
+        c.debugInfo(__name__,"Adding Evaluation nodes to the graph")
+        # using l2 norm (sum of) square error
+        final_error = tf.square(tf.sub(self.target,self.prediction),name="myEvaluationError")
+        tf.histogram_summary("evaluation_final_error",final_error)
+        mean = tf.reduce_mean(final_error)
+        tf.scalar_summary("evaluation_mean_error",mean)
+        return final_error
+    

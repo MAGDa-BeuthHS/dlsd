@@ -20,8 +20,8 @@ if __name__ == "__main__":
         saveOutputFile = True)
     '''
     # define parameters and necessary variables
-    output_dir = '/Users/ahartens/Desktop/tf2'
-    max_steps = 30000
+    output_dir = '/Users/ahartens/Desktop/tf'
+    max_steps = 1000
     batch_size = 100
     learningRate = 0.3
     n_hidden = 40
@@ -53,12 +53,13 @@ if __name__ == "__main__":
             if(step%100 == 0):
                 summary_writer.add_summary(summary_str)
                 summary_writer.flush()
+                
                 myFeedDict = dsg.fill_feed_dict(data.test,
                                        pl_input,
                                        pl_output,
                                        batch_size)
-                testMeanErrorValue = sess.run([nn.evaluation],feed_dict = myFeedDict)
                 c.debugInfo(__name__,"Training step : %d of %d"%(step,max_steps))
+
 
 '''
      with tf.Session(graph = graph) as sess:

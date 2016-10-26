@@ -91,7 +91,8 @@ def makeData_julyOneWeek2015(inputFilePath):
             theData :   FullDataSet object from dataset_helpers containing two DataSet 
                                 objects containing two numpy arrays(input/target)
     '''
-    all_data = pc.read_csv(inputFilePath,sep=",")
+    all_data = pd.read_csv(inputFilePath,sep=",")
+    print(all_data.shape)
     data_df = all_data.iloc[:,2:all_data.shape[1]]
     max_value = np.amax(data_df.values)
     data_df = ((data_df/max_value)*.99) + 0.01
@@ -103,8 +104,10 @@ def makeData_julyOneWeek2015(inputFilePath):
     test_output_df = test_df.iloc[:,index_of_Output]
     train_output_df = train_df.iloc[:,index_of_Output]
     
-    theData = dsh.FullDataSet(trainInput = train_input.values,
-                            trainOutput = train_output.values,
-                            testInput = test_input.values,
-                            testOutput = test_output.values)
+    theData = dsh.FullDataSet(trainInput = train_df_toUse.values,
+                            trainOutput = train_output_df.reshape(-1,1),
+                            testInput = test_df_toUse.values,
+                            testOutput = test_output_df.reshape(-1,1))
+    theData.toString()
+
     return theData
