@@ -45,7 +45,8 @@ class SimpleNeuralNetwork:
         self.optimize
         self.error
         self.evaluation
-    
+
+ 
     @tf_attributeLock
     def prediction(self):
         c.debugInfo(__name__,"Adding Prediction nodes to the graph")
@@ -81,9 +82,9 @@ class SimpleNeuralNetwork:
     def evaluation(self):
         c.debugInfo(__name__,"Adding Evaluation nodes to the graph")
         # using l2 norm (sum of) square error
-        final_error = tf.square(tf.sub(self.target,self.prediction),name="myEvaluationError")
+        final_error = tf.abs(tf.sub(self.target,self.prediction,name="myEvaluationError"))
         tf.histogram_summary("evaluation_final_error",final_error)
         mean = tf.reduce_mean(final_error)
         tf.scalar_summary("evaluation_mean_error",mean)
-        return final_error
+        return mean
     

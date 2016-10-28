@@ -33,7 +33,10 @@ def splitDataToTrainAndTest(data_df,train_frac):
 def normalizeData(data_df):
     max_value = np.amax(data_df.values)
     c.debugInfo(__name__,"Max value in maxMinNormalization is %d"%max_value)
-    return ((data_df/max_value)*.99) + 0.01
+    return ((data_df/max_value)*.99999999) + 0.00000001, max_value
+
+def denormalizeData(data_df,max_value):
+    return ((data_df - 0.00000001)/.99999999)*max_value
 
 
 class FullDataSet:
@@ -49,11 +52,16 @@ class FullDataSet:
         self.train.outputData = trainOutput
         self.test.inputData = testInput
         self.test.outputData = testOutput
+        self.max_value = 0
 
     def getNumberInputs(self):
         return self.test.inputData.shape[1]
     def getNumberOutputs(self):
         return self.test.outputData.shape[1]
+    def getNumberTrainingPoints(self):
+        return self.train.inputData.shape[0]
+    def getNumberTestPoints(self):
+        return self.test.inputData.shape[0]
     def toString(self):
         c.debugInfo(__name__,"FullDataSet Object : [ Train : input (%d, %d)  output (%d, %d) ]\t [ Test : input (%d, %d)  output (%d, %d) ]"%(
             self.train.inputData.shape[0],

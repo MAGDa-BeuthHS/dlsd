@@ -40,6 +40,7 @@ def makeData_allSensorsInOneOutWithTimeOffset(inputFilePath,
                                             outputFilePath = "",
                                             saveOutputFile = False, 
                                             timeOffset = 15,
+                                            splitTrain = True,
                                             trainTestFraction =.8):
     '''
         Args : 
@@ -54,34 +55,47 @@ def makeData_allSensorsInOneOutWithTimeOffset(inputFilePath,
     '''
     if (remakeData == True):
         c.debugInfo(__name__,"Processing data from an SQL file")
-        data_df = dsh.normalizeData(stn.sqlToNumpy_allSensorsInAllOutWithTimeOffset(inputFilePath,saveOutputFile = saveOutputFile,outputFilePath = outputFilePath,timeOffset=timeOffset))
+        data_df, max_value = dsh.normalizeData(stn.sqlToNumpy_allSensorsInAllOutWithTimeOffset(inputFilePath,saveOutputFile = saveOutputFile,outputFilePath = outputFilePath,timeOffset=timeOffset))
     else:
         c.debugInfo(__name__,"Opening preprocessed data file %s"%inputFilePath)
-        data_df = dsh.normalizeData(pd.read_csv(inputFilePath))
-    
-    train_df, test_df = dsh.splitDataToTrainAndTest(data_df,trainTestFraction)
-    c.debugInfo(__name__,"train_df (%d,%d)\ttest_df (%d,%d)"%(train_df.shape[0],train_df.shape[1],test_df.shape[0],test_df.shape[1]))
+        data_df, max_value = dsh.normalizeData(pd.read_csv(inputFilePath))
     
     # first half of data is input
     indexOutputBegin = int((data_df.shape[1])/2)
 
     # define index of single output sensor (the output is at some time in the future)
     outputSensorIndex = 0
-    c.debugInfo(__name__,"Single output sensor at index %d, sensor name : %s"%(outputSensorIndex,data_df.columns.values[outputSensorIndex]))
-    train_input = train_df.iloc[:,0:indexOutputBegin]
-    train_output = train_df.iloc[:,indexOutputBegin+outputSensorIndex]
 
-    test_input = test_df.iloc[:,0:indexOutputBegin]
-    test_output = test_df.iloc[:,indexOutputBegin+outputSensorIndex]
+    if (splitTrain == True):
+        train_df, test_df = dsh.splitDataToTrainAndTest(data_df,trainTestFraction)
+        c.debugInfo(__name__,"train_df (%d,%d)\ttest_df (%d,%d)"%(train_df.shape[0],train_df.shape[1],test_df.shape[0],test_df.shape[1]))
+        c.debugInfo(__name__,"Single output sensor at index %d, sensor name : %s"%(outputSensorIndex,data_df.columns.values[outputSensorIndex]))
+        
+        train_input = train_df.iloc[:,0:indexOutputBegin]
+        train_output = train_df.iloc[:,indexOutputBegin+outputSensorIndex]
 
-    c.debugInfo(__name__,"Making FullDataSet object containing train/test data")
+        test_input = test_df.iloc[:,0:indexOutputBegin]
+        test_output = test_df.iloc[:,indexOutputBegin+outputSensorIndex]
 
-    # create FullDataSet object with appropriate data
-    theData = dsh.FullDataSet(trainInput = train_input.values,
-                                trainOutput = train_output.values.reshape(-1,1),
-                                testInput = test_input.values,
-                                testOutput = test_output.values.reshape(-1,1))
+        c.debugInfo(__name__,"Making FullDataSet object containing train/test data")
+        # create FullDataSet object with appropriate data
+        theData = dsh.FullDataSet(trainInput = train_input.values,
+                                    trainOutput = train_output.values.reshape(-1,1),
+                                    testInput = test_input.values,
+                                    testOutput = test_output.values.reshape(-1,1))
+    # Don't split data into train/test (only for testing)
+    else:
+        test_input = data_df.iloc[:,0:indexOutputBegin]
+        test_output = data_df.iloc[:,indexOutputBegin+outputSensorIndex]        
+        c.debugInfo(__name__,"Making FullDataSet object with only test data")
+        # create FullDataSet object with appropriate data
+        theData = dsh.FullDataSet(trainInput = np.empty((0,0)),
+                                    trainOutput = np.empty((0,0)),
+                                    testInput = test_input.values,
+                                    testOutput = test_output.values.reshape(-1,1))
+    theData.max_value = max_value
     theData.toString()
+
     return theData
 
 def makeData_allSensorsInAllOutWithTimeOffset(inputFilePath,
@@ -103,10 +117,10 @@ def makeData_allSensorsInAllOutWithTimeOffset(inputFilePath,
     '''
     if (remakeData == True):
         c.debugInfo(__name__,"Processing data from an SQL file")
-        data_df = dsh.normalizeData(stn.sqlToNumpy_allSensorsInAllOutWithTimeOffset(inputFilePath,saveOutputFile = saveOutputFile,outputFilePath = outputFilePath,timeOffset=timeOffset))
+        data_df,max_value = dsh.normalizeData(stn.sqlToNumpy_allSensorsInAllOutWithTimeOffset(inputFilePath,saveOutputFile = saveOutputFile,outputFilePath = outputFilePath,timeOffset=timeOffset))
     else:
         c.debugInfo(__name__,"Opening preprocessed data file %s"%inputFilePath)
-        data_df = dsh.normalizeData(pd.read_csv(inputFilePath))
+        data_df,max_value = dsh.normalizeData(pd.read_csv(inputFilePath))
     
     train_df, test_df = dsh.splitDataToTrainAndTest(data_df,trainTestFraction)
     c.debugInfo(__name__,"train_df (%d,%d)\ttest_df (%d,%d)"%(train_df.shape[0],train_df.shape[1],test_df.shape[0],test_df.shape[1]))
