@@ -36,7 +36,8 @@ def normalizeData(data_df):
     return ((data_df/max_value)*.99999999) + 0.00000001, max_value
 
 def denormalizeData(data_df,max_value):
-    return ((data_df - 0.00000001)/.99999999)*max_value
+    #return ((data_df - 0.00000001)/.99999999)*max_value
+    return ((data_df)/.99999999)*max_value
 
 
 class FullDataSet:
@@ -46,8 +47,17 @@ class FullDataSet:
         Dataset objects then each contain input/output data
     '''
     def __init__(self, trainInput, trainOutput, testInput, testOutput):
+        # create contained dataset objects
         self.test = DataSet()
         self.train = DataSet()
+        
+        # do assertions to ensure that data is reasonable
+        assert(trainInput.shape[0]==trainOutput.shape[0]),"Number of data points (rows) for train input/output do not match!"
+        assert(testInput.shape[0]==testOutput.shape[0]),"Number of data points (rows) for test input/output do not match!"
+        assert(testInput.shape[1]==trainInput.shape[1]),"Number of input values (columns) for test/train input do not match!"
+        assert(testOutput.shape[1]==trainOutput.shape[1]),"Number of input values (columns) for test/train output do not match!"
+        
+        # set data
         self.train.inputData = trainInput
         self.train.outputData = trainOutput
         self.test.inputData = testInput
@@ -82,8 +92,10 @@ class DataSet:
         self.inputData = []
         self.outputData = []
     def next_batch(self,batch_size):
-        b_in = self.inputData[np.random.choice(self.inputData.shape[0],batch_size,replace=False),:]
-        b_out = self.outputData[np.random.choice(self.outputData.shape[0],batch_size, replace=False),:]
+        indices = np.random.choice(self.inputData.shape[0],batch_size,replace=False)
+
+        b_in = self.inputData[indices,:]
+        b_out = self.outputData[indices,:]
         return b_in,b_out
     def num_examples(self):
         return self.inputData.shape[0]

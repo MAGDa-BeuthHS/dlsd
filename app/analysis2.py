@@ -1,72 +1,71 @@
 from dlsd.dataset import dataset_generators as dsg
 from dlsd.dataset import dataset_helpers as dsh
 
-from dlsd.models import SimpleNeuralNetwork as nn
+from dlsd.models import SimpleNeuralNetwork as model
 from dlsd import Common as c
 import tensorflow as tf
 import os
 import pandas as pd
 import numpy as np
-import argparse
 
-class config_inference:
+
+
+''' ------------------------------------------------------------------------------------------------
+    Configuration Objects containing the data to do training/inference on 
+    Data is stored in a FullDataSet object with both train/test data 
+    ------------------------------------------------------------------------------------------------ '''
+
+class config:
+    ''' Parent class configuration object. change file paths here '''
+    n_hidden = 200
+    learningRate = 0.01
+    output_dir = '/Users/ahartens/Desktop/tf'
+    path_sqlFile = '/Users/ahartens/Desktop/Work/24_10_16_PZS_Belegung_oneMonth.csv'
+    path_inputFile = '/Users/ahartens/Desktop/Work/16_11_2_PZS_Belegung_oneMonth_oneTimeAsOutput_timeOffset15.csv'
+    save_path = os.path.join(output_dir,"model.ckpt")
+    max_steps = 10000
+    batch_size = 3
+
+class config_dataFromPreparedFile(config):
+    ''' If csv file of data (already prepared in previous step, from SQL) exists use this config '''
     def __init__(self):
-        self.data = dsg.makeData_allSensorsInOneOutWithTimeOffset('/Users/ahartens/Desktop/Temporary/24_10_16_wideTimeSeriesBelegung_naDropped.csv',
-                                        remakeData =False,
-                                        splitTrain = False)
-        self.output_dir = '/Users/ahartens/Desktop/tf'
-        self.save_path = os.path.join(self.output_dir,"model.ckpt")
-        self.batch_size = self.data.getNumberTestPoints()
-        self.n_hidden = 40
-        self.learningRate = 0
+        self.data = makeData(config.path_inputFile)
 
-class config_allInOneOut:
+class config_restoreForTesting(config):
+    ''' If want to run model on every data point (no test/train split) using a restored tf session'''
     def __init__(self):
-        self.data = dsg.makeData_allSensorsInOneOutWithTimeOffset('/Users/ahartens/Desktop/Temporary/24_10_16_wideTimeSeriesBelegung_naDropped.csv',remakeData =False)
-        self.output_dir = '/Users/ahartens/Desktop/tf'
-        self.max_steps = 10000
-        self.batch_size = 10
-        self.learningRate = 0.3
-        self.n_hidden = 40
-        self.save_path = os.path.join(self.output_dir,"model.ckpt")
+        self.data = makeData(config.path_inputFile, splitTrain = False)
+        config.batch_size = self.data.getNumberTestPoints()
 
-
-class config_allInAllOut:
-    # remake data from SQL output
+class config_dataFromSQL(config):
+    ''' Prepare data from from SQL and save output for further training. Prerequisite for other configs'''
     def __init__(self):
-        self.data = dsg.makeData_allSensorsInAllOutWithTimeOffset(inputFilePath = '/Users/ahartens/Desktop/Work/24_10_16_PZS_Belegung_limited.csv',
-            remakeData =True,
-            outputFilePath ='/Users/ahartens/Desktop/Temporary/16_10_26_wideTimeSeriesBelegung.csv',
-            saveOutputFile = True)
-        self.output_dir = '/Users/ahartens/Desktop/tf'
-        self.max_steps = 1000
-        self.batch_size = 10
-        self.learningRate = 0.3
-        self.n_hidden = 40
-    
+        self.data = makeData(inputFilePath = config.path_sqlFile, remakeData =True, outputFilePath = config.path_inputFile, saveOutputFile = True)
 
-def makeCommandLineArgs():
-    parser = argparse.ArgumentParser(description='Run a neural network')
-    parser.add_argument('-r','--restore', help='Restore from a file',required=False)
-    parser.add_argument('-v','--verbose',help='Print error loggin messages', required=False)
-    args = parser.parse_args()
-    return args
-     
 
-if __name__ == "__main__":
-    # set debugInfo verbose variable
-    args = makeCommandLineArgs()
 
-    if (args.verbose != None):
-        c.verbose = True
 
-    if (args.restore != None):
-        c.debugInfo(__name__,"Restoring saved tf session")
-        config = config_inference()
-    else:   
-        # create a FullDataSet object containing train/test data as well as next_batch() method
-        config = config_allInOneOut()           
+''' ------------------------------------------------------------------------------------------------
+    Create Neural Network and perform training 
+    ------------------------------------------------------------------------------------------------ '''
+
+def main():   
+    # get command line arguments
+    args = c.makeCommandLineArgs()
+
+    # show debug information or not
+    if (args.verbose != None): c.verbose = True
+
+
+    # Create configuration object containing data and hyperparameters
+    # restore data if command line argument exists
+    if (args.restore != None): config = config_restoreForTesting()
+    # prepare data for neural network from SQL input file
+    elif(args.makeData != None): config = config_dataFromSQL()
+    # create a FullDataSet object containing train/test data as well as next_batch() method
+    else: config = config_dataFromPreparedFile()           
       
+
     # set up the graph
     graph = tf.Graph()
     with graph.as_default(),tf.device('/cpu:0'):
@@ -77,7 +76,7 @@ if __name__ == "__main__":
 
         # create neural network and define in graph
         c.debugInfo(__name__,"Creating neural network")
-        nn = nn.SimpleNeuralNetwork(pl_input,pl_output,config.n_hidden,config.learningRate)
+        nn = model.SimpleNeuralNetwork(pl_input,pl_output,config.n_hidden,config.learningRate)
         
         summary_op = tf.merge_all_summaries()
 
@@ -110,6 +109,8 @@ if __name__ == "__main__":
                                            pl_input,
                                            pl_output,
                                            config.batch_size)
+                #print(myFeedDict)
+
                 loss_value,summary_str,predicted = sess.run([nn.optimize,summary_op,nn.prediction],feed_dict = myFeedDict)
                 if(step%100 == 0):
                     print(dsh.denormalizeData(predicted,config.data.max_value))
@@ -127,3 +128,86 @@ if __name__ == "__main__":
             save_path = saver.save(sess, config.save_path)
 
             c.debugInfo(__name__,"Model saved in file: %s" % save_path)
+
+
+
+
+''' ------------------------------------------------------------------------------------------------
+    Prepare data for training
+    ------------------------------------------------------------------------------------------------ '''
+
+def makeData(inputFilePath,
+                remakeData = False,
+                outputFilePath = "",
+                saveOutputFile = False, 
+                timeOffset = 15,
+                splitTrain = True,
+                trainTestFraction =.8):
+    '''
+        Args : 
+            inputFilePath :         Path to csv file 26_8_16_PZS_Belgugn_All_Wide_NanOmitec.csv or similar
+            remakeData :            Boolean : if True then inputFilePath refers to an SQL output file and the data is remade
+            outputFilePath :        Path to outputfile if saveOutputFile is True
+            timeOffset :            Int : number of minutes that 
+        
+        Return :
+            theData :       FullDataSet object from dataset_helpers containing two DataSet 
+                            objects containing two numpy arrays(input/target), contains next_batch() function!
+    '''
+    # remake data from SQL output and min/max normalize it
+    if (remakeData == True):
+        c.debugInfo(__name__,"Processing data from an SQL file")
+        data_df, max_value = dsh.normalizeData(stn.sqlToNumpy_allSensorsInAllOutWithTimeOffset(inputFilePath,
+                                                    saveOutputFile = saveOutputFile,
+                                                    outputFilePath = outputFilePath,
+                                                    timeOffset=timeOffset))
+    # open file and min/max normalize data
+    else:
+        c.debugInfo(__name__,"Opening preprocessed data file %s"%inputFilePath)
+        data_df, max_value = dsh.normalizeData(pd.read_csv(inputFilePath))
+    
+
+    # first half of data is input
+    indexOutputBegin = int((data_df.shape[1])/2)
+
+    # define index of single output sensor (the output is at some time in the future)
+    outputSensorIndex = 0
+
+    if (splitTrain == True):
+        train_df, test_df = dsh.splitDataToTrainAndTest(data_df,trainTestFraction)
+        c.debugInfo(__name__,"train_df (%d,%d)\ttest_df (%d,%d)"%(train_df.shape[0],train_df.shape[1],test_df.shape[0],test_df.shape[1]))
+        c.debugInfo(__name__,"Single output sensor at index %d, sensor name : %s"%(outputSensorIndex,data_df.columns.values[outputSensorIndex]))
+        
+        train_input = train_df.iloc[:,0:indexOutputBegin]
+        train_output = train_df.iloc[:,indexOutputBegin+outputSensorIndex]
+
+        test_input = test_df.iloc[:,0:indexOutputBegin]
+        test_output = test_df.iloc[:,indexOutputBegin+outputSensorIndex]
+
+        c.debugInfo(__name__,"Making FullDataSet object containing train/test data")
+        # create FullDataSet object with appropriate data
+        theData = dsh.FullDataSet(trainInput = train_input.values,
+                                    trainOutput = train_output.values.reshape(-1,1),
+                                    testInput = test_input.values,
+                                    testOutput = test_output.values.reshape(-1,1))
+    # Don't split data into train/test (only for testing)
+    else:
+        test_input = data_df.iloc[:,0:indexOutputBegin]
+        test_output = data_df.iloc[:,indexOutputBegin+outputSensorIndex]        
+        c.debugInfo(__name__,"Making FullDataSet object with only test data")
+        # create FullDataSet object with appropriate data
+        theData = dsh.FullDataSet(trainInput = np.empty(test_input.shape),
+                                    trainOutput = np.empty(test_output.reshape(-1,1).shape),
+                                    testInput = test_input.values,
+                                    testOutput = test_output.values.reshape(-1,1))
+    theData.max_value = max_value
+    theData.toString()
+
+    return theData
+
+
+
+
+
+if __name__ == "__main__":
+    main()

@@ -41,11 +41,13 @@ class SimpleNeuralNetwork:
 
         c.debugInfo(__name__,"#input : %d   #hidden : %d   #output : %d   learningRate : %.2f"%(self.n_input,self.n_hidden,self.n_output,self.learningRate))
         # reference operation attributes of model
+        self.addAttributes()
+
+    def addAttributes(self):
         self.prediction
         self.optimize
         self.error
         self.evaluation
-
  
     @tf_attributeLock
     def prediction(self):
@@ -87,4 +89,53 @@ class SimpleNeuralNetwork:
         mean = tf.reduce_mean(final_error)
         tf.scalar_summary("evaluation_mean_error",mean)
         return mean
+
+
+class MNISTNeuralNetwork(SimpleNeuralNetwork):
+    def __init__(self, data, target, number_hidden_nodes, learning_rate):
+        '''
+            Args : 
+                data :                      tensorflow placeholder to hold input data
+                target :                    tensorflow placeholder to hold (true) output data (target value)
+                number_hidden_nodes : 
+                learning_rate :
+
+        '''
+        # data and target are placeholders
+        SimpleNeuralNetwork.data = data
+        SimpleNeuralNetwork.target = target
+
+        # define hyperparameters of network
+        SimpleNeuralNetwork.n_input = int(SimpleNeuralNetwork.data.get_shape()[1])
+        SimpleNeuralNetwork.n_hidden = number_hidden_nodes
+        SimpleNeuralNetwork.n_output = int(SimpleNeuralNetwork.target.get_shape()[1])
+        SimpleNeuralNetwork.learningRate = learning_rate
+
+        c.debugInfo(__name__,"#input : %d   #hidden : %d   #output : %d   learningRate : %.2f"%(SimpleNeuralNetwork.n_input,SimpleNeuralNetwork.n_hidden,SimpleNeuralNetwork.n_output,SimpleNeuralNetwork.learningRate))
+        # reference operation attributes of model
+        self.addAttributes()
+
+    @tf_attributeLock
+    def error(self):
+        c.debugInfo(__name__,"Adding MNIST Error nodes to the graph")
+        # using l2 norm (sum of) square error
+        final_error = tf.square(tf.sub(self.target,self.prediction,name="myError"))
+        tf.histogram_summary("final_error",final_error)
+        mean = tf.reduce_mean(final_error,0)
+        tf.histogram_summary("mean_error",mean)
+        return final_error
+
+    @tf_attributeLock
+    def evaluation(self):
+
+        c.debugInfo(__name__,"Adding MNIST Evaluation nodes to the graph")
+        # using l2 norm (sum of) square error
+        prediction = self.prediction
+        predictions = tf.argmax(prediction,1)
+        targets = tf.argmax(self.target,1)
+        print(self.target)
+        counts = tf.to_float(tf.equal(predictions,targets,"Check_Equal"))
+        #tf.scalar_summary("evaluation_mean_error",mean)
+        mean = tf.reduce_mean(counts)
+        return mean, counts, predictions, targets
     
