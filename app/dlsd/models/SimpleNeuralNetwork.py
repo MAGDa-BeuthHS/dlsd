@@ -66,8 +66,7 @@ class SimpleNeuralNetwork:
     def optimize(self):
         c.debugInfo(__name__,"Adding Optimize nodes to the graph")
         optimizer = tf.train.GradientDescentOptimizer(self.learningRate, name = "gradientDescent")
-        global_step = tf.Variable(0,name='global_step',trainable=False)
-        optimizer_op = optimizer.minimize(self.error,global_step = global_step,name="minimizeGradientDescent")
+        optimizer_op = optimizer.minimize(self.error,name="minimizeGradientDescent")
         return optimizer_op
     
     @tf_attributeLock
@@ -119,7 +118,7 @@ class MNISTNeuralNetwork(SimpleNeuralNetwork):
     def error(self):
         c.debugInfo(__name__,"Adding MNIST Error nodes to the graph")
         # using l2 norm (sum of) square error
-        final_error = tf.square(tf.sub(self.target,self.prediction,name="myError"))
+        final_error = tf.sub(self.target,self.prediction,name="myError")
         tf.histogram_summary("final_error",final_error)
         mean = tf.reduce_mean(final_error,0)
         tf.histogram_summary("mean_error",mean)
@@ -127,13 +126,11 @@ class MNISTNeuralNetwork(SimpleNeuralNetwork):
 
     @tf_attributeLock
     def evaluation(self):
-
         c.debugInfo(__name__,"Adding MNIST Evaluation nodes to the graph")
         # using l2 norm (sum of) square error
         prediction = self.prediction
         predictions = tf.argmax(prediction,1)
         targets = tf.argmax(self.target,1)
-        print(self.target)
         counts = tf.to_float(tf.equal(predictions,targets,"Check_Equal"))
         #tf.scalar_summary("evaluation_mean_error",mean)
         mean = tf.reduce_mean(counts)

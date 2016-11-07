@@ -29,6 +29,7 @@ class config_restore(config):
     # remake data from SQL output
     def __init__(self):
         self.data = makeInferenceData(config.inputFile)
+        self.outputFile = os.path.join(output_dir,"mnistInference.csv")
         config.batch_size = self.data.getNumberTestPoints()
         
 
@@ -88,7 +89,7 @@ def main():
             output.iloc[:,0]=targets.reshape(-1,1)
             output.iloc[:,1]=predictions.reshape(-1,1)
             output.columns=["true","prediction"]
-            output.to_csv('/Users/ahartens/Desktop/mnistoutput.csv',index=False)
+            output.to_csv(config.outputFile,index=False)
         
         else:
             sess.run(tf.initialize_all_variables())

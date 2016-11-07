@@ -75,6 +75,7 @@ def sqlToNumpy_allSensorsInAllOutWithTimeOffset(inputFile,
     data_final.iloc[0:data_wide.shape[0],0:data_wide.shape[1]] = data_wide.iloc[0:data_wide.shape[0],0:data_wide.shape[1]].values
 
     # then fill 'output' data : time at x + timeOffset
+    c.debugInfo(__name__,"Creating output data at time offset %d"%timeOffset)
     data_final.iloc[timeOffset:data_wide.shape[0]+timeOffset,data_wide.shape[1]:2*data_wide.shape[1]] = data_wide.iloc[:,0:data_wide.shape[1]].values
 
     # set column names

@@ -1,5 +1,6 @@
 from dlsd.dataset import dataset_generators as dsg
 from dlsd.dataset import dataset_helpers as dsh
+from dlsd.dataset import dataset_sqlToNumpy as stn
 
 from dlsd.models import SimpleNeuralNetwork as model
 from dlsd import Common as c
@@ -22,6 +23,7 @@ class config:
     output_dir = '/Users/ahartens/Desktop/tf'
     path_sqlFile = '/Users/ahartens/Desktop/Work/24_10_16_PZS_Belegung_oneMonth.csv'
     path_inputFile = '/Users/ahartens/Desktop/Work/16_11_2_PZS_Belegung_oneMonth_oneTimeAsOutput_timeOffset15.csv'
+    path_predictionOutputs = os.path.join(outpu_dir,'AllPredictions.csv')
     save_path = os.path.join(output_dir,"model.ckpt")
     max_steps = 10000
     batch_size = 3
@@ -90,16 +92,16 @@ def main():
         if (args.restore != None):
             saver.restore(sess,config.save_path)
             c.debugInfo(__name__,"Restored session")
-            myFeedDict = dsg.fill_feed_dict(config.data.test,
-                                        pl_input,
-                                        pl_output,
-                                        config.batch_size)
+            myFeedDict = {
+                pl_input : config.data.test.inputData,
+                pl_output : config.data.test.outputData,
+            }
             prediction = sess.run(nn.prediction,feed_dict=myFeedDict)
             output = pd.DataFrame(np.empty((config.data.getNumberTestPoints(),2)))
             output.iloc[:,0]=dsh.denormalizeData(config.data.test.outputData,config.data.max_value)
             output.iloc[:,1]=dsh.denormalizeData(prediction,config.data.max_value)
             output.columns=["true","prediction"]
-            output.to_csv('/Users/ahartens/Desktop/output.csv',index=False)
+            output.to_csv(config.path_predictionOutputs,index=False)
         
         else:
             sess.run(tf.initialize_all_variables())
