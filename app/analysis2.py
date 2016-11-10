@@ -1,4 +1,3 @@
-from dlsd.dataset import dataset_generators as dsg
 from dlsd.dataset import dataset_helpers as dsh
 from dlsd.dataset import dataset_sqlToNumpy as stn
 
@@ -20,32 +19,45 @@ class config:
     ''' Parent class configuration object. change file paths here '''
     n_hidden = 200
     learningRate = 0.01
+    # where tensorflow logs are saved, as well as all prediction output
     output_dir = '/Users/ahartens/Desktop/tf'
+    # path to raw SQL (3 columns, [allColum])
     path_sqlFile = '/Users/ahartens/Desktop/Work/24_10_16_PZS_Belegung_oneMonth.csv'
     path_inputFile = '/Users/ahartens/Desktop/Work/16_11_2_PZS_Belegung_oneMonth_oneTimeAsOutput_timeOffset15.csv'
-    path_predictionOutputs = os.path.join(outpu_dir,'AllPredictions.csv')
+    path_predictionOutputs = os.path.join(output_dir,'AllPredictions.csv')
     save_path = os.path.join(output_dir,"model.ckpt")
-    max_steps = 10000
-    batch_size = 3
+    max_steps = 1000
+    batch_size = 10
+    test_step = 10
 
-class config_dataFromPreparedFile(config):
+    def makeTrackedData(self):
+        print(self)
+        self.trackedPredictions = pd.DataFrame(np.zeros((self.data.getNumberTestPoints(),1+int(config.max_steps/config.test_step))))
+        print(self.trackedPredictions.shape)
+        self.trackedPredictions.iloc[:,0]=dsh.denormalizeData(self.data.test.outputData,self.data.max_value)
+
+class config_train_dataFromPreparedFile(config):
     ''' If csv file of data (already prepared in previous step, from SQL) exists use this config '''
     def __init__(self):
         self.data = makeData(config.path_inputFile)
 
-class config_restoreForTesting(config):
-    ''' If want to run model on every data point (no test/train split) using a restored tf session'''
-    def __init__(self):
-        self.data = makeData(config.path_inputFile, splitTrain = False)
-        config.batch_size = self.data.getNumberTestPoints()
-
-class config_dataFromSQL(config):
+class config_train_dataFromSQL(config):
     ''' Prepare data from from SQL and save output for further training. Prerequisite for other configs'''
     def __init__(self):
         self.data = makeData(inputFilePath = config.path_sqlFile, remakeData =True, outputFilePath = config.path_inputFile, saveOutputFile = True)
 
+class config_restoreSess_dataFromPreparedFile(config):
+    ''' If want to run model on every data point (no test/train split) using a restored tf session'''
+    def __init__(self):
+        self.data = makeData(config.path_inputFile, splitTrain = False)
+        config.makeTrackedData(self)
 
-
+class config_restoreSess_dataFromSQL(config):
+    ''' Use when wish to test a restored tensorflow session on a new dataset (data is in SQL output form)'''
+    def __init__(self, inputPathFile):
+        print(inputPathFile)
+        self.data = makeData(inputFilePath = inputPathFile, outputFilePath = os.path.join(config.output_dir,"dataFromSQL.csv"),remakeData =True, saveOutputFile = True, splitTrain = False)
+        config.makeTrackedData(self)
 
 ''' ------------------------------------------------------------------------------------------------
     Create Neural Network and perform training 
@@ -60,66 +72,60 @@ def main():
 
 
     # Create configuration object containing data and hyperparameters
-    # restore data if command line argument exists
-    if (args.restore != None): config = config_restoreForTesting()
-    # prepare data for neural network from SQL input file
-    elif(args.makeData != None): config = config_dataFromSQL()
-    # create a FullDataSet object containing train/test data as well as next_batch() method
-    else: config = config_dataFromPreparedFile()           
-      
+    
+    if (args.restoreSess != None):
+        if (args.makeDataFromSQL != None): config = config_restoreSess_dataFromSQL(args.makeDataFromSQL)
+        else: config = config_restoreSess_dataFromPreparedFile()
+    else:
+        if (args.makeDataFromSQL != None): config = config_train_dataFromSQL()
+        else: config = config_train_dataFromPreparedFile() 
+    
+        if (args.trackPredictions != None) : config_track = config_restoreSess_dataFromPreparedFile() 
+
+
 
     # set up the graph
     graph = tf.Graph()
     with graph.as_default(),tf.device('/cpu:0'):
         
         # define input/output placeholders
-        pl_input = tf.placeholder(tf.float32,shape=[config.batch_size,config.data.getNumberInputs()],name="input_placeholder")
-        pl_output = tf.placeholder(tf.float32,shape=[config.batch_size,config.data.getNumberOutputs()],name="target_placeholder")
+        pl_input = tf.placeholder(tf.float32,shape=[None,config.data.getNumberInputs()],name="input_placeholder")
+        pl_output = tf.placeholder(tf.float32,shape=[None,config.data.getNumberOutputs()],name="target_placeholder")
 
         # create neural network and define in graph
         c.debugInfo(__name__,"Creating neural network")
         nn = model.SimpleNeuralNetwork(pl_input,pl_output,config.n_hidden,config.learningRate)
         
         summary_op = tf.merge_all_summaries()
-
         saver = tf.train.Saver()
-
 
     with tf.Session(graph = graph) as sess:
 
         summary_writer = tf.train.SummaryWriter(config.output_dir, sess.graph)
         
-        if (args.restore != None):
+        if (args.restoreSess != None):
             saver.restore(sess,config.save_path)
             c.debugInfo(__name__,"Restored session")
-            myFeedDict = {
-                pl_input : config.data.test.inputData,
-                pl_output : config.data.test.outputData,
-            }
-            prediction = sess.run(nn.prediction,feed_dict=myFeedDict)
-            output = pd.DataFrame(np.empty((config.data.getNumberTestPoints(),2)))
-            output.iloc[:,0]=dsh.denormalizeData(config.data.test.outputData,config.data.max_value)
-            output.iloc[:,1]=dsh.denormalizeData(prediction,config.data.max_value)
-            output.columns=["true","prediction"]
-            output.to_csv(config.path_predictionOutputs,index=False)
+            test_DataPrintOutput(nn,sess,pl_input,pl_output,config)
         
         else:
             sess.run(tf.initialize_all_variables())
+            
 
             for step in range(config.max_steps):
-                myFeedDict = dsg.fill_feed_dict(config.data.train,
+                myFeedDict = config.data.train.fill_feed_dict(
                                            pl_input,
                                            pl_output,
                                            config.batch_size)
-                #print(myFeedDict)
 
                 loss_value,summary_str,predicted = sess.run([nn.optimize,summary_op,nn.prediction],feed_dict = myFeedDict)
-                if(step%100 == 0):
+                if(step%config.test_step == 0):
+                    if (args.trackPredictions != None): test_allDataAppendToDf(nn,sess,pl_input,pl_output,config_track,int(step/config.test_step)+1)
                     print(dsh.denormalizeData(predicted,config.data.max_value))
                     summary_writer.add_summary(summary_str)
                     summary_writer.flush()
                     
-                    myFeedDict = dsg.fill_feed_dict(config.data.test,
+                    myFeedDict = config.data.test.fill_feed_dict(
                                            pl_input,
                                            pl_output,
                                            config.batch_size)
@@ -128,7 +134,9 @@ def main():
                     c.debugInfo(__name__,"Training step : %d of %d"%(step,config.max_steps))
                 
             save_path = saver.save(sess, config.save_path)
-
+            if (args.trackPredictions != None):
+                print("saving outputPathhhlkjlkjlk")
+                config_track.trackedPredictions.to_csv(os.path.join(config_track.output_dir,"trackedPredictions.csv"),index=False)
             c.debugInfo(__name__,"Model saved in file: %s" % save_path)
 
 
@@ -158,7 +166,7 @@ def makeData(inputFilePath,
     '''
     # remake data from SQL output and min/max normalize it
     if (remakeData == True):
-        c.debugInfo(__name__,"Processing data from an SQL file")
+        c.debugInfo(__name__,"Processing data from an SQL file %s"%inputFilePath)
         data_df, max_value = dsh.normalizeData(stn.sqlToNumpy_allSensorsInAllOutWithTimeOffset(inputFilePath,
                                                     saveOutputFile = saveOutputFile,
                                                     outputFilePath = outputFilePath,
@@ -208,7 +216,47 @@ def makeData(inputFilePath,
     return theData
 
 
+''' ------------------------------------------------------------------------------------------------
+    Testing : Methods to Restore from session and Track Progress 
+    ------------------------------------------------------------------------------------------------ '''
 
+def test_DataPrintOutput(nn,sess,pl_input,pl_output,config,fileName="AllPredictions.csv"):
+    ''' 
+        Use after a session restore to use neural network for inference against all data points 
+        (non randomized) and print output
+        Args : 
+            nn :            A neural network class which contains a prediction attribute
+            sess :          A tensorflow session
+            config :        A config class, in this case the config used for restore (all data in test, none in training)
+            fileName :      Optional : default is outputDir/AllPredictions.csv
+
+    '''
+    prediction = test_nonRandomizedPrediction(nn,sess,pl_input,pl_output,config,fileName)
+    output = pd.DataFrame(np.empty((config.data.getNumberTestPoints(),2)))
+    output.iloc[:,0]=dsh.denormalizeData(config.data.test.outputData,config.data.max_value)
+    output.iloc[:,1]=dsh.denormalizeData(prediction,config.data.max_value)
+    output.columns=["true","prediction"]
+    output.to_csv(os.path.join(config.output_dir,fileName),index=False)
+
+def test_allDataAppendToDf(nn,sess,pl_input,pl_output,config,i,fileName="AllPredictionsOverTime.csv"):
+    '''
+        config_tracking contains a dataframe containing output against time
+
+    '''
+    prediction = test_nonRandomizedPrediction(nn,sess,pl_input,pl_output,config)
+    config.trackedPredictions.iloc[:,i]=dsh.denormalizeData(prediction,config.data.max_value)
+
+def test_nonRandomizedPrediction(nn,sess,pl_input,pl_output,config):
+    ''' 
+        Use to do prediction with the model using *non randomized* test data (meaning indices of datapoints
+        is unchanged)
+    '''
+    myFeedDict = {
+                pl_input : config.data.test.inputData,
+                pl_output : config.data.test.outputData,
+            }
+    prediction = sess.run(nn.prediction,feed_dict=myFeedDict)
+    return prediction
 
 
 if __name__ == "__main__":

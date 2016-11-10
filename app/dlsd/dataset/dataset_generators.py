@@ -16,23 +16,6 @@ from dlsd import Common as c
 '''
 
 
-def fill_feed_dict(data_set,input_pl, output_pl, batch_size):
-    '''
-    Args : 
-        data_set :      a FullDataSet object from dataset_helpers 
-                                containing two DataSet objects (for next_batch method)
-        input_pl :      tensorflow Placeholder for input data
-        output_pl :     tensorflow Placeholder for correct data
-        batch_size :    int value determining how many rows of dataset to feed into dictionary
-    Return :
-        feed_dict      dict with placeholder:numpy array for giving to session.run() method
-    '''
-    inputData,correctOutputData = data_set.next_batch(batch_size)
-    feed_dict = {
-        input_pl : inputData,
-        output_pl : correctOutputData,
-    }
-    return feed_dict
 
 def makeData_allSensorsWithAllTimeOffsetAsInput(inputFilePath,
                                             remakeData = False,

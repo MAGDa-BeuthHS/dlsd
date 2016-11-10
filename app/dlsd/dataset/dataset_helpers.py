@@ -50,7 +50,7 @@ class FullDataSet:
         # create contained dataset objects
         self.test = DataSet()
         self.train = DataSet()
-        
+
         # do assertions to ensure that data is reasonable
         assert(trainInput.shape[0]==trainOutput.shape[0]),"Number of data points (rows) for train input/output do not match!"
         assert(testInput.shape[0]==testOutput.shape[0]),"Number of data points (rows) for test input/output do not match!"
@@ -83,6 +83,7 @@ class FullDataSet:
             self.test.outputData.shape[0],
             self.test.outputData.shape[1]))
 
+
 class DataSet:
     '''
         Wrapper for a single input/output numpy array of values
@@ -99,3 +100,21 @@ class DataSet:
         return b_in,b_out
     def num_examples(self):
         return self.inputData.shape[0]
+    
+    def fill_feed_dict(self,input_pl, output_pl, batch_size):
+        '''
+        Args : 
+            data_set :      a FullDataSet object from dataset_helpers 
+                                    containing two DataSet objects (for next_batch method)
+            input_pl :      tensorflow Placeholder for input data
+            output_pl :     tensorflow Placeholder for correct data
+            batch_size :    int value determining how many rows of dataset to feed into dictionary
+        Return :
+            feed_dict      dict with placeholder:numpy array for giving to session.run() method
+        '''
+        inputData,correctOutputData = self.next_batch(batch_size)
+        feed_dict = {
+            input_pl : inputData,
+            output_pl : correctOutputData,
+        }
+        return feed_dict
