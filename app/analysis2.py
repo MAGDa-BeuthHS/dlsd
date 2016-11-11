@@ -7,7 +7,7 @@ import tensorflow as tf
 import os
 import pandas as pd
 import numpy as np
-
+import time
 
 
 ''' ------------------------------------------------------------------------------------------------
@@ -15,49 +15,70 @@ import numpy as np
     Data is stored in a FullDataSet object with both train/test data 
     ------------------------------------------------------------------------------------------------ '''
 
-class config:
+class Configuration:
     ''' Parent class configuration object. change file paths here '''
     n_hidden = 200
     learningRate = 0.01
     # where tensorflow logs are saved, as well as all prediction output
-    output_dir = '/Users/ahartens/Desktop/tf'
-    # path to raw SQL (3 columns, [allColum])
-    path_sqlFile = '/Users/ahartens/Desktop/Work/24_10_16_PZS_Belegung_oneMonth.csv'
-    path_inputFile = '/Users/ahartens/Desktop/Work/16_11_2_PZS_Belegung_oneMonth_oneTimeAsOutput_timeOffset15.csv'
-    path_predictionOutputs = os.path.join(output_dir,'AllPredictions.csv')
-    save_path = os.path.join(output_dir,"model.ckpt")
-    max_steps = 1000
+    #path_outputDir = None
+    #path_TFoutput = None
+    #path_sqlFile = None
+    #path_preparedData = None
+    #path_specifiedSensors = None
+    #path_predictionOutputs = None
+    #path_savedSession = None
+
+    max_steps = 10000
     batch_size = 10
     test_step = 10
 
-    def makeTrackedData(self):
-        print(self)
-        self.trackedPredictions = pd.DataFrame(np.zeros((self.data.getNumberTestPoints(),1+int(config.max_steps/config.test_step))))
-        print(self.trackedPredictions.shape)
-        self.trackedPredictions.iloc[:,0]=dsh.denormalizeData(self.data.test.outputData,self.data.max_value)
+    def setPathNames(args):
+        path = args.outputDirectory
+        Configuration.path_outputDir = args.outputDirectory
+        Configuration.path_TFDir = os.path.join(path,'tensorFlow')
+        Configuration.path_TFoutput = os.path.join(Configuration.path_TFDir,time.strftime("%Y_%m_%d__%H_%M"))        
+        Configuration.path_sqlFile = args.pathToSQLFile
+        Configuration.path_preparedData = args.preparedData
+        Configuration.path_specifiedSensors = os.path.join(path,'sensorsUsed.csv' if args.specifiedSensors == None else args.specifiedSensors)
+        Configuration.path_predictionOutputs = os.path.join(path,'AllPredictions.csv' if args.predictionOutput == None else args.predictionOutput)
+        Configuration.path_savedSession = os.path.join(path,"model.ckpt")
+        
+        if not os.path.exists(Configuration.path_TFDir):
+            os.makedirs(Configuration.path_TFDir)
+        if not os.path.exists(Configuration.path_TFoutput):
+            os.makedirs(Configuration.path_TFoutput)
 
-class config_train_dataFromPreparedFile(config):
+    def makeTrackedPredictions(self):
+        '''
+            TrackedPredictions is an empty dataframe to be filled with predictions (one column per training step)
+            First column contains the desired target values
+            Is only called if -tp in command line arguments
+        '''
+        self.trackedPredictions = pd.DataFrame(np.zeros((self.data.getNumberTestPoints(),1+int(Configuration.max_steps/Configuration.test_step))))
+        self.trackedPredictions.iloc[:,0]= dsh.denormalizeData(self.data.test.outputData,self.data.max_value)
+
+class config_train_dataFromPreparedFile(Configuration):
     ''' If csv file of data (already prepared in previous step, from SQL) exists use this config '''
     def __init__(self):
-        self.data = makeData(config.path_inputFile)
+        self.data = makeData(path_preparedData = Configuration.path_preparedData)
 
-class config_train_dataFromSQL(config):
+class config_train_dataFromSQL(Configuration):
     ''' Prepare data from from SQL and save output for further training. Prerequisite for other configs'''
     def __init__(self):
-        self.data = makeData(inputFilePath = config.path_sqlFile, remakeData =True, outputFilePath = config.path_inputFile, saveOutputFile = True)
+        self.data = makeData(path_sqlFile = Configuration.path_sqlFile, path_preparedData = Configuration.path_preparedData, path_sensorsList = Configuration.path_specifiedSensors)
 
-class config_restoreSess_dataFromPreparedFile(config):
+class config_restoreSess_dataFromPreparedFile(Configuration):
     ''' If want to run model on every data point (no test/train split) using a restored tf session'''
     def __init__(self):
-        self.data = makeData(config.path_inputFile, splitTrain = False)
-        config.makeTrackedData(self)
+        self.data = makeData(path_preparedData = Configuration.path_preparedData, splitTrain = False)
+        Configuration.makeTrackedPredictions(self)
 
-class config_restoreSess_dataFromSQL(config):
+class config_restoreSess_dataFromSQL(Configuration):
     ''' Use when wish to test a restored tensorflow session on a new dataset (data is in SQL output form)'''
-    def __init__(self, inputPathFile):
-        print(inputPathFile)
-        self.data = makeData(inputFilePath = inputPathFile, outputFilePath = os.path.join(config.output_dir,"dataFromSQL.csv"),remakeData =True, saveOutputFile = True, splitTrain = False)
-        config.makeTrackedData(self)
+    def __init__(self):
+        specifiedSensors = pd.read_csv(Configuration.path_specifiedSensors,header=None).values
+        self.data = makeData(path_sqlFile = Configuration.path_sqlFile, splitTrain = False, specifiedSensorsArray = specifiedSensors)
+        Configuration.makeTrackedPredictions(self)
 
 ''' ------------------------------------------------------------------------------------------------
     Create Neural Network and perform training 
@@ -67,17 +88,18 @@ def main():
     # get command line arguments
     args = c.makeCommandLineArgs()
 
+
+    Configuration.setPathNames(args)
     # show debug information or not
     if (args.verbose != None): c.verbose = True
 
 
     # Create configuration object containing data and hyperparameters
-    
     if (args.restoreSess != None):
-        if (args.makeDataFromSQL != None): config = config_restoreSess_dataFromSQL(args.makeDataFromSQL)
+        if (args.pathToSQLFile != None): config = config_restoreSess_dataFromSQL()
         else: config = config_restoreSess_dataFromPreparedFile()
     else:
-        if (args.makeDataFromSQL != None): config = config_train_dataFromSQL()
+        if (args.pathToSQLFile != None): config = config_train_dataFromSQL()
         else: config = config_train_dataFromPreparedFile() 
     
         if (args.trackPredictions != None) : config_track = config_restoreSess_dataFromPreparedFile() 
@@ -101,12 +123,12 @@ def main():
 
     with tf.Session(graph = graph) as sess:
 
-        summary_writer = tf.train.SummaryWriter(config.output_dir, sess.graph)
+        summary_writer = tf.train.SummaryWriter(config.path_TFoutput, sess.graph)
         
         if (args.restoreSess != None):
-            saver.restore(sess,config.save_path)
+            saver.restore(sess,config.path_savedSession)
             c.debugInfo(__name__,"Restored session")
-            test_DataPrintOutput(nn,sess,pl_input,pl_output,config)
+            test_DataPrintOutput(nn,sess,pl_input,pl_output,config,fileName = config.path_predictionOutputs)
         
         else:
             sess.run(tf.initialize_all_variables())
@@ -116,12 +138,12 @@ def main():
                 myFeedDict = config.data.train.fill_feed_dict(
                                            pl_input,
                                            pl_output,
-                                           config.batch_size)
+                                           Configuration.batch_size)
 
                 loss_value,summary_str,predicted = sess.run([nn.optimize,summary_op,nn.prediction],feed_dict = myFeedDict)
-                if(step%config.test_step == 0):
+                if(step%Configuration.test_step == 0):
                     if (args.trackPredictions != None): test_allDataAppendToDf(nn,sess,pl_input,pl_output,config_track,int(step/config.test_step)+1)
-                    print(dsh.denormalizeData(predicted,config.data.max_value))
+                    c.debugInfo(__name__,dsh.denormalizeData(predicted,config.data.max_value))
                     summary_writer.add_summary(summary_str)
                     summary_writer.flush()
                     
@@ -130,14 +152,15 @@ def main():
                                            pl_output,
                                            config.batch_size)
                     mean = sess.run(nn.evaluation,feed_dict = myFeedDict)
-                    print(dsh.denormalizeData(mean,config.data.max_value))
+                    c.debugInfo(__name__,dsh.denormalizeData(mean,config.data.max_value))
                     c.debugInfo(__name__,"Training step : %d of %d"%(step,config.max_steps))
                 
-            save_path = saver.save(sess, config.save_path)
-            if (args.trackPredictions != None):
-                print("saving outputPathhhlkjlkjlk")
-                config_track.trackedPredictions.to_csv(os.path.join(config_track.output_dir,"trackedPredictions.csv"),index=False)
-            c.debugInfo(__name__,"Model saved in file: %s" % save_path)
+            path_savedSession = saver.save(sess, config.path_savedSession)
+            
+            # save tracked predictions
+            if (args.trackPredictions != None): config_track.trackedPredictions.to_csv(os.path.join(config_track.path_outputDir,"trackedPredictions.csv"),index=False)
+            
+            c.debugInfo(__name__,"Model saved in file: %s" % path_savedSession)
 
 
 
@@ -146,13 +169,13 @@ def main():
     Prepare data for training
     ------------------------------------------------------------------------------------------------ '''
 
-def makeData(inputFilePath,
-                remakeData = False,
-                outputFilePath = "",
-                saveOutputFile = False, 
+def makeData(path_sqlFile=None,
+                path_preparedData = None,
                 timeOffset = 15,
                 splitTrain = True,
-                trainTestFraction =.8):
+                trainTestFraction =.8,
+                specifiedSensorsArray = None,
+                path_sensorsList = None):
     '''
         Args : 
             inputFilePath :         Path to csv file 26_8_16_PZS_Belgugn_All_Wide_NanOmitec.csv or similar
@@ -165,17 +188,18 @@ def makeData(inputFilePath,
                             objects containing two numpy arrays(input/target), contains next_batch() function!
     '''
     # remake data from SQL output and min/max normalize it
-    if (remakeData == True):
-        c.debugInfo(__name__,"Processing data from an SQL file %s"%inputFilePath)
-        data_df, max_value = dsh.normalizeData(stn.sqlToNumpy_allSensorsInAllOutWithTimeOffset(inputFilePath,
-                                                    saveOutputFile = saveOutputFile,
-                                                    outputFilePath = outputFilePath,
-                                                    timeOffset=timeOffset))
-    # open file and min/max normalize data
+    if (path_sqlFile is not None):
+        c.debugInfo(__name__,"Processing data from an SQL file %s"%path_sqlFile)
+        data_df, max_value = dsh.normalizeData(stn.sqlToNumpy_allSensorsInAllOutWithTimeOffset(path_sqlFile,
+                                                    outputFilePath = path_preparedData,
+                                                    timeOffset=timeOffset,
+                                                    sensorsOutputPath = path_sensorsList,
+                                                    specifiedSensors = specifiedSensorsArray))
+    # If no SQL data then open file and min/max normalize data
     else:
-        c.debugInfo(__name__,"Opening preprocessed data file %s"%inputFilePath)
-        data_df, max_value = dsh.normalizeData(pd.read_csv(inputFilePath))
-    
+        c.debugInfo(__name__,"Opening preprocessed data file %s"%path_preparedData)
+        data_df, max_value = dsh.normalizeData(pd.read_csv(path_preparedData))
+        print("OUT")
 
     # first half of data is input
     indexOutputBegin = int((data_df.shape[1])/2)
@@ -220,7 +244,7 @@ def makeData(inputFilePath,
     Testing : Methods to Restore from session and Track Progress 
     ------------------------------------------------------------------------------------------------ '''
 
-def test_DataPrintOutput(nn,sess,pl_input,pl_output,config,fileName="AllPredictions.csv"):
+def test_DataPrintOutput(nn,sess,pl_input,pl_output,config,fileName):
     ''' 
         Use after a session restore to use neural network for inference against all data points 
         (non randomized) and print output
@@ -231,12 +255,13 @@ def test_DataPrintOutput(nn,sess,pl_input,pl_output,config,fileName="AllPredicti
             fileName :      Optional : default is outputDir/AllPredictions.csv
 
     '''
-    prediction = test_nonRandomizedPrediction(nn,sess,pl_input,pl_output,config,fileName)
+    prediction = test_nonRandomizedPrediction(nn,sess,pl_input,pl_output,config)
     output = pd.DataFrame(np.empty((config.data.getNumberTestPoints(),2)))
     output.iloc[:,0]=dsh.denormalizeData(config.data.test.outputData,config.data.max_value)
     output.iloc[:,1]=dsh.denormalizeData(prediction,config.data.max_value)
     output.columns=["true","prediction"]
-    output.to_csv(os.path.join(config.output_dir,fileName),index=False)
+    c.debugInfo(__name__,"Printing prediction output to %s"%fileName)
+    output.to_csv(os.path.join(config.path_outputDir,fileName),index=False)
 
 def test_allDataAppendToDf(nn,sess,pl_input,pl_output,config,i,fileName="AllPredictionsOverTime.csv"):
     '''
