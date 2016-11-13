@@ -31,7 +31,7 @@ def sqlToNumpy_pivotAndSmooth(inputFile,specifiedSensors,sensorEfficiency,window
         data_wide = removeInefficientSensors(data_wide_all,sensorEfficiency)
     else:
         data_wide = data_wide_all
-        
+
     # do the rolling mean
     data_wide = data_wide.rolling(window,min_periods =1).mean()
     c.debugInfo(__name__,"Calculated the rolling average using window %d"%window)
@@ -99,18 +99,18 @@ def sqlToNumpy_allSensorsInAllOutWithTimeOffset(inputFile,
     # set the offset time to 'output'
 
     # make empty data frame to fit this data
-    newShape = (data_wide.shape[0]+timeOffset,data_wide.shape[1]*2)
+    newShape = (data_wide.shape[0],data_wide.shape[1]*2)
 
     # create empty array filled with nan
     data_final = pd.DataFrame(np.zeros(newShape))
     data_final[:] = np.NAN
 
     # first fill 'input' data
-    data_final.iloc[0:data_wide.shape[0],0:data_wide.shape[1]] = data_wide.iloc[0:data_wide.shape[0],0:data_wide.shape[1]].values
+    data_final.iloc[timeOffset:data_wide.shape[0],0:data_wide.shape[1]] = data_wide.iloc[0:data_wide.shape[0]-timeOffset,0:data_wide.shape[1]].values
 
     # then fill 'output' data : time at x + timeOffset
     c.debugInfo(__name__,"Creating output data at time offset %d"%timeOffset)
-    data_final.iloc[timeOffset:data_wide.shape[0]+timeOffset,data_wide.shape[1]:2*data_wide.shape[1]] = data_wide.iloc[:,0:data_wide.shape[1]].values
+    data_final.iloc[:,data_wide.shape[1]:2*data_wide.shape[1]] = data_wide.iloc[:,:].values
 
     # set column names
     colNames = data_wide.columns.values.reshape(1,-1)

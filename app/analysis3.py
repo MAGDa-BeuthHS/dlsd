@@ -186,7 +186,6 @@ def makeData(path_sqlFile=None,
     else:
         c.debugInfo(__name__,"Opening preprocessed data file %s"%path_preparedData)
         data_df, max_value = dsh.normalizeData(pd.read_csv(path_preparedData))
-        print("OUT")
 
     # first half of data is input
     indexOutputBegin = int((data_df.shape[1])/2)
@@ -200,27 +199,27 @@ def makeData(path_sqlFile=None,
         c.debugInfo(__name__,"Single output sensor at index %d, sensor name : %s"%(outputSensorIndex,data_df.columns.values[outputSensorIndex]))
         
         train_input = train_df.iloc[:,0:indexOutputBegin]
-        train_output = train_df.iloc[:,indexOutputBegin+outputSensorIndex]
+        train_output = train_df.iloc[:,indexOutputBegin:data_df.shape[1]]
 
         test_input = test_df.iloc[:,0:indexOutputBegin]
-        test_output = test_df.iloc[:,indexOutputBegin+outputSensorIndex]
+        test_output = test_df.iloc[:,indexOutputBegin:data_df.shape[1]]
 
         c.debugInfo(__name__,"Making FullDataSet object containing train/test data")
         # create FullDataSet object with appropriate data
         theData = dsh.FullDataSet(trainInput = train_input.values,
-                                    trainOutput = train_output.values.reshape(-1,1),
+                                    trainOutput = train_output.values,
                                     testInput = test_input.values,
-                                    testOutput = test_output.values.reshape(-1,1))
+                                    testOutput = test_output.values)
     # Don't split data into train/test (only for testing)
     else:
         test_input = data_df.iloc[:,0:indexOutputBegin]
-        test_output = data_df.iloc[:,indexOutputBegin+outputSensorIndex]        
+        test_output = data_df.iloc[:,indexOutputBegin:data_df.shape[1]]        
         c.debugInfo(__name__,"Making FullDataSet object with only test data")
         # create FullDataSet object with appropriate data
         theData = dsh.FullDataSet(trainInput = np.empty(test_input.shape),
-                                    trainOutput = np.empty(test_output.reshape(-1,1).shape),
+                                    trainOutput = np.empty(test_output.shape),
                                     testInput = test_input.values,
-                                    testOutput = test_output.values.reshape(-1,1))
+                                    testOutput = test_output.values)
     theData.max_value = max_value
     theData.toString()
 
@@ -243,10 +242,9 @@ def test_DataPrintOutput(nn,sess,pl_input,pl_output,config,fileName):
 
     '''
     prediction = test_nonRandomizedPrediction(nn,sess,pl_input,pl_output,config)
-    output = pd.DataFrame(np.empty((config.data.getNumberTestPoints(),2)))
-    output.iloc[:,0]=dsh.denormalizeData(config.data.test.outputData,config.data.max_value)
-    output.iloc[:,1]=dsh.denormalizeData(prediction,config.data.max_value)
-    output.columns=["true","prediction"]
+    output = pd.DataFrame(np.empty((config.data.getNumberTestPoints(),config.data.getNumberOutputs()*2)))
+    output.iloc[:,0:config.data.getNumberOutputs()]=dsh.denormalizeData(config.data.test.outputData,config.data.max_value)
+    output.iloc[:,config.data.getNumberOutputs():output.shape[1]]=dsh.denormalizeData(prediction,config.data.max_value)
     c.debugInfo(__name__,"Printing prediction output to %s"%fileName)
     output.to_csv(os.path.join(config.path_outputDir,fileName),index=False)
 

@@ -20,6 +20,7 @@ class Common:
 	    parser.add_argument('-po','--predictionOutput',help='The name of the predictions made during a restore',required=False)
 	    parser.add_argument('-ss','--specifiedSensors',help='A CSV with all the names of sensors to be extracted from SQL output',required=False)
 	    parser.add_argument('-pd','--preparedData',help='Path to formatted data prepared for analysis. If -sql also specified, output of sqlToNumpy written here',required=False)
+	    parser.add_argument('-to','--timeOffset',help='Default is 15. Specify to change',required=False)
 
 	    args = parser.parse_args()
 	    return args
