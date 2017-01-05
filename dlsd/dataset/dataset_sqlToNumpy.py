@@ -3,7 +3,7 @@ import numpy as np
 
 from dlsd import debugInfo
 
-def pivotAndSmooth(inputFile,specifiedSensors,sensorsOutputPath=None,sensorEfficiency=.98,window = 50):
+def pivotAndSmooth(inputFile,specifiedSensors,sensorsOutputPath=None,sensorEfficiency=.98,window = 50,headers=None):
     '''
         First step of all further analyses :
         Long/narrow dataset from SQL is made wide (one column per sensor, time stamps are rows)
@@ -23,7 +23,9 @@ def pivotAndSmooth(inputFile,specifiedSensors,sensorsOutputPath=None,sensorEffic
         sensorIndices = np.where(all_data.iloc[:,0].values==specifiedSensors.values)[1]
         all_data = all_data.iloc[sensorIndices,:]
 
-    data_wide_all = all_data.pivot(index='ZEIT', columns='S_IDX', values='wert')
+    if headers is None : headers = ['ZEIT','S_IDX','wert']
+    
+    data_wide_all = all_data.pivot(index=headers[0], columns=headers[1], values=headers[2])
     debugInfo(__name__,"Pivoted input shape : (%d, %d)"%(data_wide_all.shape[0],data_wide_all.shape[1]))
 
     # make table containing only efficient sensors (only columns with efficiency >sensorEfficiency nan are used)
