@@ -19,7 +19,7 @@ def main():
 
 	wide_data = stn.pivotAndSmooth(args.inputFile,
 		None if args.specifiedSensors is None else pd.DataFrame(args.specifiedSensors.split(","),dtype=int),
-		headers = args.headers)[0]
+		headers = args.headers.sep[","])[0]
 	wide_data.to_csv(args.outputFile,index=False,header=True)
 	
 
