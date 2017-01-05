@@ -8,7 +8,7 @@ def getArguments():
 	parser.add_argument('-i','--inputFile',help='Path to sql output file',required=True)
 	parser.add_argument('-o','--outputFile',help='Path to write output to',required=True)
 	parser.add_argument('-s','--specifiedSensors',help='list of sensors to be extracted separated by commas',required=False)
-	parser.add_argument('-h','--headers',help='headers of sql output file column headers separated by commas in order time,id,value')
+	parser.add_argument('-he','--headers',help='headers of sql output file column headers separated by commas in order time,id,value')
 	args = parser.parse_args()
 	return args
 
