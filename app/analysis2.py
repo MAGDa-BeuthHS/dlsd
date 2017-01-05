@@ -34,6 +34,10 @@ class Configuration:
         Configuration.path_specifiedSensors = os.path.join(path,'sensorsUsed.csv' if args.specifiedSensors == None else args.specifiedSensors)
         Configuration.path_predictionOutputs = os.path.join(path,'AllPredictions.csv' if args.predictionOutput == None else args.predictionOutput)
         Configuration.path_savedSession = os.path.join(path,"model.ckpt")
+        print(args.adjacencyMatrixPath)
+        print('IS THE PATH')
+        Configuration.path_adjacency = None if args.adjacencyMatrixPath is None else args.adjacencyMatrixPath
+        print(Configuration.path_adjacency)
         if not os.path.exists(Configuration.path_TFDir):
             os.makedirs(Configuration.path_TFDir)
         if not os.path.exists(Configuration.path_TFoutput):
@@ -51,24 +55,24 @@ class Configuration:
 class config_train_dataFromPreparedFile(Configuration):
     ''' If csv file of data (already prepared in previous step, from SQL) exists use this config '''
     def __init__(self):
-        self.data = makeData(path_preparedData = Configuration.path_preparedData)
+        self.data = makeData(path_preparedData = Configuration.path_preparedData, path_adjacencyMatrix=Configuration.path_adjacency)
 
 class config_train_dataFromSQL(Configuration):
     ''' Prepare data from from SQL and save output for further training. Prerequisite for other configs'''
     def __init__(self):
-        self.data = makeData(path_sqlFile = Configuration.path_sqlFile, path_preparedData = Configuration.path_preparedData, path_sensorsList = Configuration.path_specifiedSensors)
+        self.data = makeData(path_sqlFile = Configuration.path_sqlFile, path_preparedData = Configuration.path_preparedData, path_sensorsList = Configuration.path_specifiedSensors, path_adjacencyMatrix=Configuration.path_adjacency)
 
 class config_restoreSess_dataFromPreparedFile(Configuration):
     ''' If want to run model on every data point (no test/train split) using a restored tf session'''
     def __init__(self):
-        self.data = makeData(path_preparedData = Configuration.path_preparedData, splitTrain = False)
+        self.data = makeData(path_preparedData = Configuration.path_preparedData, splitTrain = False, path_adjacencyMatrix=Configuration.path_adjacency)
         Configuration.makeTrackedPredictions(self)
 
 class config_restoreSess_dataFromSQL(Configuration):
     ''' Use when wish to test a restored tensorflow session on a new dataset (data is in SQL output form)'''
     def __init__(self):
         specifiedSensors = pd.read_csv(Configuration.path_specifiedSensors,header=None).values
-        self.data = makeData(path_sqlFile = Configuration.path_sqlFile, splitTrain = False, specifiedSensorsArray = specifiedSensors)
+        self.data = makeData(path_sqlFile = Configuration.path_sqlFile, splitTrain = False, specifiedSensorsArray = specifiedSensors, path_adjacencyMatrix=Configuration.path_adjacency)
         Configuration.makeTrackedPredictions(self)
 
 ''' ------------------------------------------------------------------------------------------------
@@ -90,7 +94,6 @@ def main(args):
         else: config = config_train_dataFromPreparedFile() 
     
         if (args.trackPredictions != None) : config_track = config_restoreSess_dataFromPreparedFile() 
-
 
 
     # set up the graph
@@ -151,7 +154,6 @@ def main(args):
 
 
 
-
 ''' ------------------------------------------------------------------------------------------------
     Prepare data for training
     ------------------------------------------------------------------------------------------------ '''
@@ -162,7 +164,8 @@ def makeData(path_sqlFile=None,
                 splitTrain = True,
                 trainTestFraction =.8,
                 specifiedSensorsArray = None,
-                path_sensorsList = None):
+                path_sensorsList = None,
+                path_adjacencyMatrix=None):
     '''
         Args : 
             inputFilePath :         Path to csv file 26_8_16_PZS_Belgugn_All_Wide_NanOmitec.csv or similar
@@ -175,6 +178,7 @@ def makeData(path_sqlFile=None,
                             objects containing two numpy arrays(input/target), contains next_batch() function!
     '''
     # remake data from SQL output and min/max normalize it
+    print("THE TIME OFFSET IS %d"%timeOffset)
     if (path_sqlFile is not None):
         c.debugInfo(__name__,"Processing data from an SQL file %s"%path_sqlFile)
         data_df, max_value = dsh.normalizeData(stn.sqlToNumpy_allSensorsInAllOutWithTimeOffset(path_sqlFile,
@@ -193,6 +197,33 @@ def makeData(path_sqlFile=None,
 
     # define index of single output sensor (the output is at some time in the future)
     outputSensorIndex = 0
+
+    # add in the adjacency matrix
+    if (path_adjacencyMatrix is not None):
+        c.debugInfo(__name__,"Found an adjacency matrix : multiplying it in!")
+        # 182-185,281 are missing from adjacency matrix!! remove them! tell max, this needs to be changed!
+        data_df=pd.DataFrame(data_df.iloc[:,5:data_df.shape[1]].values,columns=data_df.columns.values[5:data_df.shape[1]])
+        indexOutputBegin = indexOutputBegin-5
+
+        # list of sensors columns that we are using
+        desired = data_df.columns.values[0:indexOutputBegin]
+
+        # read adjacency matrix
+        adjMatrix_orig = pd.read_csv(path_adjacencyMatrix)
+
+        # adjacency matrix csv has headers as type string, with columns 0,1 actual strings : rename all columns as ints!
+        sensorsList = list(adjMatrix_orig.columns.values[2:adjMatrix_orig.shape[1]].astype(np.int64))
+        columns = [0,1]+sensorsList
+        adjMatrix_orig.columns = columns
+
+        # remove all columns (sensors) that we don't want, leaving only sensors that are desired
+        removed = adjMatrix_orig[desired]
+
+        # get row index of single sensor being used for output (as a string) : this row is the adjacency!
+        indexForSensorInMatrix = np.where(adjMatrix_orig.iloc[:,1]==data_df.columns.values[outputSensorIndex])[0]
+        adjacencyForOutputSensor = removed.iloc[indexForSensorInMatrix,:].values
+
+        data_df.iloc[:,0:indexOutputBegin] = data_df.iloc[:,0:indexOutputBegin].values*adjacencyForOutputSensor
 
     if (splitTrain == True):
         train_df, test_df = dsh.splitDataToTrainAndTest(data_df,trainTestFraction)

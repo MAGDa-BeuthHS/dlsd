@@ -60,7 +60,7 @@ def removeInefficientSensors(data_wide_all,sensorEfficiency):
 
 def sqlToNumpy_allSensorsInAllOutWithTimeOffset(inputFile,
                                                 outputFilePath, 
-                                                timeOffset = 15, 
+                                                timeOffset, 
                                                 sensorEfficiency = .98,
                                                 specifiedSensors = None,
                                                 sensorsOutputPath = ""):
@@ -83,6 +83,7 @@ def sqlToNumpy_allSensorsInAllOutWithTimeOffset(inputFile,
             theData :       FullDataSet object from dataset_helpers containing two DataSet 
                             objects containing two numpy arrays(input/target)
     '''
+    print("THE TIME OFFSET IS %d"%timeOffset)
 
 
     data_wide, originalSize = sqlToNumpy_pivotAndSmooth(inputFile,specifiedSensors,sensorEfficiency)

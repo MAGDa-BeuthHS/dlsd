@@ -50,7 +50,13 @@ class FullDataSet:
         # create contained dataset objects
         self.test = DataSet()
         self.train = DataSet()
-
+        
+        if len(trainInput.shape)==1:
+            trainInput = trainInput.reshape(-1,1)
+            testInput = testInput.reshape(-1,1)
+        if len(trainOutput.shape)==1:
+            trainOutput = trainOutput.reshape(-1,1)
+            testOutput = testOutput.reshape(-1,1)
         
         # do assertions to ensure that data is reasonable
         assert(trainInput.shape[0]==trainOutput.shape[0]),"Number of data points (rows) for train input/output do not match!"
@@ -59,14 +65,7 @@ class FullDataSet:
         assert(testOutput.shape[1]==trainOutput.shape[1]),"Number of input values (columns) for test/train output do not match!"
         
 
-        if len(trainInput.shape)==1:
-            trainInput = trainInput.reshape(-1,1)
-            testInput = testInput.reshape(-1,1)
-        if len(trainOutput.shape)==1:
-            trainOutput = trainOutput.reshape(-1,1)
-            testOutput = testOutput.reshape(-1,1)
-
-        print(testOutput[0:10,:])
+        
         # set data
         self.train.inputData = trainInput
         self.train.outputData = trainOutput
@@ -102,6 +101,8 @@ class DataSet:
     def __init__(self):
         self.inputData = []
         self.outputData = []
+        self.rowNames = []
+        
     def next_batch(self,batch_size):
         indices = np.random.choice(self.inputData.shape[0],batch_size,replace=False)
 

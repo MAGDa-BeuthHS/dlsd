@@ -1,5 +1,5 @@
 from .decorators import tf_attributeLock 
-from dlsd import Common as c
+from dlsd import debugInfo
 import tensorflow as tf
 
 
@@ -33,7 +33,7 @@ class CNN:
 
 	@tf_attributeLock
 	def prediction(self):
-		c.debugInfo(__name__,"Adding Prediction nodes to the graph")
+		debugInfo(__name__,"Adding Prediction nodes to the graph")
 		
 		x_image = tf.reshape(self.images,[-1,128,128,1])
 
@@ -96,7 +96,7 @@ class CNN:
 		return readout
 	@tf_attributeLock
 	def predictionFull(self):
-		c.debugInfo(__name__,"Adding Prediction nodes to the graph")
+		debugInfo(__name__,"Adding Prediction nodes to the graph")
 		
 		x_image = tf.reshape(self.images,[-1,128,128,1])
 
@@ -198,7 +198,7 @@ class CNN:
 
 	@tf_attributeLock
 	def error(self):
-		c.debugInfo(__name__,"Adding Error nodes to the graph")
+		debugInfo(__name__,"Adding Error nodes to the graph")
 		# using l2 norm (sum of) square error
 		#error_op = tf.square(tf.sub(self.targets,self.prediction),name="error")
 		cross_entropy = tf.reduce_mean(-tf.reduce_sum(self.targets * tf.log(self.prediction), reduction_indices=[1]))
@@ -209,14 +209,14 @@ class CNN:
 
 	@tf_attributeLock
 	def optimize(self):
-		c.debugInfo(__name__,"Adding Optimize nodes to the graph")
+		debugInfo(__name__,"Adding Optimize nodes to the graph")
 		optimizer = tf.train.GradientDescentOptimizer(self.learningRate,name="gradientDescentOptimzier")
 		global_step = tf.Variable(0,name='global_step',trainable=False)
 		optimizer_op = optimizer.minimize(self.error,global_step=global_step,name="minimizeGradientDescent")
 
 	@tf_attributeLock
 	def evaluate(self):
-		c.debugInfo(__name__,"Adding Evaluation nodes to the graph")
+		debugInfo(__name__,"Adding Evaluation nodes to the graph")
 		predictions = self.prediction
 		rounded = tf.round(predictions)
 		correct_prediction = tf.equal(rounded,self.targets)

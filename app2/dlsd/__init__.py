@@ -19,5 +19,7 @@ def makeCommandLineArgs():
     parser.add_argument('-pd','--preparedData',help='Path to formatted data prepared for analysis. If -sql also specified, output of sqlToNumpy written here',required=False)
     parser.add_argument('-to','--timeOffset',help='Default is 15. Specify to change',required=False)
     parser.add_argument('-am','--adjacencyMatrixPath',help='Path to adjacency Matrix',required=False)
+    parser.add_argument('-td','--pathTestData',help='Path to adjacency Matrix',required=False)
+
     args = parser.parse_args()
     return args
