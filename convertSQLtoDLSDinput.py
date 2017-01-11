@@ -3,6 +3,14 @@ import numpy as np
 import pandas as pd
 import argparse
 
+'''
+	Use to turn a sql wide table to a formatted input table for machine learning with one 
+	row per time point and one column per sensor.
+
+	Example Usage : 
+		docker exec -i hartenstein-tensorflow python /data/local/home/hartenstein/synchedCode_all/dlsd/convertSQLtoDLSDinput.py -i=/data/local/home/hartenstein/data_sql/pzs_2015_occupancy.csv -o=/data/local/home/hartenstein/data_formatted/pzs_2015_occupancy_formatted_twoSensors.csv -s=285,286 -he=ZEIT,S_IDX,WERT
+
+'''
 def getArguments():
 	parser = argparse.ArgumentParser(description="Convert sql output to a wide table")
 	parser.add_argument('-i','--inputFile',help='Path to sql output file',required=True)
@@ -14,8 +22,6 @@ def getArguments():
 
 def main():
 	args = getArguments()
-
-
 
 	wide_data = stn.pivotAndSmooth(args.inputFile,
 		None if args.specifiedSensors is None else pd.DataFrame(args.specifiedSensors.split(","),dtype=int),
