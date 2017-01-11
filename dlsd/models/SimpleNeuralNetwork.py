@@ -91,28 +91,6 @@ class SimpleNeuralNetwork:
 
 
 class MNISTNeuralNetwork(SimpleNeuralNetwork):
-    def __init__(self, data, target, number_hidden_nodes, learning_rate):
-        '''
-            Args : 
-                data :                      tensorflow placeholder to hold input data
-                target :                    tensorflow placeholder to hold (true) output data (target value)
-                number_hidden_nodes : 
-                learning_rate :
-
-        '''
-        # data and target are placeholders
-        SimpleNeuralNetwork.data = data
-        SimpleNeuralNetwork.target = target
-
-        # define hyperparameters of network
-        SimpleNeuralNetwork.n_input = int(SimpleNeuralNetwork.data.get_shape()[1])
-        SimpleNeuralNetwork.n_hidden = number_hidden_nodes
-        SimpleNeuralNetwork.n_output = int(SimpleNeuralNetwork.target.get_shape()[1])
-        SimpleNeuralNetwork.learningRate = learning_rate
-
-        debugInfo(__name__,"#input : %d   #hidden : %d   #output : %d   learningRate : %.2f"%(SimpleNeuralNetwork.n_input,SimpleNeuralNetwork.n_hidden,SimpleNeuralNetwork.n_output,SimpleNeuralNetwork.learningRate))
-        # reference operation attributes of model
-        self.addAttributes()
 
     @tf_attributeLock
     def error(self):
@@ -135,4 +113,15 @@ class MNISTNeuralNetwork(SimpleNeuralNetwork):
         #tf.scalar_summary("evaluation_mean_error",mean)
         mean = tf.reduce_mean(counts)
         return mean, counts, predictions, targets
+
+
+class LSTM(SimpleNeuralNetwork):
+    
+    @tf_attributeLock
+    def prediction(self):
+        debugInfo(__name__,"Adding LSTM Prediction nodes to the graph")
+        cell = tf.nn.rnn_cell.LSTMCell(num_units=self.n_hidden,state_is_tuple=True)
+        outputs,last_states = tf.nn.dynamic_rnn(
+            cell=cell,inputs=self.data,dtype=tf.float32)
+        return outputs
     
