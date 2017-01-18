@@ -99,12 +99,12 @@ def main(args):
             if not os.path.exists(test_dir_tf) : os.makedirs(test_dir_tf)
             if not os.path.exists(test_dir_results) : os.makedirs(test_dir_results)
 
-            testSetInfo.append{'avgMaes_df':avgMaes_df,
+            testSetInfo.append({'avgMaes_df':avgMaes_df,
                             'avgMaes_array':avgMaes_array,
                             'path_avgMaes_df':path_avgMaes_df,
                             'test_dir':test_dir,
                             'test_dr_tf':test_dir_tf,
-                            'test_dir_results':test_dir_results}
+                            'test_dir_results':test_dir_results})
 
         
             
