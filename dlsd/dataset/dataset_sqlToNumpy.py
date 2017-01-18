@@ -23,7 +23,7 @@ def pivotAndSmooth(inputFile,specifiedSensors,sensorsOutputPath=None,sensorEffic
         sensorIndices = np.where(all_data.iloc[:,0].values==specifiedSensors.values)[1]
         all_data = all_data.iloc[sensorIndices,:]
 
-    if headers is None : headers = ['ZEIT','S_IDX','wert']
+    if headers is None : headers = ['S_IDX','ZEIT','wert']
     
     data_wide_all = all_data.pivot(index=headers[0], columns=headers[1], values=headers[2])
     debugInfo(__name__,"Pivoted input shape : (%d, %d)"%(data_wide_all.shape[0],data_wide_all.shape[1]))

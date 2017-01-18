@@ -35,6 +35,7 @@ class Configuration:
         self.path_predictionOutputs = os.path.join(path,'AllPredictions.csv' if args.predictionOutput == None else args.predictionOutput)
         self.path_savedSession = os.path.join(path,"model.ckpt")
         self.path_adjacencyMatrix = None if args.adjacencyMatrixPath is None else args.adjacencyMatrixPath
+        self.headers = None if args.sql_headers is None else args.sql_headers.split(',')
         if not os.path.exists(self.path_TFDir):
             os.makedirs(self.path_TFDir)
         if not os.path.exists(self.path_TFoutput):
@@ -51,7 +52,7 @@ def main(args):
             {'func':pd_4s_adj_noSelf,'name':'ffnn_nn','adj':True}]
 
     # create training data (all of july)
-    data_df, max_value, specifiedSensors = formatFromSQL(path_sqlFile = config.path_sqlFile)
+    data_df, max_value, specifiedSensors = formatFromSQL(path_sqlFile = config.path_sqlFile,config.headers)
 
     # 182-185,281 are missing from adjacency matrix!! remove them! tell max, this needs to be changed!
     remove = [182,183,184,185,281]
@@ -224,11 +225,11 @@ def trainNetwork(config):
     Create Data 
     ------------------------------------------------------------------------------------------------ '''
 
-def formatFromSQL(path_sqlFile=None, path_preparedData = None,specifiedSensorsArray = None):
+def formatFromSQL(path_sqlFile=None, path_preparedData = None,specifiedSensorsArray = None,headers = None):
     # remake data from SQL output and min/max normalize it
     if (path_sqlFile is not None):
         debugInfo(__name__,"Processing data from an SQL file %s"%path_sqlFile)
-        data_df,_,specifiedSensors = stn.pivotAndSmooth(path_sqlFile,specifiedSensorsArray)
+        data_df,_,specifiedSensors = stn.pivotAndSmooth(path_sqlFile,specifiedSensorsArray,headers)
         data_df, max_value = dsh.normalizeData(data_df)
     # If no SQL data then open file and min/max normalize data
     else:
