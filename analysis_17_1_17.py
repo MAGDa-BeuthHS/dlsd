@@ -13,13 +13,15 @@ import time
 
 class Configuration:
     ''' Parent class configuration object. change file paths here '''
-    n_hidden = 60
-    learningRate = 0.01
-    max_steps = 10000
-    batch_size = 20
-    test_step = 5000
+    n_hidden = 30
+    learningRate = 0.1
+    max_steps = 20000
+    batch_size = 5
+    test_step = 100
+    rnn_sequence_length = 10
     timeOffsets = [5,10,15,30,45]
-    sequential = list(range(0,5))
+    sequential = list(range(0,rnn_sequence_length))
+    time_offset = 60
     def __init__(self,args):
         self.setPathNames(args)
 
@@ -46,10 +48,10 @@ def main(args):
 
     config = Configuration(args)
 
-    methods = [{'func':pd_1s_singleInput,'name':'ffnn_simple','adj':False},
-            {'func':pd_2s_allInput,'name':'ffnn_all','adj':False},
-            {'func':pd_3s_adjacency_withSelf,'name':'ffnn_nn+','adj':True},
-            {'func':pd_4s_adj_noSelf,'name':'ffnn_nn','adj':True}]
+    methods = [{'func':pd_1s_singleInput,'name':'ffnn_simple','adj':False},]
+            #{'func':pd_2s_allInput,'name':'ffnn_all','adj':False},]
+            #{'func':pd_3s_adjacency_withSelf,'name':'ffnn_nn+','adj':True},
+            #{'func':pd_4s_adj_noSelf,'name':'ffnn_nn','adj':True}]
 
     # create training data (all of july)
     data_df, max_value, specifiedSensors = formatFromSQL(path_sqlFile = config.path_sqlFile,sql_headers = config.sql_headers)
@@ -74,15 +76,17 @@ def main(args):
     idxMinMae_list = []
 
     ## FOR EACH SENSOR ##
-    for indexOutputSensor in range(0,data_df.shape[1]):
+    #for indexOutputSensor in range(0,data_df.shape[1]):
+    for indexOutputSensor in range(0,1):
 
         # create folder for current sensor
         debugInfo(__name__,"SENSOR %d"%data_df.columns.values[indexOutputSensor])
-        currentDir = os.path.join(config.path_outputDir,"s_%d"%data_df.columns.values[indexOutputSensor])
-        currentDir_tf = os.path.join(currentDir,'tf')
+        dir_sensor = os.path.join(config.path_outputDir,"s_%d"%data_df.columns.values[indexOutputSensor])
+        dir_sensor_tf = os.path.join(dir_sensor,'tf')
 
-        if not os.path.exists(currentDir): os.makedirs(currentDir)
-        
+        if not os.path.exists(dir_sensor): os.makedirs(dir_sensor)
+        if not os.path.exists(dir_sensor_tf): os.makedirs(dir_sensor_tf)
+
         # set up empty data frame and array for the average MAE of all testing data. first column is names of all the functions
         testSetInfo = []
 
@@ -90,22 +94,22 @@ def main(args):
         for i in range(0,len(config.test_dicts)):
             avgMaes_df = pd.DataFrame(np.zeros((len(methods),len(config.timeOffsets))))
             avgMaes_array = np.zeros((len(methods),len(config.timeOffsets)))
-            path_avgMaes_df = os.path.join(currentDir,"avgMaesForSensor_%d.csv"%data_df.columns.values[indexOutputSensor])
+            path_avgMaes_df = os.path.join(dir_sensor,"avgMaesForSensor_%d.csv"%data_df.columns.values[indexOutputSensor])
 
             # create folders for current (test) data
-            test_dir = os.path.join(currentDir,testData['name'])
-            test_dir_tf = os.path.join(test_dir,'tf')
-            test_dir_results = os.path.join(test_dir,'output')
-            if not os.path.exists(test_dir): os.makedirs(test_dir)
-            if not os.path.exists(test_dir_tf) : os.makedirs(test_dir_tf)
-            if not os.path.exists(test_dir_results) : os.makedirs(test_dir_results)
+            dir_test = os.path.join(dir_sensor,config.test_dicts[i]['name'])
+            dir_test_tf = os.path.join(dir_test,'tf')
+            dir_test_results = os.path.join(dir_test,'output')
+            if not os.path.exists(dir_test): os.makedirs(dir_test)
+            if not os.path.exists(dir_test_tf) : os.makedirs(dir_test_tf)
+            if not os.path.exists(dir_test_results) : os.makedirs(dir_test_results)
 
             testSetInfo.append({'avgMaes_df':avgMaes_df,
                             'avgMaes_array':avgMaes_array,
                             'path_avgMaes_df':path_avgMaes_df,
-                            'test_dir':test_dir,
-                            'test_dr_tf':test_dir_tf,
-                            'test_dir_results':test_dir_results})
+                            'dir_test':dir_test,
+                            'test_dr_tf':dir_test_tf,
+                            'dir_test_results':dir_test_results})
 
         
             
@@ -114,7 +118,7 @@ def main(args):
         for j in range(0,len(methods)):
             
             debugInfo(__name__,"Using %s to prepare data"%methods[j]['name'])
-            config.path_savedSession = os.path.join(currentDir_tf,"tfsession_%s"%methods[j]['name'])
+            config.path_savedSession = os.path.join(dir_sensor_tf,"tfsession_%s.ckpt"%methods[j]['name'])
             
             debugInfo(__name__,"Creating Data for Training")
             config.data = makeDataSetObject(data_df = data_df,
@@ -124,8 +128,8 @@ def main(args):
                                             sequential = config.sequential,
                                             splitTrain = False,
                                             path_adjacencyMatrix=None if (methods[j]['adj'] == False) else config.path_adjacencyMatrix,
-                                            prepareData_function=methods[j]['func'])
-            
+                                            prepareData_function=methods[j]['func'],
+                                            config=config)         
             # train using training set
             trainNetwork(config)
             
@@ -136,7 +140,7 @@ def main(args):
                 testData = config.test_dicts[i]
                       
                 debugInfo(__name__,"Creating Data for Testing")
-
+                config.path_outputFile = os.path.join(testSetInfo[i]['dir_test_results'],"%s.csv"%methods[j]['name'])
                 config.data = makeDataSetObject(data_df = testData['df'],
                                                 max_value = testData['max'],
                                                 timeOffsets = config.timeOffsets,
@@ -144,7 +148,8 @@ def main(args):
                                                 sequential = config.sequential,
                                                 splitTrain = False,
                                                 path_adjacencyMatrix=None if (methods[j]['adj'] == False) else config.path_adjacencyMatrix,
-                                                prepareData_function=methods[j]['func'])
+                                                prepareData_function=methods[j]['func'],
+                                                config=config)
                 maes = testNetwork(config)
 
                 testSetInfo[i]['avgMaes_df'].iloc[j,:] = maes
@@ -153,7 +158,7 @@ def main(args):
         # contains average maes for all test data sets (average of averages)
         avgMaeOverTests_df = pd.DataFrame(np.zeros((len(methods),len(config.timeOffsets))))
         avgMaeOverTests_array = np.zeros((len(methods),len(config.timeOffsets)))
-        path_avgMaeOverTests = os.path.join(currentDir,"avgMaesForSensor_%d.csv"%data_df.columns.values[indexOutputSensor])
+        path_avgMaeOverTests = os.path.join(dir_sensor,"avgMaesForSensor_%d.csv"%data_df.columns.values[indexOutputSensor])
 
         # iterate over all 'avgMae' tables (for each test data set)
         for i in range(0,len(config.test_dicts)):
@@ -170,7 +175,7 @@ def main(args):
         
         # get index of function with lowest MAE and save
         idxMinMae_list.append(avgMaeOverTests_array.argmin(axis=0))
-
+        
     idxMinMae_df = pd.DataFrame(np.hstack((specifiedSensors.values[0:2],np.array(idxMinMae_list))))
     idxMinMae_df.to_csv(path_idxsMinMae,header=(['sensor']+[(lambda x:"t_%d"%x)(to) for to in config.timeOffsets]))
 
@@ -181,11 +186,17 @@ def main(args):
 def setupNet(config):
     graph = tf.Graph()
     with graph.as_default(),tf.device('/cpu:0'):
-        pl_input = tf.placeholder(tf.float32,shape=[None,config.data.getNumberInputs()],name="input_placeholder")
-        pl_output = tf.placeholder(tf.float32,shape=[None,config.data.getNumberOutputs()],name="target_placeholder")
+
+        # batch size, number of input sequences, size of input sequence
+        pl_input = tf.placeholder(tf.float32,shape=[None,config.rnn_sequence_length,1],name="input_placeholder")
+
+        # batch size, number of outputs (which is equal to number of input sequences), size of output (predicts 5 timeputs every )
+        pl_output = tf.placeholder(tf.float32,shape=[None,1,1],name="target_placeholder")
+        
         # create neural network and define in graph
         debugInfo(__name__,"Creating neural network")
-        nn = model.SimpleNeuralNetwork(pl_input,pl_output,config.n_hidden,config.learningRate)
+        
+        nn = lstm(pl_input,pl_output,config.n_hidden,config.learningRate,config.rnn_sequence_length)
         saver = tf.train.Saver()
         summary_op = tf.merge_all_summaries()
 
@@ -203,23 +214,26 @@ def trainNetwork(config):
         sess.run(tf.initialize_all_variables())
 
         for step in range(config.max_steps):
-            myFeedDict = config.data.test.fill_feed_dict(
+            myFeedDict = config.data.train.fill_feed_dict(
                                        pl_input,
                                        pl_output,
                                        Configuration.batch_size)
 
-            loss_value,summary_str,predicted = sess.run([nn.optimize,summary_op,nn.prediction],feed_dict = myFeedDict)
+            sess.run([nn.optimize],feed_dict = myFeedDict)
             if(step%Configuration.test_step == 0):
                 if (args.trackPredictions != None): test_allDataAppendToDf(nn,sess,pl_input,pl_output,config_track,int(step/config.test_step)+1)
                 #debugInfo(__name__,dsh.denormalizeData(predicted,config.data.max_value))
-                summary_writer.add_summary(summary_str)
-                summary_writer.flush()
+                #summary_writer.add_summary(summary_str)
+                #summary_writer.flush()
                 
-                mean = sess.run(nn.evaluation,feed_dict = myFeedDict)
+                mean,error,pred = sess.run([nn.evaluation,nn.error,nn.prediction],feed_dict = myFeedDict)
+                print(dsh.denormalizeData(mean,config.data.max_value))
                 debugInfo(__name__,"Training step : %d of %d"%(step,config.max_steps))
                 debugInfo(__name__,"Mean test error is %f"%dsh.denormalizeData(mean,config.data.max_value))
-        path_savedSession = saver.save(sess, config.path_savedSession)        
-
+        print(config.path_outputDir)
+        print(config.path_savedSession)
+        path_savedSession = saver.save(sess,config.path_savedSession)    
+        print(path_savedSession)
 
 ''' ------------------------------------------------------------------------------------------------
     Create Data 
@@ -229,7 +243,7 @@ def formatFromSQL(path_sqlFile=None, path_preparedData = None,specifiedSensorsAr
     # remake data from SQL output and min/max normalize it
     if (path_sqlFile is not None):
         debugInfo(__name__,"Processing data from an SQL file %s"%path_sqlFile)
-        data_df,_,specifiedSensors = stn.pivotAndSmooth(path_sqlFile,specifiedSensorsArray,sql_headers)
+        data_df,_,specifiedSensors = stn.pivotAndSmooth(inputFile = path_sqlFile,specifiedSensors = specifiedSensorsArray,sql_headers = sql_headers)
         data_df, max_value = dsh.normalizeData(data_df)
     # If no SQL data then open file and min/max normalize data
     else:
@@ -246,7 +260,8 @@ def makeDataSetObject(data_df, max_value,
                 splitTrain = True,
                 trainTestFraction =.8,
                 path_adjacencyMatrix=None,
-                path_preparedData = None):
+                path_preparedData = None,
+                config=None):
     '''
         Args : 
             inputFilePath :         Path to csv file 26_8_16_PZS_Belgugn_All_Wide_NanOmitecsv or similar
@@ -286,57 +301,23 @@ def makeDataSetObject(data_df, max_value,
         indexForSensorInMatrix = np.where(adjMatrix_orig.iloc[:,1]==data_df.columns.values[outputSensorIndex])[0]
         adjacencyForOutputSensor = removed.iloc[indexForSensorInMatrix,:].values
         print(data_df.columns.values[np.where(adjacencyForOutputSensor[0]==1)[0]])
-    data_prepared,indexOutputBegin = prepareData(data_df.values,
+    
+    # create input and output vectors
+    input_,output_, indexOutputBegin = prepareData(data_df.values,
                 outputSensorIndex,
                 timeOffsets,
                 prepareData_function,
                 adjacency = adjacencyForOutputSensor,
-                sequential = sequential)
+                sequential = sequential,
+                config=config)
 
-    print(data_prepared.shape)
-    rowNames = range(0,max(timeOffsets))+list(data_df.index) + range(0,max(sequential))
-    data_prepared.index = rowNames
-
-    data_final_naDropped = data_prepared.dropna()
-
-    debugInfo(__name__,"From %d total timepoints, %d are being used (%.2f)"%(data_prepared.shape[0],data_final_naDropped.shape[0],(data_final_naDropped.shape[0]/data_prepared.shape[0])))
-
-    #data_final.to_csv("/Users/ahartens/Desktop/Temporary/24_10_16_wideTimeSeriesBelegung.csv")
-    if (path_preparedData is not None):
-        debugInfo(__name__,"Saving processed file to %s"%(path_preparedData))
-        data_final_naDropped.to_csv(path_preparedData,index=False)
-
-    if (splitTrain == True):
-        train_df, test_df = dsh.splitDataToTrainAndTest(data_final_naDropped,trainTestFraction)
-        debugInfo(__name__,"train_df (%d,%d)\ttest_df (%d,%d)"%(train_df.shape[0],train_df.shape[1],test_df.shape[0],test_df.shape[1]))
-        debugInfo(__name__,"Single output sensor at index %d, sensor name : %s"%(outputSensorIndex,data_df.columns.values[outputSensorIndex]))
-        
-        train_input = train_df.iloc[:,0:indexOutputBegin]
-        train_output = train_df.iloc[:,indexOutputBegin:data_final_naDropped.shape[1]]
-
-        test_input = test_df.iloc[:,0:indexOutputBegin]
-        test_output = test_df.iloc[:,indexOutputBegin:data_final_naDropped.shape[1]]
-
-        debugInfo(__name__,"Making FullDataSet object containing train/test data")
-        # create FullDataSet object with appropriate data
-        theData = dsh.FullDataSet(trainInput = train_input.values,
-                                    trainOutput = train_output.values,
-                                    testInput = test_input.values,
-                                    testOutput = test_output.values)
-    # Don't split data into train/test (only for testing)
-    else:
-        test_input = data_final_naDropped.iloc[:,0:indexOutputBegin]
-        test_output = data_final_naDropped.iloc[:,indexOutputBegin:data_final_naDropped.shape[1]]        
-        debugInfo(__name__,"Making FullDataSet object with only test data")
-        # create FullDataSet object with appropriate data
-        theData = dsh.FullDataSet(trainInput = np.empty(test_input.shape),
-                                    trainOutput = np.empty(test_output.shape),
-                                    testInput = test_input.values,
-                                    testOutput = test_output.values)
-        theData.test.rowNames = data_final_naDropped.index
+    
+    debugInfo(__name__,"Making FullDataSet object containing train/test data")
+    # create FullDataSet object with appropriate data
+    theData = dsh.FullDataSet(trainInput = input_,
+                                trainOutput = output_)
     theData.max_value = max_value
-    theData.toString()
-
+    theData.train.rowNames = data_df.index[:-(config.time_offset-1)]
     return theData
 
 def prepareData(data_wide,
@@ -344,7 +325,8 @@ def prepareData(data_wide,
                 timeOffsets,
                 inputFunction,
                 adjacency=None,
-                sequential=[0]):
+                sequential=[0],
+                config=None):
     '''
         Creates a dataframe containing desired input/output within the same table
         Args:
@@ -354,24 +336,38 @@ def prepareData(data_wide,
             inputFunction : pd_ function (1 of 8) that formats input data in the desired manner
             adjacency : optional : a single numpy vector
             sequential : optional : python list (like timeOffsets) specifying which time points as input
+
+            target :                 input : 
+
+
+
+            t_5                     t_0
+            t_6                     t_1
+            .                       .
+            .                       .
+            t15                     t_10
     '''
     # input data is moved vertically down by max of timeOffsets
-    max_output = max(timeOffsets)
+    #max_output = max(timeOffsets)
     max_sequential = max(sequential)
-    
+    max_output = 0
     i = inputFunction(data_wide,indexOutputSensor,
                       s = sequential,
                       a = adjacency,
                       max_output=max_output,
-                      max_sequential=max_sequential)
+                      max_sequential=max_sequential)[config.rnn_sequence_length-1:-(config.time_offset-1)]
+
+    i = i.reshape([-1,config.rnn_sequence_length,1])
     debugInfo(__name__,"Preparing data : %d inputs %d"%(i.shape[1],i.shape[0]))
     # create 'output' data : 
-    o = timeOffsetData(data_wide[:,indexOutputSensor],timeOffsets,b=max(sequential))
-    debugInfo(__name__,"Preparing data : %d outputs %d"%(o.shape[1],o.shape[0]))
+    #o = timeOffsetData(data_wide[:,indexOutputSensor],timeOffsets,b=max(sequential))
+    o = data_wide[config.time_offset-1:,indexOutputSensor]
 
+    o = o.reshape([-1,1,1])
+    debugInfo(__name__,"Preparing data : %d outputs %d"%(o.shape[1],o.shape[0]))
+    
     # combine input/output in one dataframe
-    df = pd.DataFrame(np.hstack((i,o)))
-    return df, i.shape[1]
+    return i,o,i.shape[1]
 
 '''
     Preparing Data for 8 types of data sets
@@ -445,9 +441,9 @@ def timeOffsetData(data,offsets,t=0,b=0):
         df[off+t:df.shape[0]-offsets[i]-b,start:end]=data
     return df
 
-''' ------------------------------------------------------------------------------------------------
-    Testing : Methods to Restore from session and Track Progress 
-    ------------------------------------------------------------------------------------------------ '''
+# ------------------------------------------------------------------------------------------------
+#    Testing : Methods to Restore from session and Track Progress 
+# ------------------------------------------------------------------------------------------------
 
 def testNetwork(config):
     ''' Train all data using a session saved at config.path_savedSession '''   
@@ -459,14 +455,15 @@ def testNetwork(config):
         prediction = test_nonRandomizedPrediction(nn,sess,pl_input,pl_output,config)
     
     sz_o = config.data.getNumberOutputs()
-    output = pd.DataFrame(np.empty((config.data.getNumberTestPoints(),2*sz_o)))
-    y = dsh.denormalizeData(config.data.test.outputData,config.data.max_value)
-    y_  = dsh.denormalizeData(prediction,config.data.max_value)
+    output = pd.DataFrame(np.empty((config.data.getNumberTrainingPoints(),2*sz_o)))
+    y = dsh.denormalizeData(config.data.train.outputData.reshape([-1,1]),config.data.max_value)
+    y_  = dsh.denormalizeData(prediction.reshape([-1,1]),config.data.max_value)
     output.iloc[:,0:sz_o]= y
     output.iloc[:,sz_o:2*sz_o]= y_
-    output.index = config.data.test.rowNames
+
+    output.index = config.data.train.rowNames
     debugInfo(__name__,"Printing prediction output to %s"%config.path_outputFile)
-    output.to_csv(config.path_outputFile,header = [(lambda x:"i_%d"%x)(to) for to in config.timeOffsets] + [(lambda x:"o_%d"%x)(to) for to in config.timeOffsets])
+    output.to_csv(config.path_outputFile)
 
 
     mae = np.mean(np.abs(y - y_),0)
@@ -483,8 +480,8 @@ def test_nonRandomizedPrediction(nn,sess,pl_input,pl_output,config):
     ''' Use to do prediction with the model using *non randomized* test data (meaning indices of datapoints
         is unchanged) '''
     myFeedDict = {
-                pl_input : config.data.test.inputData,
-                pl_output : config.data.test.outputData,
+                pl_input : config.data.train.inputData,
+                pl_output : config.data.train.outputData,
             }
     prediction = sess.run(nn.prediction,feed_dict=myFeedDict)
     return prediction

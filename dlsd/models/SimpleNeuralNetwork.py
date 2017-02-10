@@ -21,7 +21,7 @@ from dlsd import debugInfo
 
 class SimpleNeuralNetwork:
     
-    def __init__(self, data, target, number_hidden_nodes, learning_rate):
+    def __init__(self, data, target, number_hidden_nodes, learning_rate, rnn_number_steps=None):
         '''
             Args : 
                 data :                      tensorflow placeholder to hold input data
@@ -38,15 +38,15 @@ class SimpleNeuralNetwork:
         self.n_hidden = number_hidden_nodes
         self.n_output = int(self.target.get_shape()[1])
         self.learningRate = learning_rate
-
+        self.rnn_number_steps = rnn_number_steps
         debugInfo(__name__,"#input : %d   #hidden : %d   #output : %d   learningRate : %.2f"%(self.n_input,self.n_hidden,self.n_output,self.learningRate))
         # reference operation attributes of model
         self.addAttributes()
 
     def addAttributes(self):
         self.prediction
-        self.optimize
         self.error
+        self.optimize
         self.evaluation
  
     @tf_attributeLock
@@ -74,9 +74,9 @@ class SimpleNeuralNetwork:
         debugInfo(__name__,"Adding Error nodes to the graph")
         # using l2 norm (sum of) square error
         final_error = tf.square(tf.sub(self.target,self.prediction),name="myError")
-        tf.histogram_summary("final_error",final_error)
+        #tf.histogram_summary("final_error",final_error)
         mean = tf.reduce_mean(final_error,0)
-        tf.histogram_summary("mean_error",mean)
+        #tf.histogram_summary("mean_error",mean)
         return final_error
 
     @tf_attributeLock
@@ -84,9 +84,9 @@ class SimpleNeuralNetwork:
         debugInfo(__name__,"Adding Evaluation nodes to the graph")
         # using l2 norm (sum of) square error
         final_error = tf.abs(tf.sub(self.target,self.prediction,name="myEvaluationError"))
-        tf.histogram_summary("evaluation_final_error",final_error)
+        #tf.histogram_summary("evaluation_final_error",final_error)
         mean = tf.reduce_mean(final_error)
-        tf.scalar_summary("evaluation_mean_error",mean)
+        #tf.scalar_summary("evaluation_mean_error",mean)
         return mean
 
 
@@ -123,5 +123,15 @@ class LSTM(SimpleNeuralNetwork):
         cell = tf.nn.rnn_cell.LSTMCell(num_units=self.n_hidden,state_is_tuple=True)
         outputs,last_states = tf.nn.dynamic_rnn(
             cell=cell,inputs=self.data,dtype=tf.float32)
-        return outputs
+
+        last_output = outputs[:,self.rnn_number_steps-1,:]
+        # outputs contains an tensor with shape ( batch size, rnn_sequence_length , n_hidden)
+        # only the rnn layers or connected! to create the output layer of proper size need a new activation function!
+        
+        # activation function for output layer
+        with tf.name_scope('outputLayer'):
+            weights = tf.Variable(tf.truncated_normal((self.n_hidden,self.n_output),stddev=0.1), name="lay2_weights")
+            bias = tf.Variable(tf.constant(0.1,shape=[self.n_output]), name="lay2_bias")
+            out_layer2 = tf.nn.sigmoid(tf.matmul(last_output,weights)+bias, name = "lay2_output")
+        return out_layer2
     
