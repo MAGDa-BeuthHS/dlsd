@@ -15,10 +15,10 @@ class Configuration:
     ''' Parent class configuration object. change file paths here '''
     n_hidden = 30
     learningRate = 0.1
-    max_steps = 20000
+    max_steps = 5000
     batch_size = 5
     test_step = 100
-    rnn_sequence_length = 10
+    rnn_sequence_length = 5
     timeOffsets = [5,10,15,30,45]
     sequential = list(range(0,rnn_sequence_length))
     time_offset = 60
@@ -356,16 +356,22 @@ def prepareData(data_wide,
                       a = adjacency,
                       max_output=max_output,
                       max_sequential=max_sequential)[config.rnn_sequence_length-1:-(config.time_offset-1)]
+    df = pd.DataFrame(i)
+    df.to_csv("/Users/ahartens/Desktop/input.csv")
 
     i = i.reshape([-1,config.rnn_sequence_length,1])
     debugInfo(__name__,"Preparing data : %d inputs %d"%(i.shape[1],i.shape[0]))
     # create 'output' data : 
     #o = timeOffsetData(data_wide[:,indexOutputSensor],timeOffsets,b=max(sequential))
     o = data_wide[config.time_offset-1:,indexOutputSensor]
+    df = pd.DataFrame(o)
+    df.to_csv("/Users/ahartens/Desktop/output.csv")
 
     o = o.reshape([-1,1,1])
     debugInfo(__name__,"Preparing data : %d outputs %d"%(o.shape[1],o.shape[0]))
     
+
+   
     # combine input/output in one dataframe
     return i,o,i.shape[1]
 
@@ -465,7 +471,9 @@ def testNetwork(config):
     debugInfo(__name__,"Printing prediction output to %s"%config.path_outputFile)
     output.to_csv(config.path_outputFile)
 
-
+    i = dsh.denormalizeData(config.data.train.inputData.reshape([-1,config.rnn_sequence_length]),config.data.max_value)
+    df = pd.DataFrame(i)
+    df.to_csv("/Users/ahartens/Desktop/trainingInput.csv")
     mae = np.mean(np.abs(y - y_),0)
     print(mae)
     return mae

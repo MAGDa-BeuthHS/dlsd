@@ -46,37 +46,36 @@ class FullDataSet:
         Contains two 'DataSet' objects, one for training test respectively
         Dataset objects then each contain input/output data
     '''
-    def __init__(self, trainInput, trainOutput, testInput, testOutput):
+    def __init__(self, trainInput, trainOutput, testInput=None, testOutput=None):
         # create contained dataset objects
         self.test = DataSet()
         self.train = DataSet()
         
-        if len(trainInput.shape)==1:
-            trainInput = trainInput.reshape(-1,1)
-            testInput = testInput.reshape(-1,1)
-        if len(trainOutput.shape)==1:
-            trainOutput = trainOutput.reshape(-1,1)
-            testOutput = testOutput.reshape(-1,1)
+        if testInput is not None:
+            if len(trainInput.shape)==1:
+                trainInput = trainInput.reshape(-1,1)
+                testInput = testInput.reshape(-1,1)
+            if len(trainOutput.shape)==1:
+                trainOutput = trainOutput.reshape(-1,1)
+                testOutput = testOutput.reshape(-1,1)
+            
+            # do assertions to ensure that data is reasonable
+            assert(trainInput.shape[0]==trainOutput.shape[0]),"Number of data points (rows) for train input/output do not match!"
+            assert(testInput.shape[0]==testOutput.shape[0]),"Number of data points (rows) for test input/output do not match!"
+            assert(testInput.shape[1]==trainInput.shape[1]),"Number of input values (columns) for test/train input do not match!"
+            assert(testOutput.shape[1]==trainOutput.shape[1]),"Number of input values (columns) for test/train output do not match!"
+            self.test.inputData = testInput
+            self.test.outputData = testOutput
         
-        # do assertions to ensure that data is reasonable
-        assert(trainInput.shape[0]==trainOutput.shape[0]),"Number of data points (rows) for train input/output do not match!"
-        assert(testInput.shape[0]==testOutput.shape[0]),"Number of data points (rows) for test input/output do not match!"
-        assert(testInput.shape[1]==trainInput.shape[1]),"Number of input values (columns) for test/train input do not match!"
-        assert(testOutput.shape[1]==trainOutput.shape[1]),"Number of input values (columns) for test/train output do not match!"
-        
-
-        
-        # set data
         self.train.inputData = trainInput
         self.train.outputData = trainOutput
-        self.test.inputData = testInput
-        self.test.outputData = testOutput
+        
         self.max_value = 0
 
     def getNumberInputs(self):
-        return self.test.inputData.shape[1]
+        return self.train.inputData.shape[1]
     def getNumberOutputs(self):
-        return self.test.outputData.shape[1]
+        return self.train.outputData.shape[1]
     def getNumberTrainingPoints(self):
         return self.train.inputData.shape[0]
     def getNumberTestPoints(self):
@@ -105,10 +104,12 @@ class DataSet:
         
     def next_batch(self,batch_size):
         indices = np.random.choice(self.inputData.shape[0],batch_size,replace=False)
-
-        b_in = self.inputData[indices,:]
-        b_out = self.outputData[indices,:]
+        #b_in = self.inputData[indices,:]
+        #b_out = self.outputData[indices,:]
+        b_in = self.inputData[indices]
+        b_out = self.outputData[indices]
         return b_in,b_out
+
     def num_examples(self):
         return self.inputData.shape[0]
     

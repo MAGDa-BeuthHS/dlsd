@@ -120,7 +120,9 @@ class LSTM(SimpleNeuralNetwork):
     @tf_attributeLock
     def prediction(self):
         debugInfo(__name__,"Adding LSTM Prediction nodes to the graph")
+        
         cell = tf.nn.rnn_cell.LSTMCell(num_units=self.n_hidden,state_is_tuple=True)
+        
         outputs,last_states = tf.nn.dynamic_rnn(
             cell=cell,inputs=self.data,dtype=tf.float32)
 

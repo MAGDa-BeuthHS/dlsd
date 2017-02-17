@@ -3,7 +3,7 @@ import numpy as np
 
 from dlsd import debugInfo
 
-def pivotAndSmooth(inputFile,specifiedSensors,sensorsOutputPath=None,sensorEfficiency=.98,window = 50,sql_headers=None):
+def pivotAndSmooth(inputFile,specifiedSensors,sensorsOutputPath=None,sensorEfficiency=.99999,window = 15,sql_headers=None):
     '''
         First step of all further analyses :
         Long/narrow dataset from SQL is made wide (one column per sensor, time stamps are rows)
@@ -18,6 +18,7 @@ def pivotAndSmooth(inputFile,specifiedSensors,sensorsOutputPath=None,sensorEffic
     all_data = pd.read_csv(inputFile,sep=",")
     debugInfo(__name__,"Read input SQL file with shape : (%d, %d)"%(all_data.shape[0],all_data.shape[1]))
 
+
     if (specifiedSensors is not None):
         debugInfo(__name__,"%d Sensors specified, getting indices from"%specifiedSensors.shape[0])
         sensorIndices = np.where(all_data.iloc[:,0].values==specifiedSensors.values)[1]
@@ -25,13 +26,17 @@ def pivotAndSmooth(inputFile,specifiedSensors,sensorsOutputPath=None,sensorEffic
 
     if sql_headers is None : sql_headers = ['S_IDX','ZEIT','wert']
     
-    data_wide_all = all_data.pivot(index=sql_headers[0], columns=sql_headers[1], values=sql_headers[2])
+    # make into a wide table
+    data_wide_all = all_data.pivot(index=sql_headers[1], columns=sql_headers[0], values=sql_headers[2])
     debugInfo(__name__,"Pivoted input shape : (%d, %d)"%(data_wide_all.shape[0],data_wide_all.shape[1]))
 
-    # make table containing only efficient sensors (only columns with efficiency >sensorEfficiency nan are used)
-    if (specifiedSensors is None ):
+    # do the rolling mean
+    data_wide_all = data_wide_all.rolling(window,min_periods =1).mean()
+    debugInfo(__name__,"Calculated the rolling average using window %d : (%d, %d)"%(window,data_wide_all.shape[0],data_wide_all.shape[1]))
+
+    # make table containing only efficient sensors (only columns with efficiency > sensorEfficiency nan are used)
+    if (specifiedSensors is None):
         data_wide = removeInefficientSensors(data_wide_all,sensorEfficiency)
-        
         specifiedSensors = pd.DataFrame(data_wide.columns.values.reshape((data_wide.columns.values.shape[0],-1)))
 
         # print out sensors used for this analysis to file as long list. Used later for specifying sensors
@@ -42,15 +47,12 @@ def pivotAndSmooth(inputFile,specifiedSensors,sensorsOutputPath=None,sensorEffic
         debugInfo(__name__,"Sensors list is specified : not resaving sensors")
         data_wide = data_wide_all
 
-    # do the rolling mean
-    data_wide = data_wide.rolling(window,min_periods =1).mean()
-    debugInfo(__name__,"Calculated the rolling average using window %d"%window)
-
     return data_wide, data_wide_all.shape[0], specifiedSensors
 
 def removeInefficientSensors(data_wide_all,sensorEfficiency):
     #count the number of times each column has an 'na' value
     counts = np.zeros((data_wide_all.shape[1],1))
+    print(data_wide_all.shape)
     for i in range(0,data_wide_all.shape[1]):
         counts[i] = len(np.where(np.isnan(data_wide_all.iloc[:,i]))[0])
 
