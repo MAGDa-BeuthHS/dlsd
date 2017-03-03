@@ -24,7 +24,7 @@ def pivotAndSmooth(inputFile,specifiedSensors,sensorsOutputPath=None,sensorEffic
         sensorIndices = np.where(all_data.iloc[:,0].values==specifiedSensors.values)[1]
         all_data = all_data.iloc[sensorIndices,:]
 
-    if sql_headers is None : sql_headers = ['S_IDX','ZEIT','wert']
+    if sql_headers is None : sql_headers = ['S_IDX','ZEIT','WERT']
     
     # make into a wide table
     data_wide_all = all_data.pivot(index=sql_headers[1], columns=sql_headers[0], values=sql_headers[2])
