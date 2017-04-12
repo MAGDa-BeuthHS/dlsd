@@ -104,10 +104,9 @@ class DataSet:
         
     def next_batch(self,batch_size):
         indices = np.random.choice(self.inputData.shape[0],batch_size,replace=False)
-        #b_in = self.inputData[indices,:]
-        #b_out = self.outputData[indices,:]
         b_in = self.inputData[indices]
         b_out = self.outputData[indices]
+
         return b_in,b_out
 
     def num_examples(self):

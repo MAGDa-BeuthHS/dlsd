@@ -14,14 +14,14 @@ import time
 class Configuration:
     ''' Parent class configuration object. change file paths here '''
     n_hidden = 30
-    learningRate = 0.1
-    max_steps = 5000
-    batch_size = 5
-    test_step = 100
+    learningRate = 0.01
+    max_steps = 10000
+    batch_size = 20
+    test_step = 5000
     rnn_sequence_length = 5
-    timeOffsets = [5,10,15,30,45]
     sequential = list(range(0,rnn_sequence_length))
-    time_offset = 60
+    rnn_input_time_sequence = [0]#[0,5,10,15,20,25,30,35,40,45,50,55]
+    rnn_target_time_sequence = [30]
     def __init__(self,args):
         self.setPathNames(args)
 
@@ -92,8 +92,8 @@ def main(args):
 
         # create necessary paths and empty arrays for each training set
         for i in range(0,len(config.test_dicts)):
-            avgMaes_df = pd.DataFrame(np.zeros((len(methods),len(config.timeOffsets))))
-            avgMaes_array = np.zeros((len(methods),len(config.timeOffsets)))
+            avgMaes_df = pd.DataFrame(np.zeros((len(methods),len(config.rnn_target_time_sequence))))
+            avgMaes_array = np.zeros((len(methods),len(config.rnn_target_time_sequence)))
             path_avgMaes_df = os.path.join(dir_sensor,"avgMaesForSensor_%d.csv"%data_df.columns.values[indexOutputSensor])
 
             # create folders for current (test) data
@@ -123,13 +123,13 @@ def main(args):
             debugInfo(__name__,"Creating Data for Training")
             config.data = makeDataSetObject(data_df = data_df,
                                             max_value = max_value,
-                                            timeOffsets = config.timeOffsets,
                                             outputSensorIndex = indexOutputSensor,
-                                            sequential = config.sequential,
-                                            splitTrain = False,
-                                            path_adjacencyMatrix=None if (methods[j]['adj'] == False) else config.path_adjacencyMatrix,
                                             prepareData_function=methods[j]['func'],
-                                            config=config)         
+                                            path_adjacencyMatrix=None if (methods[j]['adj'] == False) else config.path_adjacencyMatrix,
+                                            config=config)
+            # the number of data points used as input (per time point). eg all sensors, 1 sensor, only nearest neighbors etc
+            config.number_input_neurons = config.data.train.inputData.shape[2]  
+            config.number_target_neurons = 1
             # train using training set
             trainNetwork(config)
             
@@ -143,12 +143,9 @@ def main(args):
                 config.path_outputFile = os.path.join(testSetInfo[i]['dir_test_results'],"%s.csv"%methods[j]['name'])
                 config.data = makeDataSetObject(data_df = testData['df'],
                                                 max_value = testData['max'],
-                                                timeOffsets = config.timeOffsets,
                                                 outputSensorIndex = indexOutputSensor,
-                                                sequential = config.sequential,
-                                                splitTrain = False,
-                                                path_adjacencyMatrix=None if (methods[j]['adj'] == False) else config.path_adjacencyMatrix,
                                                 prepareData_function=methods[j]['func'],
+                                                path_adjacencyMatrix=None if (methods[j]['adj'] == False) else config.path_adjacencyMatrix,                                            
                                                 config=config)
                 maes = testNetwork(config)
 
@@ -156,47 +153,55 @@ def main(args):
 
 
         # contains average maes for all test data sets (average of averages)
-        avgMaeOverTests_df = pd.DataFrame(np.zeros((len(methods),len(config.timeOffsets))))
-        avgMaeOverTests_array = np.zeros((len(methods),len(config.timeOffsets)))
+        avgMaeOverTests_df = pd.DataFrame(np.zeros((len(methods),len(config.rnn_target_time_sequence))))
+        avgMaeOverTests_array = np.zeros((len(methods),len(config.rnn_target_time_sequence)))
         path_avgMaeOverTests = os.path.join(dir_sensor,"avgMaesForSensor_%d.csv"%data_df.columns.values[indexOutputSensor])
 
         # iterate over all 'avgMae' tables (for each test data set)
         for i in range(0,len(config.test_dicts)):
             testSetInfo[i]['avgMaes_df'].index = np.array([(lambda x:x['name'])(funcDic) for funcDic in methods])
             testSetInfo[i]['avgMaes_df'].to_csv(testSetInfo[i]['path_avgMaes_df'],
-            header = ([(lambda x:"t_%d"%x)(to) for to in config.timeOffsets]))
+            header = ([(lambda x:"t_%d"%x)(to) for to in config.rnn_target_time_sequence]))
             avgMaeOverTests_array = testSetInfo[i]['avgMaes_df'].values + avgMaeOverTests_array
             
         # get average of maes for all test data
         avgMaeOverTests_array = avgMaeOverTests_array/len(config.test_dicts)
         avgMaeOverTests_df.iloc[:,:] = avgMaeOverTests_array
         avgMaeOverTests_df.index = [(lambda x:x['name'])(funcDic) for funcDic in methods]
-        avgMaeOverTests_df.to_csv(path_avgMaeOverTests,header = ([(lambda x:"t_%d"%x)(to) for to in config.timeOffsets]))
+        avgMaeOverTests_df.to_csv(path_avgMaeOverTests,header = ([(lambda x:"t_%d"%x)(to) for to in config.rnn_target_time_sequence]))
         
         # get index of function with lowest MAE and save
         idxMinMae_list.append(avgMaeOverTests_array.argmin(axis=0))
         
     idxMinMae_df = pd.DataFrame(np.hstack((specifiedSensors.values[0:2],np.array(idxMinMae_list))))
-    idxMinMae_df.to_csv(path_idxsMinMae,header=(['sensor']+[(lambda x:"t_%d"%x)(to) for to in config.timeOffsets]))
+    idxMinMae_df.to_csv(path_idxsMinMae,header=(['sensor']+[(lambda x:"t_%d"%x)(to) for to in config.rnn_target_time_sequence]))
 
 ''' ------------------------------------------------------------------------------------------------
     Create Neural Network and perform training 
     ------------------------------------------------------------------------------------------------ '''
 
 def setupNet(config):
+    '''
+        Creates the operation graph in tensorflow
+        returns all components necessary for training/testing
+    '''
     graph = tf.Graph()
     with graph.as_default(),tf.device('/cpu:0'):
 
         # batch size, number of input sequences, size of input sequence
-        pl_input = tf.placeholder(tf.float32,shape=[None,config.rnn_sequence_length,1],name="input_placeholder")
+        pl_input = tf.placeholder(tf.float32,shape=[None,len(config.rnn_input_time_sequence),config.number_input_neurons],name="input_placeholder")
 
         # batch size, number of outputs (which is equal to number of input sequences), size of output (predicts 5 timeputs every )
-        pl_output = tf.placeholder(tf.float32,shape=[None,1,1],name="target_placeholder")
+        pl_output = tf.placeholder(tf.float32,shape=[None,len(config.rnn_target_time_sequence),config.number_target_neurons],name="target_placeholder")
         
         # create neural network and define in graph
         debugInfo(__name__,"Creating neural network")
-        
-        nn = lstm(pl_input,pl_output,config.n_hidden,config.learningRate,config.rnn_sequence_length)
+        nn = lstm(data = pl_input,
+                target = pl_output,
+                number_hidden_nodes = config.n_hidden,
+                learning_rate = config.learningRate,
+                rnn_number_steps = len(config.rnn_input_time_sequence))
+
         saver = tf.train.Saver()
         summary_op = tf.merge_all_summaries()
 
@@ -252,15 +257,11 @@ def formatFromSQL(path_sqlFile=None, path_preparedData = None,specifiedSensorsAr
     return data_df, max_value, specifiedSensors
 
 
-def makeDataSetObject(data_df, max_value,
+def makeDataSetObject(data_df, 
+                max_value,
                 prepareData_function,
+                path_adjacencyMatrix,
                 outputSensorIndex,
-                sequential = None,
-                timeOffsets = None,
-                splitTrain = True,
-                trainTestFraction =.8,
-                path_adjacencyMatrix=None,
-                path_preparedData = None,
                 config=None):
     '''
         Args : 
@@ -277,6 +278,7 @@ def makeDataSetObject(data_df, max_value,
     # define index of single output sensor (the output is at some time in the future)
     adjacencyForOutputSensor = None
     # add in the adjacency matrix
+    
     if (path_adjacencyMatrix is not None):
         debugInfo(__name__,"Found an adjacency matrix : multiplying it in!")
         # 182-185,281 are missing from adjacency matrix!! remove them! tell max, this needs to be changed!
@@ -304,12 +306,10 @@ def makeDataSetObject(data_df, max_value,
     
     # create input and output vectors
     input_,output_, indexOutputBegin = prepareData(data_df.values,
-                outputSensorIndex,
-                timeOffsets,
-                prepareData_function,
-                adjacency = adjacencyForOutputSensor,
-                sequential = sequential,
-                config=config)
+                indexOutputSensor = outputSensorIndex,
+                inputFunction = prepareData_function,
+                config=config,
+                adjacency = adjacencyForOutputSensor)
 
     
     debugInfo(__name__,"Making FullDataSet object containing train/test data")
@@ -317,16 +317,14 @@ def makeDataSetObject(data_df, max_value,
     theData = dsh.FullDataSet(trainInput = input_,
                                 trainOutput = output_)
     theData.max_value = max_value
-    theData.train.rowNames = data_df.index[:-(config.time_offset-1)]
+    theData.train.rowNames = data_df.index[:-(max(config.rnn_target_time_sequence)-1)]
     return theData
 
 def prepareData(data_wide,
                 indexOutputSensor,
-                timeOffsets,
                 inputFunction,
-                adjacency=None,
-                sequential=[0],
-                config=None):
+                config=None,
+                adjacency = None):
     '''
         Creates a dataframe containing desired input/output within the same table
         Args:
@@ -349,31 +347,35 @@ def prepareData(data_wide,
     '''
     # input data is moved vertically down by max of timeOffsets
     #max_output = max(timeOffsets)
-    max_sequential = max(sequential)
     max_output = 0
-    i = inputFunction(data_wide,indexOutputSensor,
-                      s = sequential,
-                      a = adjacency,
-                      max_output=max_output,
-                      max_sequential=max_sequential)[config.rnn_sequence_length-1:-(config.time_offset-1)]
-    df = pd.DataFrame(i)
-    df.to_csv("/Users/ahartens/Desktop/input.csv")
 
-    i = i.reshape([-1,config.rnn_sequence_length,1])
+    index_output_begin = max(config.rnn_input_time_sequence) + min(config.rnn_target_time_sequence)
+
+    i = inputFunction(data_wide,indexOutputSensor,
+                      s = config.rnn_input_time_sequence,
+                      a = adjacency,
+                      max_output=0)[max(config.rnn_input_time_sequence):-index_output_begin,:]
+    #df = pd.DataFrame(i)
+    #df.to_csv("/Users/ahartens/Desktop/input.csv")
+
+    i = i.reshape([i.shape[0],len(config.rnn_input_time_sequence),-1])
+    print(i.shape)
     debugInfo(__name__,"Preparing data : %d inputs %d"%(i.shape[1],i.shape[0]))
     # create 'output' data : 
     #o = timeOffsetData(data_wide[:,indexOutputSensor],timeOffsets,b=max(sequential))
-    o = data_wide[config.time_offset-1:,indexOutputSensor]
-    df = pd.DataFrame(o)
-    df.to_csv("/Users/ahartens/Desktop/output.csv")
+    o = data_wide[index_output_begin:,indexOutputSensor]
+    #df = pd.DataFrame(o)
+    #df.to_csv("/Users/ahartens/Desktop/output.csv")
 
-    o = o.reshape([-1,1,1])
+    o = o.reshape([o.shape[0],len(config.rnn_target_time_sequence),1])
     debugInfo(__name__,"Preparing data : %d outputs %d"%(o.shape[1],o.shape[0]))
     
 
    
     # combine input/output in one dataframe
     return i,o,i.shape[1]
+
+
 
 '''
     Preparing Data for 8 types of data sets
@@ -436,6 +438,8 @@ def timeOffsetData(data,offsets,t=0,b=0):
     # eg t5 should start at index 55 if maxoffset is 60
     maxOffset = max(offsets)
     offset_comp = [(lambda x,y:y-x)(offset,maxOffset) for offset in offsets]
+    
+    # create empty data frame
     df = np.zeros((data.shape[0]+maxOffset+b+t,len(offsets)*data.shape[1]))
     df[:] = np.NAN
 
@@ -460,20 +464,17 @@ def testNetwork(config):
         #return test_DataPrintOutput(nn,sess,pl_input,pl_output,config,fileName = config.path_outputFile)
         prediction = test_nonRandomizedPrediction(nn,sess,pl_input,pl_output,config)
     
-    sz_o = config.data.getNumberOutputs()
-    output = pd.DataFrame(np.empty((config.data.getNumberTrainingPoints(),2*sz_o)))
-    y = dsh.denormalizeData(config.data.train.outputData.reshape([-1,1]),config.data.max_value)
-    y_  = dsh.denormalizeData(prediction.reshape([-1,1]),config.data.max_value)
-    output.iloc[:,0:sz_o]= y
-    output.iloc[:,sz_o:2*sz_o]= y_
+    output = pd.DataFrame(np.empty((config.data.getNumberTrainingPoints(),2*config.number_target_neurons)))
+    y = dsh.denormalizeData(config.data.train.outputData.reshape([-1,config.number_target_neurons]),config.data.max_value)
+    y_  = dsh.denormalizeData(prediction.reshape([-1,config.number_target_neurons]),config.data.max_value)
+    output.iloc[:,0:config.number_target_neurons]= y
+    output.iloc[:,config.number_target_neurons:2*config.number_target_neurons]= y_
 
-    output.index = config.data.train.rowNames
-    debugInfo(__name__,"Printing prediction output to %s"%config.path_outputFile)
+
+    #output.index = config.data.train.rowNames
     output.to_csv(config.path_outputFile)
+    debugInfo(__name__,"Printing prediction output to %s"%config.path_outputFile)
 
-    i = dsh.denormalizeData(config.data.train.inputData.reshape([-1,config.rnn_sequence_length]),config.data.max_value)
-    df = pd.DataFrame(i)
-    df.to_csv("/Users/ahartens/Desktop/trainingInput.csv")
     mae = np.mean(np.abs(y - y_),0)
     print(mae)
     return mae

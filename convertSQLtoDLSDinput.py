@@ -23,9 +23,12 @@ def getArguments():
 def main():
 	args = getArguments()
 
+	# 
 	wide_data = stn.pivotAndSmooth(args.inputFile,
 		None if args.specifiedSensors is None else pd.DataFrame(args.specifiedSensors.split(","),dtype=int),
 		headers = args.headers.split(","))[0]
+
+	# write data to file
 	wide_data.to_csv(args.outputFile,index=False,header=True)
 	
 
