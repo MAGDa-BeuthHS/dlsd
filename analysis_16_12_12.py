@@ -44,14 +44,14 @@ def main(args):
 
     config = Configuration(args)
 
-    methods = [{'func':pd_1_singleInput,'name':'f1_singleInput','adj':False},
-            {'func':pd_2_allInput,'name':'f2_allInput','adj':False},
-            {'func':pd_3_adjacency_withSelf,'name':'pd_3_adjacency_withSelf','adj':True},
-            {'func':pd_4_adj_noSelf,'name':'pd_4_adj_noSelf','adj':True},
-            {'func':pd_1s_singleInput,'name':'f1s_singleInput','adj':False},
-            {'func':pd_2s_allInput,'name':'f2s_allInput','adj':False},
-            {'func':pd_3s_adjacency_withSelf,'name':'pd_3s_adjacency_withSelf','adj':True},
-            {'func':pd_4s_adj_noSelf,'name':'pd_4s_adj_noSelf','adj':True}]
+    methods = [{'func':pd_1_singleInput,'name':'f1_singleInput','adj':False},]
+            #{'func':pd_2_allInput,'name':'f2_allInput','adj':False},]
+            #{'func':pd_3_adjacency_withSelf,'name':'pd_3_adjacency_withSelf','adj':True},
+            #{'func':pd_4_adj_noSelf,'name':'pd_4_adj_noSelf','adj':True},
+            #{'func':pd_1s_singleInput,'name':'f1s_singleInput','adj':False},
+            #{'func':pd_2s_allInput,'name':'f2s_allInput','adj':False},
+            #{'func':pd_3s_adjacency_withSelf,'name':'pd_3s_adjacency_withSelf','adj':True},
+            #{'func':pd_4s_adj_noSelf,'name':'pd_4s_adj_noSelf','adj':True}]
 
     # create training data (all of july)
     data_df, max_value, specifiedSensors = formatFromSQL(path_sqlFile = config.path_sqlFile)
@@ -197,12 +197,12 @@ def trainNetwork(config):
                                        pl_output,
                                        Configuration.batch_size)
 
-            loss_value,summary_str,predicted = sess.run([nn.optimize,summary_op,nn.prediction],feed_dict = myFeedDict)
+            loss_value,predicted = sess.run([nn.optimize,nn.prediction],feed_dict = myFeedDict)
             if(step%Configuration.test_step == 0):
                 if (args.trackPredictions != None): test_allDataAppendToDf(nn,sess,pl_input,pl_output,config_track,int(step/config.test_step)+1)
                 #debugInfo(__name__,dsh.denormalizeData(predicted,config.data.max_value))
-                summary_writer.add_summary(summary_str)
-                summary_writer.flush()
+                #summary_writer.add_summary(summary_str)
+                #summary_writer.flush()
                 
                 mean = sess.run(nn.evaluation,feed_dict = myFeedDict)
                 debugInfo(__name__,"Training step : %d of %d"%(step,config.max_steps))
@@ -283,8 +283,8 @@ def makeDataSetObject(data_df, max_value,
                 sequential = sequential)
 
     print(data_prepared.shape)
-    rowNames = range(0,max(timeOffsets))+list(data_df.index) + range(0,max(sequential))
-    data_prepared.index = rowNames
+    #rowNames = range(0,max(timeOffsets))+list(data_df.index) + range(0,max(sequential))
+    #data_prepared.index = rowNames
 
     data_final_naDropped = data_prepared.dropna()
 
