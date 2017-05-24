@@ -31,20 +31,19 @@ def main():
 	train_input_and_target_maker.set_target_sensor_idxs_and_timeoffsets_lists([0],[30,45,60]) # use sensor
 
 	# 3 Train the model
+	model.set_average_data_from_csv_file_path('/Users/ahartens/Desktop/Average_Week_One_Year.csv')
 	model.train_with_input_target_maker(train_input_and_target_maker)
 	
 	# 4 Test the model
 	test_input_and_target_maker = ITM_Fill_Time_Gaps_Moving_Average()
-	test_input_and_target_maker.set_source_file_path(file_path_train)	
+	test_input_and_target_maker.set_source_file_path(file_path_test)
+	test_input_and_target_maker.set_time_format('%Y-%m-%d %H:%M:%S')	
 	model.test_with_input_target_maker(test_input_and_target_maker)
-
-	model.write_average_week_to_filepath('/Users/ahartens/Desktop/Average_Week_One_Year.csv')
 
 	# 5
 	accuracy_dict = model.calc_prediction_accuracy()
-	#train_input_and_target_maker.write_input_and_target_to_file('/Users/ahartens/Desktop/Work/dlsd_2_trials/train_input_target.csv')
-	#test_input_and_target_maker.write_input_and_target_to_file('/Users/ahartens/Desktop/Work/dlsd_2_trials/test_input_target.csv')
-	# for average data will train with one year, but properly formatted columns
+	model.write_target_and_predictions_to_file('/Users/ahartens/Desktop/preidctions_and_target.csv')
+
 
 if __name__=="__main__":
 	main()

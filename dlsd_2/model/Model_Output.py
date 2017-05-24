@@ -19,7 +19,19 @@ class Model_Output:
 		pass # TODO
 
 	def calc_mae(self):
-		return error.mae(self.prediction_dataset_object.get_numpy_array(), self.target_dataset_object.get_numpy_array())
+		my_error = error.mae(self.prediction_dataset_object.df, self.target_dataset_object.df)
+		return my_error
 
 	def calc_mape(self):
-		return error.mape(self.prediction_dataset_object.get_numpy_array(), self.target_dataset_object.get_numpy_array())
+		return error.mape(self.prediction_dataset_object.df, self.target_dataset_object.df)
+
+	def write_target_and_predictions_to_file(self, file_path):
+		logging.info("Writing target and predictions to %s"%file_path)
+		array = np.concatenate((self.target_dataset_object.df.values,self.prediction_dataset_object.df.values),axis=1)
+		new_df = pd.DataFrame(array)
+		new_df.index = self.target_dataset_object.df.index.values
+		names_target = ["target_%d"%x for x in self.target_dataset_object.df.columns.values]
+		names_predict = ["predict_%d"%x for x in self.prediction_dataset_object.df.columns.values]
+		new_df.columns = names_target + names_predict
+		new_df.to_csv(file_path)
+	

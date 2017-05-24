@@ -6,11 +6,11 @@ import logging
 
 class Model:
 	'''
-	Two phases of model usage. Both methods require an input_target maker
-		1. During train, the model_content receives the training data and builds an internal representation of the model
-		2. During test, the model_content is responsible for creating a target_dataset_object
-	The model_input is a wrapper for the input_dataset_object and target_dataset_object, responsible for handling input to model
-	The model_output is a wrapper for a prediction_dataset_object and target_dataset_object, responsible for calculating prediction error
+		Two phases of model usage. Both methods require an input_target maker
+			1. During train, the model_content receives the training data and builds an internal representation of the model
+			2. During test, the model_content is responsible for creating a target_dataset_object
+		The model_input is a wrapper for the input_dataset_object and target_dataset_object, responsible for handling input to model
+		The model_output is a wrapper for a prediction_dataset_object and target_dataset_object, responsible for calculating prediction error
 	'''
 	def __init__(self):
 		self.model_input = Model_Input()
@@ -55,7 +55,7 @@ class Model:
 		return {'mape':mape,'mae':mae}
 		
 	def write_target_and_predictions_to_file(self,file_path):
-		pass # TODO
+		self.model_output.write_target_and_predictions_to_file(file_path)
 
 
 

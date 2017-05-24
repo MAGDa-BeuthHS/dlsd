@@ -26,4 +26,5 @@ class ITM_Fill_Time_Gaps(Input_And_Target_Maker):
 
 	def copy_parameters_from_maker(self,mkr):
 		super(ITM_Fill_Time_Gaps,self).copy_parameters_from_maker(mkr)
-		self.time_format = mkr.time_format
+		if self.time_format is None : # in some instances training/test time_formats will differ! if training explicitly set, don't overwrite
+			self.time_format = mkr.time_format

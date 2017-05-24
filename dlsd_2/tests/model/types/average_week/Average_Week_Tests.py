@@ -31,7 +31,6 @@ class Average_Week_Tests(unittest.TestCase):
 			The source_average_dataset_object week should be 1 2 3 4 5 6 7 for all types 
 			(all standardize to start on monday, regardless of date which source data begins on) 
 		'''
-		print("ALOHA")
 
 		correct_value = 0
 		for i in range(self.model.model_content.source_average_dataset_object.df.shape[0]):

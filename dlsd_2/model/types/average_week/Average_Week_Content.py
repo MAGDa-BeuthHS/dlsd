@@ -45,7 +45,6 @@ class Average_Week_Content(Model_Content):
 	def create_source_average_data_with_input_target_maker(self, input_target_maker):
 		source = input_target_maker.source_dataset_object
 		idx = self._get_idx_first_midnight(input_target_maker)
-		print("FIRST INDEX MIDNIGHT IS %d"%idx)
 		average_data = calculate_average_week_from_numpy_array(source.df.iloc[idx:source.df.shape[0],:].values)
 		current_weekday_start_int = get_weekday_int_from_timestamp_string_with_format(source.df.index.values[0], input_target_maker.time_format) if self.weekday_int_source is None else self.weekday_int_source
 		average_data = rearrange_week_starting_to_start_on_monday_with_current_day_start_int(average_data, current_weekday_start_int)

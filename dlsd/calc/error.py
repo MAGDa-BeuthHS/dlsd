@@ -15,3 +15,7 @@ def mape(data):
 	predicts = data[:,numOutputs:data.shape[1]]
 	mape = (100/float(n))*(np.sum(np.abs((actuals-predicts)/actuals),axis=0))	
 	return mape
+
+def mae(prediction, target):
+	mae = np.mean(np.absolute(prediction - target),axis=0)
+	return mae

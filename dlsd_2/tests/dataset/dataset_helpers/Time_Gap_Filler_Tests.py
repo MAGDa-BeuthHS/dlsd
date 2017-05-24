@@ -68,7 +68,7 @@ class Time_Gap_Filler_Tests(unittest.TestCase):
 	def test_if_timestamps_correct(self):
 		for i in range(0,self.df_no_gap.shape[0]):
 			#filled_stamp = datetime.datetime.stfptime(time_stamps[i],self.time_format)
-			print(type(self.df_filled_single_gap.index.values[i]))
+			pass
 			#self.assertEqual(self.df_no_gap.index.values[i],self.df_filled_single_gap.index.values[i])
 			#self.assertEqual(self.df_no_gap.index.values[i],self.df_filled_double_gap.index.values[i])
 

@@ -7,7 +7,15 @@ class Average_Week(Model):
 	def __init__(self):
 		super(Average_Week,self).__init__()
 		logging.info("Creating Average Week model")
+		self.average_week_externally_set = False
 		self.model_content = Average_Week_Content()
+
+	def train_with_input_target_maker(self,input_target_maker):
+		if self.average_week_externally_set is False:
+			super(Average_Week,self).train_with_input_target_maker(input_target_maker)
+		else:
+			self.train_input_target_maker = input_target_maker # need to set this so parameters copied to test_input_target_maker during testing
+
 
 	def _train(self):
 		self.model_content.create_source_average_data_with_input_target_maker(self.current_input_target_maker)
@@ -22,6 +30,7 @@ class Average_Week(Model):
 		first_timestampe_datetime = datetime.datetime.strptime(first_time_stamp_string,self.current_input_target_maker.time_format)
 
 	def set_average_data_from_csv_file_path(self,file_path):
+		self.average_week_externally_set = True
 		self.model_content.set_average_data_from_csv_file_path(file_path)
 
 	def write_average_week_to_filepath(self, file_path):
