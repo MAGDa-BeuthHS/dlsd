@@ -1,0 +1,17 @@
+*.ipynb_checkpoints
+*.pyc
+*.ipynb
+*.csv
+*.numbers
+*.xlsx
+*.log
+
+17_04_10_getAverageWeek.py
+experiment.py
+mnist.py
+tryAverage.py
+untitled.py
+untitled.txt
+.tempstate10035304353864709810
+.tempstate6441784780370635272
+dlsd_2/tests/model/types/average_week/average_week_test_csvs/

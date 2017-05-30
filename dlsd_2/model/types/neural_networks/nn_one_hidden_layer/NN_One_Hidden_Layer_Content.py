@@ -34,7 +34,6 @@ class NN_One_Hidden_Layer_Content(Model_Content):
         logging.info("NN_One_Hidden_Layer #input : %d   #hidden : %d   #output : %d   learningRate : %.2f"%(self.n_input,self.n_hidden,self.n_output,self.learningRate))
         self.addAttributes()
 
-
     def addAttributes(self):
         self.prediction
         self.error

@@ -6,6 +6,10 @@ class Model_Input:
 		self.input_dataset_object = None
 		self.target_dataset_object = None
 
+	def set_input_and_target_from_input_target_maker(self, input_target_maker):
+		self.set_input_dataset_object(input_target_maker.get_input_dataset_object())
+		self.set_target_dataset_object(input_target_maker.get_target_dataset_object())
+
 	def set_input_dataset_object(self,dataset_object):
 		self.input_dataset_object = dataset_object
 

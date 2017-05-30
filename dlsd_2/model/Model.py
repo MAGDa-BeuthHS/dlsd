@@ -19,29 +19,32 @@ class Model:
 		self.train_input_target_maker = None
 		self.current_input_target_maker = None
 
-	def train_with_input_target_maker(self,input_target_maker):
-		self.train_input_target_maker = input_target_maker
-		self.current_input_target_maker = input_target_maker
-		self._create_and_set_input_and_target_for_model()
+	def train_with_prepared_input_target_maker(self,itm):
+		self._set_global_itms_for_training(itm)
+		self.model_input.set_input_and_target_from_input_target_maker(itm)
 		self._train()
 
-	def test_with_input_target_maker(self,input_target_maker):
-		self.current_input_target_maker = input_target_maker
-		self.current_input_target_maker.copy_parameters_from_maker(self.train_input_target_maker)
-		self._create_and_set_input_and_target_for_model()
+	def test_with_prepared_input_target_maker(self,itm):
+		self.current_input_target_maker = itm
+		self.model_input.set_input_and_target_from_input_target_maker(itm)
 		self._test()
 
-	def _create_and_set_input_and_target_for_model(self):
-		self._create_input_and_target()
-		self._set_model_input_and_target()
+	def prepare_data_and_train_with_input_target_maker(self,itm):
+		self._set_global_itms_for_training(itm)
+		self.current_input_target_maker.prepare_source_data_and_make_input_and_target()
+		self.model_input.set_input_and_target_from_input_target_maker(itm)
+		self._train()
 
-	def _create_input_and_target(self):
-		self.current_input_target_maker.make_source_data()
-		self.current_input_target_maker.make_input_and_target()
+	def prepare_data_and_test_with_input_target_maker(self,itm):
+		self.current_input_target_maker = itm
+		self.current_input_target_maker.copy_parameters_from_maker(self.train_input_target_maker)
+		self.current_input_target_maker.prepare_source_data_and_make_input_and_target()
+		self.model_input.set_input_and_target_from_input_target_maker(itm)
+		self._test()
 
-	def _set_model_input_and_target(self):
-		self.model_input.set_input_dataset_object(self.current_input_target_maker.get_input_dataset_object())
-		self.model_input.set_target_dataset_object(self.current_input_target_maker.get_target_dataset_object())
+	def _set_global_itms_for_training(self,itm):
+		self.current_input_target_maker = itm
+		self.train_input_target_maker = itm
 
 	def _train(self):
 		raise NotImplementedError
@@ -54,8 +57,18 @@ class Model:
 		mae = self.model_output.calc_mae()
 		return {'mape':mape,'mae':mae}
 		
-	def write_target_and_predictions_to_file(self,file_path):
-		self.model_output.write_target_and_predictions_to_file(file_path)
+	def get_target_and_predictions_df(self):
+		return self.model_output.make_target_and_predictions_df()
 
+	def write_target_and_predictions_to_file(self, file_path):
+		logging.info("Writing target and predictions to %s"%file_path)
+		new_df = self.get_target_and_predictions_df()
+		new_df.to_csv(file_path)
 
+	def set_model_output_with_predictions_dataset_object(self,predictions_dataset_object):
+		self.model_output.set_prediction_dataset_object(predictions_dataset_object)
+		self.model_output.set_target_dataset_object(self.model_input.get_target_dataset_object())
 
+	def set_model_output_with_predictions_numpy_array(self, predictions_numpy_array):
+		self.model_output.set_prediction_dataset_object_with_numpy_array(predictions_numpy_array)
+		self.model_output.set_target_dataset_object(self.model_input.get_target_dataset_object())

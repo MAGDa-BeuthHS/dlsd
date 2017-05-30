@@ -10,6 +10,10 @@ class Input_And_Target_Maker:
 		self.clip_range = None
 		self.source_is_sql_output = True
 
+	def prepare_source_data_and_make_input_and_target(self):
+		self.make_source_data()
+		self.make_input_and_target()
+
 	def make_source_data(self,index_col=None):
 		if self.source_is_sql_output:
 			self._make_source_data_from_SQL()
@@ -88,3 +92,7 @@ class Input_And_Target_Maker:
 	def copy_parameters_from_maker(self,mkr):
 		self.set_input_sensor_idxs_and_timeoffsets_lists(mkr.input_maker.sensor_idxs_list, mkr.input_maker.time_offsets_list)
 		self.set_target_sensor_idxs_and_timeoffsets_lists(mkr.target_maker.sensor_idxs_list, mkr.target_maker.time_offsets_list)
+	
+	def write_source_to_file(self,file_path):
+		self.source_dataset_object.write_csv(file_path)
+		

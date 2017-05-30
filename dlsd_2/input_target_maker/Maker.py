@@ -16,7 +16,7 @@ class Maker:
 	def extract_sensor_idxs_from_source_dataset_object(self,source_dataset_object):
 		if self.sensor_idxs_list is None:
 			self._set_sensor_idxs_to_use_all_sensors_from_source(source_dataset_object)
-		self.selected_source_numpy_data = source_dataset_object.get_numpy_columns_at_idxs(self.sensor_idxs_list)
+		self.selected_source_numpy_data = source_dataset_object.df[self.sensor_idxs_list]
 
 	def make_dataset_object_with_clip_range(self, clip_range):
 		if self.time_offsets_list is None:
@@ -30,7 +30,7 @@ class Maker:
 		self.dataset_object.clip_ends_keep_data_between_indices(clip_range)
 
 	def _set_sensor_idxs_to_use_all_sensors_from_source(self, source_dataset_object):
-		self.sensor_idxs_list = list(range(0,source_dataset_object.get_number_columns()))
+		self.sensor_idxs_list = source_dataset_object.df.columns.values
 
 	def max_time_offset(self):
 		return max(self.time_offsets_list)

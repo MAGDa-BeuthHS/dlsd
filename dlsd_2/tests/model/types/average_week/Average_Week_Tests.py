@@ -24,7 +24,7 @@ class Average_Week_Tests(unittest.TestCase):
 		self.input_target_maker.set_time_format('%Y-%m-%d %H:%M:%S')
 		self.input_target_maker.set_input_sensor_idxs_and_timeoffsets_lists(None,[0]) # use all sensors, no time offset for input
 		self.input_target_maker.set_target_sensor_idxs_and_timeoffsets_lists([0],[1440,2880,4320]) 
-		self.model.train_with_input_target_maker(self.input_target_maker)
+		self.model.prepare_data_and_train_with_input_target_maker(self.input_target_maker)
 
 	def test_source_average_week_generation(self):
 		'''
@@ -60,7 +60,7 @@ class AWT_1_Source_Data_Prediction_Data_Generated_Correctly_Source_Week_Starting
 		TEST_input_target_maker = ITM_Fill_Time_Gaps()
 		TEST_input_target_maker.source_is_sql_output = False
 		TEST_input_target_maker.set_source_file_path(self.file_path_train)
-		self.model.test_with_input_target_maker(TEST_input_target_maker)
+		self.model.prepare_data_and_test_with_input_target_maker(TEST_input_target_maker)
 		for i in range(self.model.model_output.prediction_dataset_object.df.shape[0]):
 			self.assertEqual(self.model.model_output.prediction_dataset_object.df.iloc[i,0],correct_predictions.iloc[i,0])
 
@@ -84,7 +84,7 @@ class AWT_2_Source_Data_Starts_Thursday_Average_Week_Starts_Monday_Then_Predicti
 		TEST_input_target_maker = ITM_Fill_Time_Gaps()
 		TEST_input_target_maker.source_is_sql_output = False
 		TEST_input_target_maker.set_source_file_path(self.file_path_monday)
-		self.model.test_with_input_target_maker(TEST_input_target_maker)
+		self.model.prepare_data_and_test_with_input_target_maker(TEST_input_target_maker)
 		self.model.model_output.prediction_dataset_object.write_csv("/Users/ahartens/Desktop/output2.csv")
 		for i in range(self.model.model_output.prediction_dataset_object.df.shape[0]):
 			self.assertEqual(self.model.model_output.prediction_dataset_object.df.iloc[i,0],correct.iloc[i,0])
@@ -94,7 +94,7 @@ class AWT_2_Source_Data_Starts_Thursday_Average_Week_Starts_Monday_Then_Predicti
 		TEST_input_target_maker = ITM_Fill_Time_Gaps()
 		TEST_input_target_maker.source_is_sql_output = False
 		TEST_input_target_maker.set_source_file_path(self.file_path_thursday)
-		self.model.test_with_input_target_maker(TEST_input_target_maker)
+		self.model.prepare_data_and_test_with_input_target_maker(TEST_input_target_maker)
 		for i in range(self.model.model_output.prediction_dataset_object.df.shape[0]):
 			self.assertEqual(self.model.model_output.prediction_dataset_object.df.iloc[i,0],correct.iloc[i,0])
 
@@ -126,6 +126,6 @@ class AWT_3_Same_As_1_But_With_Time_Gaps(Average_Week_Tests):
 		TEST_input_target_maker = ITM_Fill_Time_Gaps()
 		TEST_input_target_maker.source_is_sql_output = False
 		TEST_input_target_maker.set_source_file_path(self.file_path_thursday)
-		self.model.test_with_input_target_maker(TEST_input_target_maker)
+		self.model.prepare_data_and_test_with_input_target_maker(TEST_input_target_maker)
 		for i in range(self.model.model_output.prediction_dataset_object.df.shape[0]):
 			self.assertEqual(self.model.model_output.prediction_dataset_object.df.iloc[i,0],correct_predictions.iloc[i,0])

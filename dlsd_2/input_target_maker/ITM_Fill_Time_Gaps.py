@@ -6,25 +6,23 @@ class ITM_Fill_Time_Gaps(Input_And_Target_Maker):
 		super(ITM_Fill_Time_Gaps,self).__init__()
 		self.time_format = None
 
-	def set_time_format(self,time_format):
-		self.time_format = time_format
-
 	def make_source_data(self,index_col=None):
 		super(ITM_Fill_Time_Gaps,self).make_source_data()
 		self._check_for_time_format()
 		self.source_dataset_object.fill_time_gaps_using_time_format(self.time_format)
 
-	def make_source_data(self):
+	def copy_parameters_from_maker(self,mkr):
+		super(ITM_Fill_Time_Gaps,self).copy_parameters_from_maker(mkr)
+		if self.time_format is None : # in some instances training/test time_formats will differ! if training explicitly set, don't overwrite
+			self.time_format = mkr.time_format
 
-		super(ITM_Fill_Time_Gaps,self).make_source_data()
-		self._check_for_time_format()
-		self.source_dataset_object.fill_time_gaps_using_time_format(self.time_format)
+	def _common_make(self,mkr):
+		super(ITM_Fill_Time_Gaps,self)._common_make(mkr)
+
+	def set_time_format(self,time_format):
+		self.time_format = time_format
 
 	def _check_for_time_format(self):
 		if self.time_format is None:
 			raise Exception("Need to provide a time_format to fill time gaps")
 
-	def copy_parameters_from_maker(self,mkr):
-		super(ITM_Fill_Time_Gaps,self).copy_parameters_from_maker(mkr)
-		if self.time_format is None : # in some instances training/test time_formats will differ! if training explicitly set, don't overwrite
-			self.time_format = mkr.time_format

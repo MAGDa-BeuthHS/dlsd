@@ -16,6 +16,3 @@ class Neural_Network_Model_Input(Model_Input):
 			target_placeholder:target_batch
 			}
 		return feed_dict
-
-	def set_denormalizer_from_input_dataset(self):
-		self.denormalizer = self.input_dataset_object.denormalizer

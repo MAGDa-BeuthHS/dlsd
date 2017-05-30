@@ -13,9 +13,9 @@ class NN_One_Hidden_Layer(Neural_Network_Model):
 	    with self.graph.as_default(),tf.device('/cpu:0'):
 	        self.input_pl = tf.placeholder(tf.float32,shape=[None,self.model_input.get_number_inputs()],name="input_placeholder")
 	        self.target_pl = tf.placeholder(tf.float32,shape=[None,self.model_input.get_number_targets()],name="target_placeholder")
-	        self.model_content = NN_One_Hidden_Layer_Content(self.input_pl,
-	        											self.target_pl,
-	        											self.number_hidden_nodes,
-	        											self.learning_rate)
+	        self.model_content = NN_One_Hidden_Layer_Content(data = self.input_pl,
+	        											target = self.target_pl,
+	        											number_hidden_nodes = self.number_hidden_nodes,
+	        											learning_rate = self.learning_rate)
 	        #self.summary_op = tf.merge_all_summaries()
 	        self.saver = tf.train.Saver()
