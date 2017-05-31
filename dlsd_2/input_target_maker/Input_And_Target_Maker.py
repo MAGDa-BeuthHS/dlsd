@@ -71,8 +71,20 @@ class Input_And_Target_Maker:
 	def set_source_file_path(self,file_path):
 		self.source_file_path = file_path
 
+	def set_input_time_offsets_list(self, the_list):
+		self.input_maker.time_offsets_list = the_list
+
+	def set_target_time_offsets_list(self, the_list):
+		self.target_maker.time_offsets_list = the_list
+
+	def set_target_sensor_idxs_list(self, the_list):
+		self.target_maker.sensor_idxs_list = the_list
+
 	def get_target_time_offsets_list(self):
 		return self.target_maker.time_offsets_list
+
+	def get_input_sensor_idx_lists(self):
+		return self.input_maker.sensor_idxs_list
 
 	def get_input_time_offsets_list(self):
 		return self.input_maker.time_offsets_list
@@ -88,6 +100,9 @@ class Input_And_Target_Maker:
 	
 	def get_target_sensor_idxs_list(self):
 		return self.target_maker.sensor_idxs_list
+
+	def get_source_idxs_list(self):
+		return self.source_dataset_object.df.columns.values
 
 	def copy_parameters_from_maker(self,mkr):
 		self.set_input_sensor_idxs_and_timeoffsets_lists(mkr.input_maker.sensor_idxs_list, mkr.input_maker.time_offsets_list)
