@@ -84,3 +84,7 @@ class Neural_Network_Model(Model):
 		super(Neural_Network_Model,self).set_experiment_helper(experiment_helper)
 		self.set_path_tf_output(self.experiment_helper.get_tensorflow_dir_path())	
 		self.set_path_saved_tf_session(self.experiment_helper.new_tf_session_file_path_with_specifier(self.name))
+		print(self.path_tf_output)
+		print(self.path_saved_tf_session)
+		print("BOOOYAAAA")
+		print(type(experiment_helper))
