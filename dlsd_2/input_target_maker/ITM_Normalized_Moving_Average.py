@@ -26,3 +26,6 @@ class ITM_Normalized_Moving_Average(ITM_Moving_Average):
 		super(ITM_Normalized_Moving_Average,self)._common_make(maker)
 		maker.dataset_object.set_denormalizer(self.source_dataset_object.denormalizer)
 
+
+	def get_target_df(self):
+		return self.denormalizer_used_in_training.denormalize(self.target_maker.dataset_object.df)

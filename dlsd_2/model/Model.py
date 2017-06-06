@@ -18,6 +18,8 @@ class Model:
 		self.model_content = Model_Content()
 		self.train_input_target_maker = None
 		self.current_input_target_maker = None
+		self.experiment_helper = None
+		self.name = "Abstract Class"
 
 	def train_with_prepared_input_target_maker(self,itm):
 		self._set_global_itms_for_training(itm)
@@ -60,15 +62,32 @@ class Model:
 	def get_target_and_predictions_df(self):
 		return self.model_output.make_target_and_predictions_df()
 
+	def get_target_df(self):
+		return self.model_output.get_target_df
+
+	def get_prediction_df(self):
+		return self.model_output.get_prediction_df()
+
 	def write_target_and_predictions_to_file(self, file_path):
 		logging.info("Writing target and predictions to %s"%file_path)
 		new_df = self.get_target_and_predictions_df()
 		new_df.to_csv(file_path)
 
+	def write_predictions_using_experiment_helper(self):
+		path = self.experiment_helper.make_new_model_prediction_file_path_with_model_name(self.name)
+		logging.info("Writing Predictions to %s"%path)
+		predictions = self.get_prediction_df()
+		predictions.to_csv(path)
+
 	def set_model_output_with_predictions_dataset_object(self,predictions_dataset_object):
+		''' Called after testing by subclasses of Model '''
 		self.model_output.set_prediction_dataset_object(predictions_dataset_object)
 		self.model_output.set_target_dataset_object(self.model_input.get_target_dataset_object())
 
 	def set_model_output_with_predictions_numpy_array(self, predictions_numpy_array):
+		''' Called after testing by subclasses of Model '''
 		self.model_output.set_prediction_dataset_object_with_numpy_array(predictions_numpy_array)
 		self.model_output.set_target_dataset_object(self.model_input.get_target_dataset_object())
+
+	def set_experiment_helper(self, experiment_helper):
+		self.experiment_helper = experiment_helper

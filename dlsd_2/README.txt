@@ -23,7 +23,7 @@ Types of models :
 		- M.set_learning_rate() 
 		- M.set_max_steps()
 		- M.set_batch_size() 
-		- M.set_path_saved_session() : path where tensorflow session is saved to
+		- M.set_path_saved_tf_session() : path where tensorflow session is saved to
 		- M.set_path_tf_output()
 
 
@@ -32,3 +32,7 @@ Types of models :
 1. AVERAGE_WEEK: decide what to do with not starting at 00:00:00 timestamp : should probably just average everything then readjust to start monday at midnight
 2. row/column names when printing
 3. figure out denormalizer in neural network model. does the model input need it?
+
+
+4. epochs : 30
+5. cross validation : and then what? how do you know you're not overfitting?

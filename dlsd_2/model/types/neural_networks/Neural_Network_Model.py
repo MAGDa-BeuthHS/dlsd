@@ -1,6 +1,7 @@
 from dlsd_2.model.Model import *
 from dlsd_2.model.Model_Output import Model_Output
 from dlsd_2.model.types.neural_networks.Neural_Network_Model_Input import *
+from dlsd_2.dataset.Dataset import Dataset
 
 import tensorflow as tf
 
@@ -15,7 +16,7 @@ class Neural_Network_Model(Model):
 		self.learning_rate = None 
 		self.max_steps = None
 		self.batch_size = None 
-		self.path_saved_session = None
+		self.path_saved_tf_session = None
 		self.path_tf_output = None
 
 	def set_number_hidden_nodes(self,number_hidden_nodes):
@@ -31,8 +32,8 @@ class Neural_Network_Model(Model):
 	def set_batch_size(self,batch_size):
 		self.batch_size = batch_size
 
-	def set_path_saved_session(self, path):
-		self.path_saved_session = path
+	def set_path_saved_tf_session(self, path):
+		self.path_saved_tf_session = path
 
 	def set_path_tf_output(self,path):
 		self.path_tf_output = path
@@ -44,6 +45,7 @@ class Neural_Network_Model(Model):
 		self._build_model()
 		with tf.Session(graph = self.graph) as sess:
 			self.sess = sess
+			print(self.path_tf_output)
 			summary_writer = tf.train.SummaryWriter(self.path_tf_output, sess.graph)
 			sess.run(tf.initialize_all_variables())
 			for step in range(self.max_steps):
@@ -54,12 +56,12 @@ class Neural_Network_Model(Model):
 			        print(mean)
 			        logging.info("Training step : %d of %d"%(step,self.max_steps))
 			        #logging.info("Mean test error is %f"%self.train_input_target_maker.denormalizer_used_in_training.denormalize(mean))
-			self.saver.save(sess,self.path_saved_session) 
+			self.saver.save(sess,self.path_saved_tf_session) 
 
 	def _test(self):
 		self._build_model()
 		with tf.Session(graph = self.graph) as sess:
-			self.saver.restore(sess,self.path_saved_session)
+			self.saver.restore(sess,self.path_saved_tf_session)
 			logging.info("Restored session for testing")
 			feed_dict = {self.input_pl : self.model_input.get_all_input_as_numpy_array(), 
 						self.target_pl : self.model_input.get_all_target_as_numpy_array()}
@@ -67,5 +69,18 @@ class Neural_Network_Model(Model):
 			super(Neural_Network_Model,self).set_model_output_with_predictions_numpy_array(prediction)
 
 	def get_target_and_predictions_df(self):
+		self.model_output.fill_time_gaps_in_target_and_predictions_using_time_format(self.current_input_target_maker.time_format)
 		targs_preds = super(Neural_Network_Model,self).get_target_and_predictions_df()
-		return self.train_input_target_maker.denormalizer_used_in_training.denormalize(targs_preds)
+		targs_preds = self.train_input_target_maker.denormalizer_used_in_training.denormalize(targs_preds)
+		return targs_preds
+
+	def get_prediction_df(self):
+		self.model_output.fill_time_gaps_in_predictions_using_time_format(self.current_input_target_maker.time_format)
+		preds = super(Neural_Network_Model,self).get_prediction_df()
+		preds = self.train_input_target_maker.denormalizer_used_in_training.denormalize(preds)
+		return preds
+
+	def set_experiment_helper(self, experiment_helper):
+		super(Neural_Network_Model,self).set_experiment_helper(experiment_helper)
+		self.set_path_tf_output(self.experiment_helper.get_tensorflow_dir_path())	
+		self.set_path_saved_tf_session(self.experiment_helper.new_tf_session_file_path_with_specifier(self.name))

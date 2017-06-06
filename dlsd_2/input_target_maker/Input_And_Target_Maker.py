@@ -9,6 +9,7 @@ class Input_And_Target_Maker:
 		self.target_maker = Maker()
 		self.clip_range = None
 		self.source_is_sql_output = True
+		self.time_format = None
 
 	def prepare_source_data_and_make_input_and_target(self):
 		self.make_source_data()
@@ -45,6 +46,7 @@ class Input_And_Target_Maker:
 		self._calc_clip_range_so_input_target_same_size()
 		self._make_input()
 		self._make_target()
+		self._set_input_target_row_names()
 
 	def _calc_clip_range_so_input_target_same_size(self):
 		'''
@@ -65,8 +67,22 @@ class Input_And_Target_Maker:
 		self._common_make(self.target_maker)
 
 	def _common_make(self,maker):
-		maker.extract_sensor_idxs_from_source_dataset_object(self.source_dataset_object)
+		maker.extract_desired_sensors_and_row_names_from_source_dataset_object(self.source_dataset_object)
 		maker.make_dataset_object_with_clip_range(self.clip_range)
+
+	def _set_input_target_row_names(self):
+		source_row_names = self.source_dataset_object.df.index.values
+		clipped_row_names = source_row_names[0:len(source_row_names)-self.target_maker.bottom_padding-max(self.target_maker.time_offsets_list)]
+		self.input_maker.dataset_object.df.index = clipped_row_names
+		self.target_maker.dataset_object.df.index = clipped_row_names
+
+	def copy_parameters_from_maker(self,mkr):
+		self.set_input_sensor_idxs_and_timeoffsets_lists(mkr.input_maker.sensor_idxs_list, mkr.input_maker.time_offsets_list)
+		self.set_target_sensor_idxs_and_timeoffsets_lists(mkr.target_maker.sensor_idxs_list, mkr.target_maker.time_offsets_list)
+		self.time_format = mkr.time_format
+		
+	def write_source_to_file(self,file_path):
+		self.source_dataset_object.write_csv(file_path)
 
 	def set_source_file_path(self,file_path):
 		self.source_file_path = file_path
@@ -79,6 +95,9 @@ class Input_And_Target_Maker:
 
 	def set_target_sensor_idxs_list(self, the_list):
 		self.target_maker.sensor_idxs_list = the_list
+
+	def set_time_format(self,time_format):
+		self.time_format = time_format
 
 	def get_target_time_offsets_list(self):
 		return self.target_maker.time_offsets_list
@@ -104,10 +123,5 @@ class Input_And_Target_Maker:
 	def get_source_idxs_list(self):
 		return self.source_dataset_object.df.columns.values
 
-	def copy_parameters_from_maker(self,mkr):
-		self.set_input_sensor_idxs_and_timeoffsets_lists(mkr.input_maker.sensor_idxs_list, mkr.input_maker.time_offsets_list)
-		self.set_target_sensor_idxs_and_timeoffsets_lists(mkr.target_maker.sensor_idxs_list, mkr.target_maker.time_offsets_list)
-	
-	def write_source_to_file(self,file_path):
-		self.source_dataset_object.write_csv(file_path)
-		
+	def get_target_df(self):
+		return self.target_maker.dataset_object.df

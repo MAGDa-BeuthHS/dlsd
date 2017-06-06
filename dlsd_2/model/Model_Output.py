@@ -18,6 +18,9 @@ class Model_Output:
 	def set_target_dataset_object(self,dataset_object):
 		self.target_dataset_object = dataset_object
 
+	def get_prediction_df(self):
+		return self.prediction_dataset_object.df
+
 	def calc_mae(self):
 		my_error = error.mae(self.prediction_dataset_object.df, self.target_dataset_object.df)
 		return my_error
@@ -33,3 +36,11 @@ class Model_Output:
 		names_predict = ["predict_%d"%x for x in self.prediction_dataset_object.df.columns.values]
 		new_df.columns = names_target + names_predict
 		return new_df
+
+	def fill_time_gaps_in_target_and_predictions_using_time_format(self, time_format):
+		self.target_dataset_object.fill_time_gaps_using_time_format(time_format)
+		self.fill_time_gaps_in_predictions_using_time_format(time_format)
+
+	def fill_time_gaps_in_predictions_using_time_format(self,time_format):
+		self.prediction_dataset_object.df.index = self.target_dataset_object.df.index.values
+		self.prediction_dataset_object.fill_time_gaps_using_time_format(time_format)

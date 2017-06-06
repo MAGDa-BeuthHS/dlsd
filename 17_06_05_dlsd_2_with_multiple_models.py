@@ -12,11 +12,19 @@ def main():
 	file_path_test = '/Users/ahartens/Desktop/Work/16_11_25_PZS_Belegung_September_Full.csv'
 
 	# define a model
-	model = NN_One_Hidden_Layer()
-	model.set_number_hidden_nodes(50)
-	model.set_learning_rate(.1)
-	model.set_batch_size(3)
-	model.set_max_steps(3)
+	model_1 = NN_One_Hidden_Layer()
+	model_1.set_number_hidden_nodes(50)
+	model_1.set_learning_rate(.1)
+	model_1.set_batch_size(3)
+	model_1.set_max_steps(3)
+
+	model_2 = NN_One_Hidden_Layer()
+	model_2.set_number_hidden_nodes(50)
+	model_2.set_learning_rate(.1)
+	model_2.set_batch_size(3)
+	model_2.set_max_steps(3)
+
+	models = [model_1, model_2]
 
 	input_time_offsets_list = [0]
 	target_time_offsets_list = [30,45,60]
@@ -38,33 +46,33 @@ def main():
 	available_sensors = train_input_and_target_maker.get_source_idxs_list() # bc of type remove inefficient sensors, get available sensors
 
 	root_path = '/Users/ahartens/Desktop/Work/dlsd_2_trials/trial_1'
-	current_exp_name = "single_layer_30_45_60"
 
 	for i in range(0,3):
-		current_sensor = available_sensors[i]
-		logging.info("Starting experiment with sensor "+current_sensor)
+		current_sensor_used_as_model_output = available_sensors[i]
+		logging.info("Starting experiment with sensor "+current_sensor_used_as_model_output)
 		
 		dir_hlpr = Experiment_Helper_Multiple_Models()
-		dir_hlpr.setup_with_home_directory_path_and_sensor_name(root_path, current_sensor)
+		dir_hlpr.setup_with_home_directory_path_and_sensor_name(root_path, current_sensor_used_as_model_output)
 
-		train_input_and_target_maker.set_target_sensor_idxs_list([current_sensor])
+		# set current
+		train_input_and_target_maker.set_target_sensor_idxs_list([current_sensor_used_as_model_output])
 		train_input_and_target_maker.make_input_and_target()
-		
 		test_input_and_target_maker.copy_parameters_from_maker(train_input_and_target_maker)
 		test_input_and_target_maker.make_input_and_target()
 
-		model.set_path_tf_output(dir_hlpr.get_tensorflow_dir_path())	
-		model.set_path_saved_tf_session(dir_hlpr.new_tf_session_file_path_with_specifier(current_exp_name))
+		# write target data 
+		test_df = test_input_and_target_maker.get_target_df()
+		test_df.to_csv(dir_hlpr.get_target_file_path())
 
-		model.train_with_prepared_input_target_maker(train_input_and_target_maker)
-		model.test_with_prepared_input_target_maker(test_input_and_target_maker)
+		# train and test
+		model_prediction_accuracies = []
+		for model in models:
+			model.set_experiment_helper(dir_hlpr)
+			model.train_with_prepared_input_target_maker(train_input_and_target_maker)
+			model.test_with_prepared_input_target_maker(test_input_and_target_maker)
+			model.write_predictions_using_experiment_helper()
+			model_prediction_accuracies.append(model.calc_prediction_accuracy())
 		
-		accuracy_dict = model.calc_prediction_accuracy()
-		
-		model.write_target_and_predictions_to_file(dir_hlpr.new_predictions_file_path_with_specifier(current_exp_name))
-
-
-
 if __name__=="__main__":
 	main()
 

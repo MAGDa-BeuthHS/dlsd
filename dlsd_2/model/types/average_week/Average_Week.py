@@ -9,6 +9,7 @@ class Average_Week(Model):
 		logging.info("Creating Average Week model")
 		self.average_week_externally_set = False
 		self.model_content = Average_Week_Content()
+		self.name = "Average_Week"
 
 	def train_with_prepared_input_target_maker(self,input_target_maker):
 		if self.average_week_externally_set is False:

@@ -7,6 +7,7 @@ class NN_One_Hidden_Layer(Neural_Network_Model):
 	def __init__(self):
 		super(NN_One_Hidden_Layer,self).__init__()
 		logging.info("Creating Neural Network with One Hidden Layer")
+		self.name = "NN_One_Hidden_Layer"
 
 	def _build_model(self):
 	    self.graph = tf.Graph()

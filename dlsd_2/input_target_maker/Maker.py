@@ -13,10 +13,11 @@ class Maker:
 		self.top_padding = 0
 		self.bottom_padding = 0
 
-	def extract_sensor_idxs_from_source_dataset_object(self,source_dataset_object):
+	def extract_desired_sensors_and_row_names_from_source_dataset_object(self,source_dataset_object):
 		if self.sensor_idxs_list is None:
 			self._set_sensor_idxs_to_use_all_sensors_from_source(source_dataset_object)
 		self.selected_source_numpy_data = source_dataset_object.df[self.sensor_idxs_list]
+		self.selected_source_sensor_rows_names = source_dataset_object.df.index.values
 
 	def make_dataset_object_with_clip_range(self, clip_range):
 		if self.time_offsets_list is None:

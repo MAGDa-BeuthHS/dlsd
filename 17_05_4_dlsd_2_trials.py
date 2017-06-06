@@ -15,8 +15,8 @@ def main():
 	model.set_number_hidden_nodes(50)
 	model.set_learning_rate(.1)
 	model.set_batch_size(3)
-	model.set_max_steps(10000)
-	model.set_path_saved_session('/Users/ahartens/Desktop/Work/dlsd_2_trials/saved_sess')
+	model.set_max_steps(1000)
+	model.set_path_saved_tf_session('/Users/ahartens/Desktop/Work/dlsd_2_trials/saved_sess')
 	model.set_path_tf_output('/Users/ahartens/Desktop/Work/dlsd_2_trials')	
 	
 	# Make train data
@@ -27,6 +27,7 @@ def main():
 	train_input_and_target_maker.set_input_sensor_idxs_and_timeoffsets_lists(None,[0]) # use all sensors, no time offset for input
 	train_input_and_target_maker.set_target_sensor_idxs_and_timeoffsets_lists([0],[30,45,60]) # use sensor
 	train_input_and_target_maker.prepare_source_data_and_make_input_and_target()
+	train_input_and_target_maker.set_time_format('%Y-%m-%d %H:%M:%S')
 
 	# Make test data
 	test_input_and_target_maker = ITM_Normalized_Moving_Average()
