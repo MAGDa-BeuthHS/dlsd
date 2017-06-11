@@ -25,4 +25,6 @@ class Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output(Experiment)
 		self.train_input_and_target_maker.set_input_time_offsets_list(self.current_io_param.input_time_offsets_list)
 		self.train_input_and_target_maker.set_target_time_offsets_list(self.current_io_param.target_time_offsets_list)
 		self.train_input_and_target_maker.set_target_sensor_idxs_list([self.current_sensor_used_as_model_output])
-	
+		
+		if self.current_io_param.use_single_sensor_as_input: # if single input/single output
+			self.train_input_and_target_maker.set_input_sensor_idsx_list([self.current_sensor_used_as_model_output])

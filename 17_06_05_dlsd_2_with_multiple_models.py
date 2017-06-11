@@ -11,21 +11,60 @@ class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_S
 
 	def _define_models(self):
 		model_1 = NN_One_Hidden_Layer()
+		model_1.name = "single_hidden_layer_50"
 		model_1.set_number_hidden_nodes(50)
 		model_1.set_learning_rate(.1)
 		model_1.set_batch_size(3)
 		model_1.set_max_steps(5000)
-		self.add_model(model_1)
 
-		model_2 = Average_Week()
-		model_2.set_average_data_from_csv_file_path('/Users/ahartens/Desktop/Average_Week_One_Year.csv')
+		model_2 = NN_One_Hidden_Layer()
+		model_2.name = "single_hidden_layer_10"
+		model_2.set_number_hidden_nodes(10)
+		model_2.set_learning_rate(.1)
+		model_2.set_batch_size(3)
+		model_2.set_max_steps(5000)
+		
+		model_3 = Average_Week()
+		model_3.set_average_data_from_csv_file_path('/Users/ahartens/Desktop/Average_Week_One_Year.csv')
+		
+		self.add_model(model_1)
 		self.add_model(model_2)
+		self.add_model(model_3)
 
 	def _define_model_input_output_parameters(self):
 		io_1 = Model_Input_Output_Parameters()
-		io_1.name = "all_sensor_in_one_sensor_out_(15_30_45)"
-		io_1.set_target_time_offsets_list([15,30,45])
-		self.add_input_output_parameter(io_1)
+		io_2 = Model_Input_Output_Parameters()
+		io_3 = Model_Input_Output_Parameters()
+		io_4 = Model_Input_Output_Parameters()
+		io_5 = Model_Input_Output_Parameters()
+		io_6 = Model_Input_Output_Parameters()
+		io_7 = Model_Input_Output_Parameters()
+		io_8 = Model_Input_Output_Parameters()
+
+		all_ios = [io_1,io_2,io_3,io_4,io_5,io_6,io_7,io_8]
+
+		io_1.name = "FFNN_single"
+		io_2.name = "FFNN_nn"
+		io_3.name = "FFNN_nn+"
+		io_4.name = "FFNN_all"
+		io_5.name = "mFFNN_single"
+		io_6.name = "mFFNN_nn"
+		io_7.name = "mFFNN_nn+"
+		io_8.name = "mFFNN_all"
+
+		io_1.use_single_sensor_as_input = True
+		io_5.use_single_sensor_as_input = True
+
+		io_2.use_adjacency_matrix = True
+		io_3.use_adjacency_matrix = True
+		io_6.use_adjacency_matrix = True
+		io_7.use_adjacency_matrix = True
+
+		target_time_offsets = [15,30,45,60]
+		for io in all_ios:
+			io.set_target_time_offsets_list(target_time_offsets)
+
+		self.set_input_output_parameters_list(all_ios)
 
 	def _define_input_and_target_makers(self):
 		file_path_train = '/Users/ahartens/Desktop/Work/16_11_25_PZS_Belegung_augustFull.csv'
@@ -43,10 +82,11 @@ class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_S
 		self.set_train_and_test_input_target_maker_and_create_source_data(train_input_and_target_maker, test_input_and_target_maker)
 
 def main():
-	exp = Experiment_17_06_09_Redo_December_Experiment()
-	exp.set_experiment_root_path('/Users/ahartens/Desktop/Work/dlsd_2_trials/trial_1')
-	exp.run_experiment()
+	experiment_path = '/Users/ahartens/Desktop/Work/dlsd_2_trials/trial_1'
 
+	exp = Experiment_17_06_09_Redo_December_Experiment()
+	exp.set_experiment_root_path(experiment_path)
+	exp.run_experiment()
 
 
 if __name__=="__main__":
