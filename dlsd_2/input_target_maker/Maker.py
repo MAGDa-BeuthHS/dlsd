@@ -8,7 +8,6 @@ class Maker:
 		self.selected_source_numpy_data = None
 		self.dataset_object = None
 		self.sensor_idxs_list = None
-		self.sensor_names_list = None
 		self.time_offsets_list = None
 		self.top_padding = 0
 		self.bottom_padding = 0
@@ -18,6 +17,9 @@ class Maker:
 			self._set_sensor_idxs_to_use_all_sensors_from_source(source_dataset_object)
 		self.selected_source_numpy_data = source_dataset_object.df[self.sensor_idxs_list]
 		self.selected_source_sensor_rows_names = source_dataset_object.df.index.values
+
+	def _set_sensor_idxs_to_use_all_sensors_from_source(self, source_dataset_object):
+		self.sensor_idxs_list = source_dataset_object.df.columns.values
 
 	def make_dataset_object_with_clip_range(self, clip_range):
 		if self.time_offsets_list is None:
@@ -29,9 +31,14 @@ class Maker:
 		self.dataset_object.set_time_offsets_list(self.time_offsets_list)
 		self.dataset_object.create_time_offset_data()
 		self.dataset_object.clip_ends_keep_data_between_indices(clip_range)
+		self._create_and_set_column_headers()
 
-	def _set_sensor_idxs_to_use_all_sensors_from_source(self, source_dataset_object):
-		self.sensor_idxs_list = source_dataset_object.df.columns.values
+	def _create_and_set_column_headers(self):
+		headers = []
+		for time_offset in self.time_offsets_list:
+			for sensor in self.sensor_idxs_list:
+				headers.append(str(sensor)+"__t"+str(time_offset))
+		self.dataset_object.df.columns = headers
 
 	def max_time_offset(self):
 		return max(self.time_offsets_list)

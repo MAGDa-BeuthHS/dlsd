@@ -11,11 +11,12 @@ class Average_Week(Model):
 		self.model_content = Average_Week_Content()
 		self.name = "Average_Week"
 
-	def train_with_prepared_input_target_maker(self,input_target_maker):
+	def train_with_prepared_input_target_maker(self,itm):
 		if self.average_week_externally_set is False:
-			super(Average_Week,self).train_with_prepared_input_target_maker(input_target_maker)
+			super(Average_Week,self).train_with_prepared_input_target_maker(itm)
 		else:
-			self.train_input_target_maker = input_target_maker # need to set this so parameters copied to test_input_target_maker during testing
+			self._set_global_itms_for_training(itm)
+			self.model_input.set_input_and_target_from_input_target_maker(itm)
 
 	def _train(self):
 		self.model_content.create_source_average_data_with_input_target_maker(self.current_input_target_maker)
@@ -23,7 +24,7 @@ class Average_Week(Model):
 	def _test(self):
 		self.model_content.set_input_target_maker(self.current_input_target_maker)
 		predictions = self.model_content.make_prediction_dataset_object()
-		super(Average_Week,self).set_model_output_with_predictions_dataset_object(predictions)
+		super(Average_Week,self).set_model_output_with_predictions_numpy_array(predictions.df.values) # TODO check works
 
 	def _get_day_begin_integer_from_target_dataset(self):
 		first_time_stamp_string = self.current_input_target_maker.target_dataset_object.df.index.values[0,0]

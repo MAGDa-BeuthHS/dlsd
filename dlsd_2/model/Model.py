@@ -66,7 +66,10 @@ class Model:
 		return self.model_output.get_target_df
 
 	def get_prediction_df(self):
-		return self.model_output.get_prediction_df()
+		preds = self.model_output.get_prediction_df()
+		if self.train_input_target_maker.is_denormalized:
+			preds = self.train_input_target_maker.denormalizer_used_in_training.denormalize(preds)
+		return preds
 
 	def write_target_and_predictions_to_file(self, file_path):
 		logging.info("Writing target and predictions to %s"%file_path)
@@ -79,15 +82,11 @@ class Model:
 		predictions = self.get_prediction_df()
 		predictions.to_csv(path)
 
-	def set_model_output_with_predictions_dataset_object(self,predictions_dataset_object):
-		''' Called after testing by subclasses of Model '''
-		self.model_output.set_prediction_dataset_object(predictions_dataset_object)
-		self.model_output.set_target_dataset_object(self.model_input.get_target_dataset_object())
-
 	def set_model_output_with_predictions_numpy_array(self, predictions_numpy_array):
 		''' Called after testing by subclasses of Model '''
-		self.model_output.set_prediction_dataset_object_with_numpy_array(predictions_numpy_array)
 		self.model_output.set_target_dataset_object(self.model_input.get_target_dataset_object())
+		self.model_output.set_prediction_dataset_object_with_numpy_array(predictions_numpy_array)
 
 	def set_experiment_helper(self, experiment_helper):
+		''' Experiment_helpers provide directory file paths to save information to '''
 		self.experiment_helper = experiment_helper

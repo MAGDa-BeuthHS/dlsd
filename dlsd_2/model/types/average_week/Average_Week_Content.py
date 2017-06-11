@@ -63,10 +63,14 @@ class Average_Week_Content(Model_Content):
 	def make_prediction_dataset_object(self):
 		size = [self.num_target_rows , self.num_target_offsets*self.num_target_sensors]
 		array = np.zeros(size)
-		self.subset_avg_week_array = self.source_average_dataset_object.get_numpy_columns_at_idxs(self.input_target_maker.get_target_sensor_idxs_list())
+		self._extract_sensors_currently_being_used_as_output_from_source_data()
 		self._iterate_over_target_time_offsets_replicating_average_week(array)
 		self.prediction_dataset_object.set_numpy_array(array)
 		return self.prediction_dataset_object
+
+	def _extract_sensors_currently_being_used_as_output_from_source_data(self):
+		self.subset_avg_week_array = self.source_average_dataset_object.df[self.input_target_maker.get_target_sensor_idxs_list()].values
+
 
 	def _iterate_over_target_time_offsets_replicating_average_week(self,array):
 		'''

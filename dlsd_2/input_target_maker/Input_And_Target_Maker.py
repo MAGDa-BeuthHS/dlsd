@@ -10,6 +10,7 @@ class Input_And_Target_Maker:
 		self.clip_range = None
 		self.source_is_sql_output = True
 		self.time_format = None
+		self.is_denormalized = False
 
 	def prepare_source_data_and_make_input_and_target(self):
 		self.make_source_data()

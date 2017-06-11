@@ -11,10 +11,8 @@ class Model_Output:
 
 	def set_prediction_dataset_object_with_numpy_array(self,numpy_array):
 		self.prediction_dataset_object.set_numpy_array(numpy_array)
+		self.prediction_dataset_object.df.columns = self.target_dataset_object.df.columns.values
 	
-	def set_prediction_dataset_object(self, dataset_object):
-		self.prediction_dataset_object = dataset_object
-
 	def set_target_dataset_object(self,dataset_object):
 		self.target_dataset_object = dataset_object
 
