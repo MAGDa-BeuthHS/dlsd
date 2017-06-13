@@ -38,3 +38,4 @@ class Average_Week(Model):
 	def write_average_week_to_filepath(self, file_path):
 		''' After training a single average week is created. Print this out here '''
 		self.model_content.source_average_dataset_object.write_csv(file_path)
+

@@ -1,3 +1,8 @@
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+import matplotlib.cm as cm
+import numpy as np
+from .experiment_output_reader.Experiment_Output_Reader import Experiment_Output_Reader
 
 class Experiment_Grapher:
     def __init__(self):

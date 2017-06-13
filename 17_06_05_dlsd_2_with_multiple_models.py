@@ -15,20 +15,14 @@ class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_S
 		model_1.set_number_hidden_nodes(50)
 		model_1.set_learning_rate(.1)
 		model_1.set_batch_size(3)
-		model_1.set_max_steps(5000)
+		model_1.set_max_steps(1000)
 
-		model_2 = NN_One_Hidden_Layer()
-		model_2.name = "single_hidden_layer_10"
-		model_2.set_number_hidden_nodes(10)
-		model_2.set_learning_rate(.1)
-		model_2.set_batch_size(3)
-		model_2.set_max_steps(5000)
 		
 		model_3 = Average_Week()
 		model_3.set_average_data_from_csv_file_path('/Users/ahartens/Desktop/Average_Week_One_Year.csv')
 		
 		self.add_model(model_1)
-		self.add_model(model_2)
+		#self.add_model(model_2)
 		self.add_model(model_3)
 
 	def _define_model_input_output_parameters(self):
@@ -41,7 +35,7 @@ class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_S
 		io_7 = Model_Input_Output_Parameters()
 		io_8 = Model_Input_Output_Parameters()
 
-		all_ios = [io_1,io_2,io_3,io_4,io_5,io_6,io_7,io_8]
+		all_ios = [io_2]#,io_2,io_3,io_4,io_5,io_6,io_7,io_8]
 
 		io_1.name = "FFNN_single"
 		io_2.name = "FFNN_nn"

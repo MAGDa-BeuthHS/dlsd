@@ -76,7 +76,7 @@ class Neural_Network_Model(Model):
 
 	def get_prediction_df(self):
 		self.model_output.fill_time_gaps_in_predictions_using_time_format(self.current_input_target_maker.time_format)
-		preds = super(Neural_Network_Model,self).get_prediction_df()
+		preds = self.model_output.get_prediction_df()
 		preds = self.train_input_target_maker.denormalizer_used_in_training.denormalize(preds)
 		return preds
 
@@ -84,7 +84,4 @@ class Neural_Network_Model(Model):
 		super(Neural_Network_Model,self).set_experiment_helper(experiment_helper)
 		self.set_path_tf_output(self.experiment_helper.get_tensorflow_dir_path())	
 		self.set_path_saved_tf_session(self.experiment_helper.new_tf_session_file_path_with_specifier(self.name))
-		print(self.path_tf_output)
-		print(self.path_saved_tf_session)
-		print("BOOOYAAAA")
-		print(type(experiment_helper))
+

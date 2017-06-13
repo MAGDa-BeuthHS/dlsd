@@ -35,6 +35,12 @@ class Input_And_Target_Maker:
 		self.source_dataset_object.read_csv(self.source_file_path)
 		self.source_dataset_object.pivot()
 
+	def set_all_sensor_idxs_and_time_offsets_using_parameters_object(self, params):
+		self.set_input_sensor_idxs_list(params.input_time_offsets_list)		
+		self.set_input_time_offsets_list(params.input_time_offsets_list)
+		self.set_target_time_offsets_list(params.target_time_offsets_list)
+		self.set_target_sensor_idxs_list(params.target_sensor_idxs_list)
+	
 	def set_input_sensor_idxs_and_timeoffsets_lists(self,idxs_list,offset_list):
 		self.input_maker.sensor_idxs_list = idxs_list
 		self.input_maker.time_offsets_list = offset_list
@@ -93,6 +99,9 @@ class Input_And_Target_Maker:
 
 	def set_target_time_offsets_list(self, the_list):
 		self.target_maker.time_offsets_list = the_list
+
+	def set_input_sensor_idxs_list(self, the_list):
+		self.input_maker.sensor_idxs_list = the_list
 
 	def set_target_sensor_idxs_list(self, the_list):
 		self.target_maker.sensor_idxs_list = the_list

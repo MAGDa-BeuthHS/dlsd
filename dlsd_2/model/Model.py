@@ -66,10 +66,7 @@ class Model:
 		return self.model_output.get_target_df
 
 	def get_prediction_df(self):
-		preds = self.model_output.get_prediction_df()
-		if self.train_input_target_maker.is_denormalized:
-			preds = self.train_input_target_maker.denormalizer_used_in_training.denormalize(preds)
-		return preds
+		return self.model_output.get_prediction_df()
 
 	def write_target_and_predictions_to_file(self, file_path):
 		logging.info("Writing target and predictions to %s"%file_path)

@@ -3,7 +3,7 @@ from .ITM_Moving_Average import ITM_Moving_Average
 class ITM_Normalized_Moving_Average(ITM_Moving_Average):
 	def __init__(self):
 		super(ITM_Normalized_Moving_Average,self).__init__()
-		self.denormalizer_used_in_training = None # if none given, this is set during 
+		self.denormalizer_used_in_training = None # if none given, this is set during
 
 	def make_source_data(self):
 		super(ITM_Normalized_Moving_Average,self).make_source_data()
@@ -25,7 +25,6 @@ class ITM_Normalized_Moving_Average(ITM_Moving_Average):
 	def _common_make(self,maker):
 		super(ITM_Normalized_Moving_Average,self)._common_make(maker)
 		maker.dataset_object.set_denormalizer(self.source_dataset_object.denormalizer)
-
 
 	def get_target_df(self):
 		return self.denormalizer_used_in_training.denormalize(self.target_maker.dataset_object.df)
