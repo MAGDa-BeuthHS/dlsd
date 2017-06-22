@@ -11,7 +11,7 @@ class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_S
 		source_maker.file_path_train = '/Users/ahartens/Desktop/Work/16_11_25_PZS_Belegung_augustFull.csv'
 		source_maker.file_path_test = '/Users/ahartens/Desktop/Work/16_11_25_PZS_Belegung_September_Full.csv'
 		source_maker.normalize = True
-		source_maker.moving_average_window = 15
+		source_maker.moving_average_window = 50
 		source_maker.remove_inefficient_sensors_below_threshold = 1.0
 		source_maker.time_format_train = '%Y-%m-%d %H:%M:%S'
 		source_maker.time_format_test = '%Y-%m-%d %H:%M:%S'
