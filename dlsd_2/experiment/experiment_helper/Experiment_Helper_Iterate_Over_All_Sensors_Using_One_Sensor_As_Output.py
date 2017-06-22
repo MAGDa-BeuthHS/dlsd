@@ -26,3 +26,6 @@ class Experiment_Helper_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output(Expe
 	def create_sensor_dir(self):
 		self.root_path = os.path.join(self.experiment_output_path,self.sensor_name)
 		self.check_or_make_dir(self.root_path)
+
+	def get_target_file_path(self):
+		return os.path.join(self.root_path,"target.csv")

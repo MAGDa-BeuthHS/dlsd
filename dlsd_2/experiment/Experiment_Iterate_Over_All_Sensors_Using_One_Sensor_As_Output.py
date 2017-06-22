@@ -1,14 +1,20 @@
 from .Experiment import *
 from .experiment_helper.Experiment_Helper_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output import Experiment_Helper_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output
+
 import os
 class Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output(Experiment):
+	def __init__(self):
+		super(Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output,self).__init__()
+		self.target_for_current_sensor_written_to_file = False
+
 	def run_experiment(self):
 		self._gather_experiment()
 		self._iterate_over_all_sensors_test_and_train_using_one_sensor_as_target()
 
 	def _iterate_over_all_sensors_test_and_train_using_one_sensor_as_target(self):
 		available_sensors = self.train_input_and_target_maker.get_source_idxs_list() # bc of type remove inefficient sensors, get available sensors
-		for i in range(0,1):#for self.current_sensor_used_as_model_output in available_sensors:
+		for i in range(1):#for self.current_sensor_used_as_model_output in available_sensors:
+			self.target_for_current_sensor_written_to_file = False
 			self.current_sensor_used_as_model_output = available_sensors[i]
 			logging.info("Starting experiment with sensor "+self.current_sensor_used_as_model_output)
 			self._iterate_over_io_params()
@@ -28,3 +34,9 @@ class Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output(Experiment)
 		self.current_io_param.set_target_sensor_idxs_list([self.current_sensor_used_as_model_output])
 		if self.current_io_param.use_single_sensor_as_input: # if single input/single output
 			self.current_io_param.set_input_sensor_idxs_list([self.current_sensor_used_as_model_output])
+	
+	def _write_target_data_to_file(self):
+		if self.target_for_current_sensor_written_to_file is not True:
+			test_df = self.test_input_and_target_maker.get_target_df()
+			test_df.to_csv(self.current_experiment_helper.get_target_file_path())
+			self.target_for_current_sensor_written_to_file = True
