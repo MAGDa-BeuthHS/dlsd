@@ -5,7 +5,6 @@ import os
 class Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output(Experiment):
 	def __init__(self):
 		super(Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output,self).__init__()
-		self.target_for_current_sensor_written_to_file = False
 
 	def run_experiment(self):
 		self._gather_experiment()
@@ -34,9 +33,3 @@ class Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output(Experiment)
 		self.current_io_param.set_target_sensor_idxs_list([self.current_sensor_used_as_model_output])
 		if self.current_io_param.use_single_sensor_as_input: # if single input/single output
 			self.current_io_param.set_input_sensor_idxs_list([self.current_sensor_used_as_model_output])
-	
-	def _write_target_data_to_file(self):
-		if self.target_for_current_sensor_written_to_file is not True:
-			test_df = self.test_input_and_target_maker.get_target_df()
-			test_df.to_csv(self.current_experiment_helper.get_target_file_path())
-			self.target_for_current_sensor_written_to_file = True

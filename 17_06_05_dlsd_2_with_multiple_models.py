@@ -71,12 +71,10 @@ class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_S
 		for io in all_ios:
 			io.set_target_time_offsets_list(target_time_offsets)
 
-		# input_time_offsets_for_sequential_input = [0,10,15,30]
-		# for i in range(4,8):
-		# 	io = all_ios[i]
-		# 	io.set_input_time_offsets_list(input_time_offsets_for_sequential_input)
-
-
+		input_time_offsets_for_sequential_input = [0,10,15,30]
+		for i in range(4,8):
+		 	io = all_ios[i]
+		 	io.set_input_time_offsets_list(input_time_offsets_for_sequential_input)
 
 		self.set_input_output_parameters_list(all_ios)
 
