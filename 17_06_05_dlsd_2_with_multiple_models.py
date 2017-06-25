@@ -23,7 +23,7 @@ class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_S
 		model_1.set_number_hidden_nodes(50)
 		model_1.set_learning_rate(.1)
 		model_1.set_batch_size(3)
-		model_1.set_max_steps(10000)
+		model_1.set_max_steps(10)
 		
 		model_2 = Average_Week()
 		model_2.set_average_data_from_csv_file_path('/Users/ahartens/Desktop/Average_Week_One_Year.csv')

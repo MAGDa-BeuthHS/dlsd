@@ -18,6 +18,7 @@ class Neural_Network_Model(Model):
 		self.batch_size = None 
 		self.path_saved_tf_session = None
 		self.path_tf_output = None
+		self.epochs = 10
 
 	def set_number_hidden_nodes(self,number_hidden_nodes):
 		self.number_hidden_nodes = number_hidden_nodes
@@ -45,18 +46,34 @@ class Neural_Network_Model(Model):
 		self._build_model()
 		with tf.Session(graph = self.graph) as sess:
 			self.sess = sess
-			print(self.path_tf_output)
 			summary_writer = tf.train.SummaryWriter(self.path_tf_output, sess.graph)
 			sess.run(tf.initialize_all_variables())
 			for step in range(self.max_steps):
-			    feed_dict = self.model_input.fill_feed_dict(self.input_pl,self.target_pl,self.batch_size)
+			    feed_dict = self.model_input.fill_feed_dict_in_order(self.input_pl,self.target_pl,self.batch_size, step)
 			    loss_value,predicted = sess.run([self.model_content.optimize,self.model_content.prediction],feed_dict = feed_dict)
 			    if(step%self.test_step == 0):
 			        mean = sess.run(self.model_content.evaluation,feed_dict = feed_dict)
-			        print(mean)
 			        logging.info("Training step : %d of %d"%(step,self.max_steps))
 			        #logging.info("Mean test error is %f"%self.train_input_target_maker.denormalizer_used_in_training.denormalize(mean))
 			self.saver.save(sess,self.path_saved_tf_session) 
+	
+	# def _train(self):
+	# 	self._build_model()
+	# 	with tf.Session(graph = self.graph) as sess:
+	# 		self.sess = sess
+	# 		summary_writer = tf.train.SummaryWriter(self.path_tf_output, sess.graph)
+	# 		sess.run(tf.initialize_all_variables())
+	# 		number_batches = int(self.model_input.get_number_datapoints()/self.batch_size)
+	# 		for epoch in range(self.epochs):
+	# 			logging.info("epoch #"+str(epoch))
+	# 			for step in range(number_batches):
+	# 			    feed_dict = self.model_input.fill_feed_dict_in_order(self.input_pl,self.target_pl,self.batch_size, step)
+	# 			    loss_value,predicted = sess.run([self.model_content.optimize,self.model_content.prediction],feed_dict = feed_dict)
+	# 			    if(step%self.test_step == 0):
+	# 			        mean = sess.run(self.model_content.evaluation,feed_dict = feed_dict)
+	# 			        logging.info("Training step : %d of %d"%(step,self.max_steps))
+	# 			        #logging.info("Mean test error is %f"%self.train_input_target_maker.denormalizer_used_in_training.denormalize(mean))
+	# 		self.saver.save(sess,self.path_saved_tf_session) 
 
 	def _test(self):
 		self._build_model()

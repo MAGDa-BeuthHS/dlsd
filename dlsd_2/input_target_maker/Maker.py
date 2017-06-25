@@ -43,7 +43,7 @@ class Maker:
 	def max_time_offset(self):
 		return max(self.time_offsets_list)
 
-	def multiply_by_adjacency_of_target_sensor_including_target_sensor(self, adjacency_matrix, target_sensor_idxs_list, include_target_sensor = True):
+	def multiply_by_adjacency_of_target_sensor_including_target_sensor(self, adjacency_matrix, target_sensor_idxs_list, include_target_sensor):
 		target_sensor = target_sensor_idxs_list[0]
 		input_sensor_idxs_list = []
 		if include_target_sensor:
