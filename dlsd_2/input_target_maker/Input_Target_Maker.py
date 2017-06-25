@@ -8,16 +8,15 @@ class Input_And_Target_Maker_2:
 		self.target_maker = Maker()
 		self.clip_range = None
 		self.denormalizer_used_in_training = None # if none given, this is set during training
-		self.adjacency_matrix = None
 		self.io_param = None
 		self.time_format = None
 
 	def set_all_sensor_idxs_and_time_offsets_using_parameters_object(self, params):
+		self.io_param = params
 		self.set_input_sensor_idxs_list(params.input_sensor_idxs_list)		
 		self.set_input_time_offsets_list(params.input_time_offsets_list)
 		self.set_target_time_offsets_list(params.target_time_offsets_list)
 		self.set_target_sensor_idxs_list(params.target_sensor_idxs_list)
-		self.adjacency_matrix = params.adjacency_matrix
 
 	def make_input_and_target(self):
 		self._calc_clip_range_so_input_target_same_size()
@@ -38,8 +37,8 @@ class Input_And_Target_Maker_2:
 	def _make_input(self):
 		self.input_maker.top_padding = self.target_maker.max_time_offset()
 		self.input_maker.extract_desired_sensors_and_row_names_from_source_dataset_object(self.source_dataset_object)
-		if self.adjacency_matrix is not None:
-			self.input_maker.multiply_by_adjacency_of_target_sensor_including_target_sensor(self.adjacency_matrix,self.target_maker.sensor_idxs_list, )
+		if self.io_param.adjacency_matrix is not None:
+			self.input_maker.multiply_by_adjacency_of_target_sensor_including_target_sensor(self.io_param.adjacency_matrix,self.target_maker.sensor_idxs_list, self.io_param.include_output_sensor_in_adjacency)
 		self.input_maker.make_dataset_object_with_clip_range(self.clip_range)
 	
 	def _make_target(self):

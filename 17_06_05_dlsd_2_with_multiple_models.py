@@ -23,7 +23,7 @@ class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_S
 		model_1.set_number_hidden_nodes(50)
 		model_1.set_learning_rate(.1)
 		model_1.set_batch_size(3)
-		model_1.set_max_steps(10000)
+		model_1.set_max_steps(10)
 		
 		model_2 = Average_Week()
 		model_2.set_average_data_from_csv_file_path('/Users/ahartens/Desktop/Average_Week_One_Year.csv')
@@ -45,7 +45,7 @@ class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_S
 		io_7 = Model_Input_Output_Parameters()
 		io_8 = Model_Input_Output_Parameters()
 
-		all_ios = [io_1,io_2,io_3,io_4,io_5,io_6,io_7,io_8]
+		all_ios = [io_2,io_3]#,io_2,io_3,io_4,io_5,io_6,io_7,io_8]
 
 		io_1.name = "FFNN_single"
 		io_2.name = "FFNN_nn"
@@ -71,10 +71,10 @@ class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_S
 		for io in all_ios:
 			io.set_target_time_offsets_list(target_time_offsets)
 
-		input_time_offsets_for_sequential_input = [0,10,15,30]
-		for i in range(4,8):
-		 	io = all_ios[i]
-		 	io.set_input_time_offsets_list(input_time_offsets_for_sequential_input)
+		# input_time_offsets_for_sequential_input = [0,10,15,30]
+		# for i in range(4,8):
+		#  	io = all_ios[i]
+		#  	io.set_input_time_offsets_list(input_time_offsets_for_sequential_input)
 
 		self.set_input_output_parameters_list(all_ios)
 
