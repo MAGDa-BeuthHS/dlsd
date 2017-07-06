@@ -16,6 +16,8 @@ class Dataset_From_SQL(Dataset):
 		logging.info("Pivoting SQL dataset using %d specified sensors")
 		sensor_idxs = np.where(self.df.iloc[:,0].values==specified_sensors.values)[1]
 		self.df = self.df.iloc[sensor_idxs,:]
+		self._check_column_headers_are_strings()
+
 
 	def _check_column_headers_are_strings(self):
 		if(type(self.df.columns.values) is not 'str' ):

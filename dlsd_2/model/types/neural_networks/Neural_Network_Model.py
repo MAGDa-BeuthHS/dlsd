@@ -15,9 +15,12 @@ class Neural_Network_Model(Model):
 		self.number_hidden_nodes = None
 		self.learning_rate = None 
 		self.max_steps = None
+		self.test_step = 5000
 		self.batch_size = None 
 		self.path_saved_tf_session = None
 		self.path_tf_output = None
+		self.epochs = None
+		self.use_epochs = True
 
 	def set_number_hidden_nodes(self,number_hidden_nodes):
 		self.number_hidden_nodes = number_hidden_nodes
@@ -25,9 +28,12 @@ class Neural_Network_Model(Model):
 	def set_learning_rate(self,learning_rate):
 		self.learning_rate = learning_rate
 
-	def set_max_steps(self,max_steps):
+	def set_dont_use_epochs_instead_max_steps(self,max_steps):
 		self.max_steps = max_steps
-		self.test_step = 1000
+		self.use_epochs = False
+
+	def set_num_epochs(self,num_epochs):
+		self.epochs = num_epochs
 
 	def set_batch_size(self,batch_size):
 		self.batch_size = batch_size
@@ -42,10 +48,35 @@ class Neural_Network_Model(Model):
 		raise NotImplementedError
 
 	def _train(self):
+		if self.use_epochs:
+			self._train_with_epochs_and_ordered_feed_dict()
+		else:
+			self._train_with_fixed_number_of_steps_and_random_feed_dict()
+
+
+	def _train_with_epochs_and_ordered_feed_dict(self):
 		self._build_model()
 		with tf.Session(graph = self.graph) as sess:
 			self.sess = sess
-			print(self.path_tf_output)
+			summary_writer = tf.train.SummaryWriter(self.path_tf_output, sess.graph)
+			sess.run(tf.initialize_all_variables())
+			num_batches = int(self.model_input.get_number_datapoints()/self.batch_size)
+			for epoch in range(self.epochs):
+				logging.info("epoch #"+str(epoch))
+				for step in range(num_batches):
+				    feed_dict = self.model_input.fill_feed_dict_in_order(self.input_pl,self.target_pl,self.batch_size,step)
+				    loss_value,predicted = sess.run([self.model_content.optimize,self.model_content.prediction],feed_dict = feed_dict)
+				    if(step%self.test_step == 0):
+				        mean = sess.run(self.model_content.evaluation,feed_dict = feed_dict)
+				        print(mean)
+				        logging.info("Training step : %d"%(step))
+				        #logging.info("Mean test error is %f"%self.train_input_target_maker.denormalizer_used_in_training.denormalize(mean))
+			self.saver.save(sess,self.path_saved_tf_session) 
+	
+	def _train_with_fixed_number_of_steps_and_random_feed_dict(self):
+		self._build_model()
+		with tf.Session(graph = self.graph) as sess:
+			self.sess = sess
 			summary_writer = tf.train.SummaryWriter(self.path_tf_output, sess.graph)
 			sess.run(tf.initialize_all_variables())
 			for step in range(self.max_steps):
@@ -56,7 +87,7 @@ class Neural_Network_Model(Model):
 			        print(mean)
 			        logging.info("Training step : %d of %d"%(step,self.max_steps))
 			        #logging.info("Mean test error is %f"%self.train_input_target_maker.denormalizer_used_in_training.denormalize(mean))
-			self.saver.save(sess,self.path_saved_tf_session) 
+			self.saver.save(sess,self.path_saved_tf_session)
 
 	def _test(self):
 		self._build_model()

@@ -1,4 +1,5 @@
 import os
+import shutil
 import pandas as pd    
 from dlsd_2.experiment.experiment_output_reader.Many_Sensor_Directory_Helper import Many_Sensor_Directory_Helper
 
@@ -80,6 +81,8 @@ class Error_Directory:
     
     def write_averages_to_file(self,dir_path):
         error_path = os.path.join(dir_path,self.name)
+        if os.path.exists(error_path):
+            shutil.rmtree(error_path)
         os.makedirs(error_path)
         for average_error_table in self.average_error_tables:
             average_error_table.write_averages_to_file(error_path)
@@ -96,7 +99,7 @@ class Average_Error_Table:
     
     def read_current_table_values_and_add_to_sum(self):
         new_values = pd.read_csv(self.current_path,index_col=0)
-        self.df = self.df + new_values
+        self.df.iloc[:] = self.df.values + new_values.values
     
     def divide_by_n(self,n):
         self.df = self.df/n
