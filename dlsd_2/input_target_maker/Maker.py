@@ -19,7 +19,7 @@ class Maker:
 		self.selected_source_sensor_rows_names = source_dataset_object.df.index.values
 
 	def _set_sensor_idxs_to_use_all_sensors_from_source(self, source_dataset_object):
-		self.sensor_idxs_list = source_dataset_object.df.columns.values
+		self.sensor_idxs_list = list(source_dataset_object.df.columns.values)
 
 	def make_dataset_object_with_clip_range(self, clip_range):
 		if self.time_offsets_list is None:
@@ -45,13 +45,10 @@ class Maker:
 
 	def multiply_by_adjacency_of_target_sensor_including_target_sensor(self, adjacency_matrix, target_sensor_idxs_list, include_target_sensor):
 		target_sensor = target_sensor_idxs_list[0]
-		input_sensor_idxs_list = []
-		if include_target_sensor:
-			input_sensor_idxs_list = self.sensor_idxs_list
-		else:
-			input_sensor_idxs_list = list(self.sensor_idxs_list)
-			input_sensor_idxs_list.remove(target_sensor)
-		target_adjacency = self._get_adjacency_for_target_sensor(adjacency_matrix, target_sensor, input_sensor_idxs_list)
+		target_adjacency = self._get_adjacency_for_target_sensor(adjacency_matrix, target_sensor, self.sensor_idxs_list)
+		if not include_target_sensor:
+			target_sensor_idx_in_input = self.sensor_idxs_list.index(target_sensor)
+			target_adjacency[target_sensor_idx_in_input] = 0
 		self.selected_source_numpy_data = self.selected_source_numpy_data * target_adjacency
 
 	def _get_adjacency_for_target_sensor(self,adjacency_matrix, target_sensor, input_sensor_idxs_list):

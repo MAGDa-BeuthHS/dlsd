@@ -1,5 +1,3 @@
-# Alex Hartenstein 05.2017
-
 ## How to run an experiment
 
 1. create a subclass of 'Experiment'
@@ -15,6 +13,7 @@
 5. in the main python function, create an instance of your Experiment class
 	- call set_experiment_root_path, passing the directory it sould write output to 
 	- call run_experiment
+<<<<<<< HEAD
 
 
 
@@ -25,3 +24,5 @@
 
 - epochs : 30
 - cross validation : and then what? how do you know you're not overfitting?
+=======
+>>>>>>> my_temporary

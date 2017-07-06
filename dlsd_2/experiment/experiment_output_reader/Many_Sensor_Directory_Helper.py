@@ -10,7 +10,9 @@ class Many_Sensor_Directory_Helper:
         self.root_experiment_directory = path
 
     def prepare_list_of_all_sensors_to_analyze(self):
-        self.all_sensor_dirs = next(os.walk(self.root_experiment_directory))[1] 
+        self.all_sensor_dirs = next(os.walk(self.root_experiment_directory))[1]
+        if ("avg_errors" in self.all_sensor_dirs):
+            self.all_sensor_dirs.remove("avg_errors")
 
     def set_current_sensor_directory_with_sensor(self, sensor):
         self.current_sensor_dir = os.path.join(self.root_experiment_directory,str(sensor))
