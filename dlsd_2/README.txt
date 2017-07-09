@@ -13,16 +13,4 @@
 5. in the main python function, create an instance of your Experiment class
 	- call set_experiment_root_path, passing the directory it sould write output to 
 	- call run_experiment
-<<<<<<< HEAD
 
-
-
-#TODOs
-
-1. AVERAGE_WEEK: decide what to do with not starting at 00:00:00 timestamp : should probably just average everything then readjust to start monday at midnight
-
-
-- epochs : 30
-- cross validation : and then what? how do you know you're not overfitting?
-=======
->>>>>>> my_temporary
