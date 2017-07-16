@@ -57,8 +57,8 @@ class Neural_Network_Model(Model):
 		self._build_model()
 		with tf.Session(graph = self.graph) as sess:
 			self.sess = sess
-			summary_writer = tf.train.SummaryWriter(self.path_tf_output, sess.graph)
-			sess.run(tf.initialize_all_variables())
+			summary_writer = tf.summary.FileWriter(self.path_tf_output, sess.graph)
+			sess.run(tf.global_variables_initializer())
 			self._iterate_over_epochs(sess)
 			self.saver.save(sess,self.path_saved_tf_session)
 
@@ -85,8 +85,8 @@ class Neural_Network_Model(Model):
 		self._build_model()
 		with tf.Session(graph = self.graph) as sess:
 			self.sess = sess
-			summary_writer = tf.train.SummaryWriter(self.path_tf_output, sess.graph)
-			sess.run(tf.initialize_all_variables())
+			summary_writer = tf.summary.FileWriter(self.path_tf_output, sess.graph)
+			sess.run(tf.global_variables_initializer())
 			for step in range(self.max_steps):
 			    feed_dict = self.model_input.fill_feed_dict_in_order(self.input_pl,self.target_pl,self.batch_size, step)
 			    loss_value,predicted = sess.run([self.model_content.optimize,self.model_content.prediction],feed_dict = feed_dict)

@@ -64,7 +64,7 @@ class NN_One_Hidden_Layer_Content(Model_Content):
     def error(self):
         logging.debug("Adding Error nodes to the graph")
         # using l2 norm (sum of) square error
-        final_error = tf.square(tf.sub(self.target_placeholder,self.prediction),name="myError")
+        final_error = tf.square(tf.subtract(self.target_placeholder,self.prediction),name="myError")
         #tf.histogram_summary("final_error",final_error)
         mean = tf.reduce_mean(final_error,0)
         #tf.histogram_summary("mean_error",mean)
@@ -74,7 +74,7 @@ class NN_One_Hidden_Layer_Content(Model_Content):
     def evaluation(self):
         logging.debug("Adding Evaluation nodes to the graph")
         # using l2 norm (sum of) square error
-        final_error = tf.abs(tf.sub(self.target_placeholder,self.prediction,name="myEvaluationError"))
+        final_error = tf.abs(tf.subtract(self.target_placeholder,self.prediction,name="myEvaluationError"))
         #tf.histogram_summary("evaluation_final_error",final_error)
         mean = tf.reduce_mean(final_error)
         #tf.scalar_summary("evaluation_mean_error",mean)
