@@ -1,14 +1,20 @@
 from .Experiment import *
 from .experiment_helper.Experiment_Helper_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output import Experiment_Helper_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output
+
 import os
 class Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output(Experiment):
+	def __init__(self):
+		super(Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output,self).__init__()
+
 	def run_experiment(self):
 		self._gather_experiment()
 		self._iterate_over_all_sensors_test_and_train_using_one_sensor_as_target()
+		self._calculate_accuracy_of_models()
 
 	def _iterate_over_all_sensors_test_and_train_using_one_sensor_as_target(self):
 		available_sensors = self.train_input_and_target_maker.get_source_idxs_list() # bc of type remove inefficient sensors, get available sensors
-		for i in range(0,1):#for self.current_sensor_used_as_model_output in available_sensors:
+		for i in range(1,3):#for self.current_sensor_used_as_model_output in available_sensors:
+			self.target_for_current_sensor_written_to_file = False
 			self.current_sensor_used_as_model_output = available_sensors[i]
 			logging.info("Starting experiment with sensor "+self.current_sensor_used_as_model_output)
 			self._iterate_over_io_params()
