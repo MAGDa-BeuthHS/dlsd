@@ -53,26 +53,34 @@ class Neural_Network_Model(Model):
 		else:
 			self._train_with_fixed_number_of_steps_and_random_feed_dict()
 
-
 	def _train_with_epochs_and_ordered_feed_dict(self):
 		self._build_model()
 		with tf.Session(graph = self.graph) as sess:
 			self.sess = sess
 			summary_writer = tf.train.SummaryWriter(self.path_tf_output, sess.graph)
 			sess.run(tf.initialize_all_variables())
-			num_batches = int(self.model_input.get_number_datapoints()/self.batch_size)
-			for epoch in range(self.epochs):
-				logging.info("epoch #"+str(epoch))
-				for step in range(num_batches):
-				    feed_dict = self.model_input.fill_feed_dict_in_order(self.input_pl,self.target_pl,self.batch_size,step)
-				    loss_value,predicted = sess.run([self.model_content.optimize,self.model_content.prediction],feed_dict = feed_dict)
-				    if(step%self.test_step == 0):
-				        mean = sess.run(self.model_content.evaluation,feed_dict = feed_dict)
-				        print(mean)
-				        logging.info("Training step : %d"%(step))
-				        #logging.info("Mean test error is %f"%self.train_input_target_maker.denormalizer_used_in_training.denormalize(mean))
-			self.saver.save(sess,self.path_saved_tf_session) 
-	
+			self._iterate_over_epochs(sess)
+			self.saver.save(sess,self.path_saved_tf_session)
+
+	def _iterate_over_epochs(self, sess):
+		for epoch in range(self.epochs):
+			logging.info("EPOCH #"+str(epoch))
+			self._iterate_over_data_in_batches(sess)
+
+	def _iterate_over_data_in_batches(self, sess):
+		num_batches = int(self.model_input.get_number_datapoints()/self.batch_size)
+		for step in range(num_batches):
+		    feed_dict = self.model_input.fill_feed_dict_in_order(self.input_pl,self.target_pl,self.batch_size,step)
+		    loss_value,predicted = sess.run([self.model_content.optimize,self.model_content.prediction],feed_dict = feed_dict)
+		    self._print_progress(sess,step, feed_dict)
+
+	def _print_progress(self, sess, step, feed_dict):
+		if(step%self.test_step == 0):
+			mean = sess.run(self.model_content.evaluation,feed_dict = feed_dict)
+			print(mean)
+			logging.info("Training step : %d"%(step))
+			#logging.info("Mean test error is %f"%self.train_input_target_maker.denormalizer_used_in_training.denormalize(mean))
+
 	def _train_with_fixed_number_of_steps_and_random_feed_dict(self):
 		self._build_model()
 		with tf.Session(graph = self.graph) as sess:
