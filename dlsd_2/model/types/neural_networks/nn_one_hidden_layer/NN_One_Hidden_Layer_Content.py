@@ -21,7 +21,7 @@ from dlsd_2.model.Model_Content import *
 
 class NN_One_Hidden_Layer_Content(Model_Content):
     
-    def __init__(self, data, target, number_hidden_nodes, learning_rate, rnn_number_steps=None):
+    def __init__(self, data, target, number_hidden_nodes, learning_rate):
         super(NN_One_Hidden_Layer_Content, self).__init__()
         logging.debug("\tAdding NN_One_Hidden_Layer_Content")
         self.data_placeholder = data
@@ -30,7 +30,6 @@ class NN_One_Hidden_Layer_Content(Model_Content):
         self.n_hidden = number_hidden_nodes
         self.n_output = int(self.target_placeholder.get_shape()[1])
         self.learningRate = learning_rate
-        self.rnn_number_steps = rnn_number_steps
         logging.info("NN_One_Hidden_Layer #input : %d   #hidden : %d   #output : %d   learningRate : %.2f"%(self.n_input,self.n_hidden,self.n_output,self.learningRate))
         self.addAttributes()
 

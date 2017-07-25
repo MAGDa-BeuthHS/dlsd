@@ -10,8 +10,6 @@ class Neural_Network_Model(Model):
 	def __init__(self):
 		super(Neural_Network_Model, self).__init__()
 		logging.debug("\tAdding Neural_Network_Model")
-		self.model_input = Neural_Network_Model_Input()
-		self.model_output = Model_Output()
 		self.number_hidden_nodes = None
 		self.learning_rate = None 
 		self.max_steps = None
@@ -21,6 +19,10 @@ class Neural_Network_Model(Model):
 		self.path_tf_output = None
 		self.epochs = None
 		self.use_epochs = True
+		self.predictions = None
+	
+	def define_model_input(self):
+		self.model_input = Neural_Network_Model_Input()
 
 	def set_number_hidden_nodes(self,number_hidden_nodes):
 		self.number_hidden_nodes = number_hidden_nodes
@@ -96,7 +98,7 @@ class Neural_Network_Model(Model):
 			        #logging.info("Mean test error is %f"%self.train_input_target_maker.denormalizer_used_in_training.denormalize(mean))
 			self.saver.save(sess,self.path_saved_tf_session)
 
-	def _test(self):
+	def _test_all_data_at_once(self):
 		self._build_model()
 		with tf.Session(graph = self.graph) as sess:
 			self.saver.restore(sess,self.path_saved_tf_session)
@@ -105,6 +107,29 @@ class Neural_Network_Model(Model):
 						self.target_pl : self.model_input.get_all_target_as_numpy_array()}
 			prediction = sess.run(self.model_content.prediction,feed_dict=feed_dict)
 			super(Neural_Network_Model,self).set_model_output_with_predictions_numpy_array(prediction)
+
+	def _test(self):
+		self._build_model()
+		with tf.Session(graph = self.graph) as sess:
+			self.saver.restore(sess,self.path_saved_tf_session)
+			logging.info("Restored session for testing")
+			self._iterate_over_data_in_batches_for_testing(sess)
+		print(self.predictions)
+		print(self.predictions.shape)
+		super(Neural_Network_Model,self).set_model_output_with_predictions_numpy_array(self.predictions)
+
+	def _iterate_over_data_in_batches_for_testing(self, sess):
+		num_batches = int(self.model_input.get_number_datapoints()/self.batch_size)
+		for step in range(num_batches):
+			feed_dict = self.model_input.fill_feed_dict_in_order(self.input_pl, self.target_pl, self.batch_size, step)
+			predicted = sess.run(self.model_content.prediction, feed_dict = feed_dict)
+			self._add_predicted_to_predictions(predicted)
+
+	def _add_predicted_to_predictions(self, predicted):
+		if self.predictions is None:
+			self.predictions = np.copy(predicted)
+		else:
+			self.predictions = np.concatenate((self.predictions,predicted), axis = 0)
 
 	def get_target_and_predictions_df(self):
 		self.model_output.fill_time_gaps_in_target_and_predictions_using_time_format(self.current_input_target_maker.time_format)

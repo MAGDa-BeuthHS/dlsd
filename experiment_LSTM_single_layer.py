@@ -1,5 +1,4 @@
-from dlsd_2.model.types.neural_networks.nn_one_hidden_layer.NN_One_Hidden_Layer import NN_One_Hidden_Layer
-#from dlsd_2.model.types.neural_networks.nn_one_hidden_layer.LSTM.LSTM_One_Hidden_Layer_Content import LSTM_One_Hidden_Layer_Content
+from dlsd_2.model.types.neural_networks.LSTM.LSTM_One_Hidden_Layer import LSTM_One_Hidden_Layer
 
 from dlsd_2.model.types.average_week.Average_Week import Average_Week
 from dlsd_2.experiment.Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output import *
@@ -20,14 +19,13 @@ class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_S
 		self.set_source_maker(source_maker)
 
 	def _define_models(self):
-		model = LSTM_One_Hidden_Layer_Content()
+		model = LSTM_One_Hidden_Layer()
 		model.name = "lstm_one_hidden_layer_content"
 		model.set_number_hidden_nodes(50)
 		model.set_learning_rate(.1)
 		model.set_batch_size(20)
-		model.set_num_epochs(5)
+		model.set_num_epochs(1)
 		self.add_model(model)
-
 
 	def _define_model_input_output_parameters(self):
 		adjacency_path = '/Users/ahartens/Desktop/Work/AdjacencyMatrix_repaired.csv'
@@ -39,7 +37,7 @@ class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_S
 		io_3 = Model_Input_Output_Parameters()
 		io_4 = Model_Input_Output_Parameters()
 
-		all_ios = [io_1,io_2,io_3,io_4]
+		all_ios = [io_4]#[io_1,io_2,io_3,io_4]
 
 		io_1.name = "mFFNN_single"
 		io_2.name = "mFFNN_nn"
@@ -58,7 +56,7 @@ class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_S
 
 		for io in all_ios:
 			io.set_target_time_offsets_list(target_time_offsets)
-		 	io.set_input_time_offsets_list(input_time_offsets_for_sequential_input)
+			io.set_input_time_offsets_list(input_time_offsets_for_sequential_input)
 
 		self.set_input_output_parameters_list(all_ios)
 

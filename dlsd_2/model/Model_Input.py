@@ -25,6 +25,12 @@ class Model_Input:
 	def get_number_targets(self):
 		return self.target_dataset_object.df.shape[1]
 
+	def get_number_input_time_offsets(self):
+		return len(self.input_dataset_object.time_offsets_list)
+
+	def get_number_target_time_offsets(self):
+		return len(self.target_dataset_object.time_offsets_list)
+
 	def get_all_input_as_numpy_array(self):
 		return self.input_dataset_object.df.values
 

@@ -13,13 +13,19 @@ class Model:
 		The model_output is a wrapper for a prediction_dataset_object and target_dataset_object, responsible for calculating prediction error
 	'''
 	def __init__(self):
-		self.model_input = Model_Input()
-		self.model_output = Model_Output()
+		self.define_model_input()
+		self.define_model_output()
 		self.model_content = Model_Content()
 		self.train_input_target_maker = None
 		self.current_input_target_maker = None
 		self.experiment_helper = None
 		self.name = "Abstract Class"
+
+	def define_model_input(self):
+		self.model_input = Model_Input()
+
+	def define_model_output(self):
+		self.model_output = Model_Output()
 
 	def train_with_prepared_input_target_maker(self,itm):
 		self._set_global_itms_for_training(itm)
