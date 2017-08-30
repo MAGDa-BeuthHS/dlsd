@@ -1,6 +1,5 @@
 
 class Denormalizer:
-	
 	def __init__(self,max_value):
 		self.max_value = max_value
 

@@ -5,6 +5,8 @@
 *.numbers
 *.xlsx
 *.log
+*.xml
+
 
 17_04_10_getAverageWeek.py
 mnist.py

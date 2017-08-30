@@ -6,10 +6,15 @@ import logging
 
 logging.basicConfig(level=logging.INFO)#filename='17_05_04_dlsd_2_trials.log',)
 
-PATH_TRAIN = '/Users/ahartens/Desktop/Work/16_11_25_PZS_Belegung_augustFull.csv'
-PATH_TEST = '/Users/ahartens/Desktop/Work/16_11_25_PZS_Belegung_September_Full.csv'
-PATH_ADJACENCY = '/Users/ahartens/Desktop/Work/AdjacencyMatrix_repaired.csv'
-PATH_OUTPUT = '/Users/ahartens/Desktop/Work/dlsd_2_trials/trial_4'
+# PATH_TRAIN = '/Users/ahartens/Desktop/Work/16_11_25_PZS_Belegung_augustFull.csv'
+# PATH_TEST = '/Users/ahartens/Desktop/Work/16_11_25_PZS_Belegung_September_Full.csv'
+# PATH_ADJACENCY = '/Users/ahartens/Desktop/Work/AdjacencyMatrix_repaired.csv'
+# PATH_OUTPUT = '/Users/ahartens/Desktop/Work/dlsd_2_trials/trial_4'
+
+PATH_TRAIN = '/hartensa/data_sql/16_11_25_PZS_Belegung_augustFull.csv'
+PATH_TEST = '/hartensa/data_sql/6_11_25_PZS_Belegung_September_Full.csv'
+PATH_ADJACENCY = '/hartensa/data_other/AdjacencyMatrix_repaired.csv'
+PATH_OUTPUT = '/hartensa/experiment_output/LSTM_2017_08_30'
 
 class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output):
 	def _define_source_maker(self):

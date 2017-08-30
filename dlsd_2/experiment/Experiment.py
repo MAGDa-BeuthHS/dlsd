@@ -81,10 +81,13 @@ class Experiment:
 
 	def _train_and_test_all_models_and_write_predictions_to_file(self):
 		for model in self.models:
-			model.set_experiment_helper(self.current_experiment_helper)
-			model.train_with_prepared_input_target_maker(self.train_input_and_target_maker)
-			model.test_with_prepared_input_target_maker(self.test_input_and_target_maker)
-			model.write_predictions_using_experiment_helper()
+			self._train_and_test_single_model(model)
+
+	def _train_and_test_single_model(self, model):
+		model.set_experiment_helper(self.current_experiment_helper)
+		model.train_with_prepared_input_target_maker(self.train_input_and_target_maker)
+		model.test_with_prepared_input_target_maker(self.test_input_and_target_maker)
+		model.write_predictions_using_experiment_helper()
 
 	def _set_input_target_makers_to_current_model_input_output_parameters(self):
 		self.train_input_and_target_maker.set_all_sensor_idxs_and_time_offsets_using_parameters_object(self.current_io_param)
@@ -114,7 +117,6 @@ class Experiment:
 		avg = Experiment_Average_Error_Calculator()
 		avg.set_root_experiment_directory(self.root_path)
 		avg.calculate_average()
-
 
 	def add_model(self, model):
 		self.models.append(model)
