@@ -76,8 +76,8 @@ class IO_Param_Output:
     def __init__(self):
         self.path = None
         self.name = None
-        self.target = Table()
-        self.model_predictions = []
+        self.target = Table() 
+        self.model_predictions = [] # each model type (nn, lstm, etc created in 'experiment.add_model') has a separate prediction df
     
     def set_path(self,path):
         self.path = path
