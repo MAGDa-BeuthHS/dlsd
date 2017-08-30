@@ -7,7 +7,6 @@
 *.log
 
 17_04_10_getAverageWeek.py
-experiment.py
 mnist.py
 tryAverage.py
 untitled.py
