@@ -109,6 +109,7 @@ class Neural_Network_Model(Model):
 			super(Neural_Network_Model,self).set_model_output_with_predictions_numpy_array(prediction)
 
 	def _test(self):
+		self.predictions = None
 		self._build_model()
 		with tf.Session(graph = self.graph) as sess:
 			self.saver.restore(sess,self.path_saved_tf_session)

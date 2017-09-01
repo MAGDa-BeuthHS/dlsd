@@ -17,7 +17,7 @@ class LSTM_One_Hidden_Layer(Neural_Network_Model):
 
 	def _build_model(self):
 		self.graph = tf.Graph()
-		with self.graph.as_default(),tf.device('/cpu:0'):
+		with self.graph.as_default():
 			print(self.model_input.get_number_inputs())
 			self.input_pl = tf.placeholder(tf.float32, shape=self._get_input_shape(),name="input_placeholder")
 			self.target_pl = tf.placeholder(tf.float32,shape=[None,self.model_input.get_number_targets()],name="target_placeholder")

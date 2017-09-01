@@ -40,6 +40,7 @@ class Model_Output:
 		self.fill_time_gaps_in_predictions_using_time_format(time_format)
 
 	def fill_time_gaps_in_predictions_using_time_format(self,time_format):
-		print(self.prediction_dataset_object.df.shape[0])
+		print(self.prediction_dataset_object.df.shape)
+		print(self.target_dataset_object.df.shape)
 		self.prediction_dataset_object.df.index = self.target_dataset_object.df.index.values[0:self.prediction_dataset_object.df.shape[0]]
 		self.prediction_dataset_object.fill_time_gaps_using_time_format(time_format)

@@ -6,11 +6,21 @@ import logging
 
 logging.basicConfig(level=logging.INFO)#filename='17_05_04_dlsd_2_trials.log',)
 
+# PATH_TRAIN = '/Users/ahartens/Desktop/Work/16_11_25_PZS_Belegung_augustFull.csv'
+# PATH_TEST = '/Users/ahartens/Desktop/Work/16_11_25_PZS_Belegung_September_Full.csv'
+# PATH_ADJACENCY = '/Users/ahartens/Desktop/Work/AdjacencyMatrix_repaired.csv'
+# PATH_OUTPUT = '/Users/ahartens/Desktop/Work/dlsd_2_trials/trial_4'
+
+PATH_TRAIN = '/hartensa/data_sql/16_11_25_PZS_Belegung_augustFull.csv'
+PATH_TEST = '/hartensa/data_sql/6_11_25_PZS_Belegung_September_Full.csv'
+PATH_ADJACENCY = '/hartensa/data_other/AdjacencyMatrix_repaired.csv'
+PATH_OUTPUT = '/hartensa/experiment_output/LSTM_2017_08_30'
+
 class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output):
 	def _define_source_maker(self):
 		source_maker = Source_Maker()
-		source_maker.file_path_train = '/Users/ahartens/Desktop/Work/16_11_25_PZS_Belegung_augustFull.csv'
-		source_maker.file_path_test = '/Users/ahartens/Desktop/Work/16_11_25_PZS_Belegung_September_Full.csv'
+		source_maker.file_path_train = PATH_TRAIN
+		source_maker.file_path_test = PATH_TEST
 		source_maker.normalize = True
 		source_maker.moving_average_window = 50
 		source_maker.remove_inefficient_sensors_below_threshold = 1.0
@@ -24,11 +34,11 @@ class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_S
 		model.set_number_hidden_nodes(50)
 		model.set_learning_rate(.1)
 		model.set_batch_size(20)
-		model.set_num_epochs(1)
+		model.set_num_epochs(20)
 		self.add_model(model)
 
 	def _define_model_input_output_parameters(self):
-		adjacency_path = '/Users/ahartens/Desktop/Work/AdjacencyMatrix_repaired.csv'
+		adjacency_path = PATH_ADJACENCY
 		adj_matrix = Adjacency_Matrix()
 		adj_matrix.set_matrix_from_file_path(adjacency_path)
 		
@@ -37,12 +47,12 @@ class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_S
 		io_3 = Model_Input_Output_Parameters()
 		io_4 = Model_Input_Output_Parameters()
 
-		all_ios = [io_4]#[io_1,io_2,io_3,io_4]
+		all_ios = [io_1,io_2,io_3,io_4]
 
-		io_1.name = "mFFNN_single"
-		io_2.name = "mFFNN_nn"
-		io_3.name = "mFFNN_nn+"
-		io_4.name = "mFFNN_all"
+		io_1.name = "LSTM_single"
+		io_2.name = "LSTM_nn"
+		io_3.name = "LSTM_nn+"
+		io_4.name = "LSTM_all"
 
 		io_1.use_single_sensor_as_input = True
 
@@ -51,19 +61,18 @@ class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_S
 
 		io_2.include_output_sensor_in_adjacency = False
 
-		target_time_offsets = [5,10,15,30,45,60,75,90]
+		target_time_offsets = [10,15,30,45,60,75,90]
 		input_time_offsets_for_sequential_input = [0,5,10,15,20]
 
 		for io in all_ios:
 			io.set_target_time_offsets_list(target_time_offsets)
 			io.set_input_time_offsets_list(input_time_offsets_for_sequential_input)
-
 		self.set_input_output_parameters_list(all_ios)
 
 
 
 def main():
-	experiment_path = '/Users/ahartens/Desktop/Work/dlsd_2_trials/trial_4'
+	experiment_path = PATH_OUTPUT
 	exp = Experiment_17_06_09_Redo_December_Experiment()
 	exp.set_experiment_root_path(experiment_path)
 	exp.run_experiment()
