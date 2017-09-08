@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)#filename='17_05_04_dlsd_2_trials.log',)
 # PATH_OUTPUT = '/Users/ahartens/Desktop/Work/dlsd_2_trials/trial_4'
 
 PATH_TRAIN = '/hartensa/data_sql/16_11_25_PZS_Belegung_augustFull.csv'
-PATH_TEST = '/hartensa/data_sql/6_11_25_PZS_Belegung_September_Full.csv'
+PATH_TEST = '/hartensa/data_sql/16_11_25_PZS_Belegung_September_Full.csv'
 PATH_ADJACENCY = '/hartensa/data_other/AdjacencyMatrix_repaired.csv'
 PATH_OUTPUT = '/hartensa/experiment_output/LSTM_2017_08_30'
 
@@ -22,7 +22,7 @@ class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_S
 		source_maker.file_path_train = PATH_TRAIN
 		source_maker.file_path_test = PATH_TEST
 		source_maker.normalize = True
-		source_maker.moving_average_window = 50
+		source_maker.moving_average_window = 15
 		source_maker.remove_inefficient_sensors_below_threshold = 1.0
 		source_maker.time_format_train = '%Y-%m-%d %H:%M:%S'
 		source_maker.time_format_test = '%Y-%m-%d %H:%M:%S'
@@ -62,14 +62,12 @@ class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_S
 		io_2.include_output_sensor_in_adjacency = False
 
 		target_time_offsets = [10,15,30,45,60,75,90]
-		input_time_offsets_for_sequential_input = [0,5,10,15,20]
-
+		input_time_offsets_for_sequential_input = [0,1,2,3,4]
 		for io in all_ios:
 			io.set_target_time_offsets_list(target_time_offsets)
 			io.set_input_time_offsets_list(input_time_offsets_for_sequential_input)
+
 		self.set_input_output_parameters_list(all_ios)
-
-
 
 def main():
 	experiment_path = PATH_OUTPUT

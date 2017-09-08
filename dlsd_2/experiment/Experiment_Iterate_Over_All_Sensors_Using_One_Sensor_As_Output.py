@@ -15,7 +15,7 @@ class Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output(Experiment)
 		available_sensors = self.train_input_and_target_maker.get_source_idxs_list() # bc of type remove inefficient sensors, get available sensors
 		for self.current_sensor_used_as_model_output in available_sensors:
 			self.target_for_current_sensor_written_to_file = False
-			self.current_sensor_used_as_model_output = available_sensors[i]
+			#self.current_sensor_used_as_model_output = available_sensors[i]
 			logging.info("Starting experiment with sensor "+self.current_sensor_used_as_model_output)
 			self._iterate_over_io_params()
 
