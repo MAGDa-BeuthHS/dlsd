@@ -1,6 +1,5 @@
 <application>
   <component name="UISettings">
-    <option name="FONT_SCALE" value="2.25" />
-    <option name="PRESENTATION_MODE_FONT_SIZE" value="12" />
+    <option name="PRESENTATION_MODE_FONT_SIZE" value="18" />
   </component>
 </application>
