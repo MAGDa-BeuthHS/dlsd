@@ -13,8 +13,9 @@ logging.basicConfig(level=logging.INFO)#filename='17_05_04_dlsd_2_trials.log',)
 
 PATH_TRAIN = '/hartensa/data_sql/16_11_25_PZS_Belegung_augustFull.csv'
 PATH_TEST = '/hartensa/data_sql/16_11_25_PZS_Belegung_September_Full.csv'
-PATH_ADJACENCY = '/hartensa/data_other/AdjacencyMatrix_repaired.csv'
+PATH_ADJACENCY = '/hartensa/data_other/Time_Adjacency_Matrix.csv'
 PATH_OUTPUT = '/hartensa/experiment_output/LSTM_2017_08_30'
+PATH_AVERAGE_WEEK = '/hartensa/data_other/Average_Week_One_Year.csv'
 
 class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output):
 	def _define_source_maker(self):
@@ -30,7 +31,7 @@ class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_S
 
 	def _define_models(self):
 		model = LSTM_One_Hidden_Layer()
-		model.name = "lstm_one_hidden_layer_content"
+		model.name = "lstm_one_hidden_layer_content_with_time_adjacency_matrix_17_09_28_(0,31,1)"
 		model.set_number_hidden_nodes(50)
 		model.set_learning_rate(.1)
 		model.set_batch_size(20)
@@ -62,19 +63,16 @@ class Experiment_17_06_09_Redo_December_Experiment(Experiment_Iterate_Over_All_S
 		io_2.include_output_sensor_in_adjacency = False
 
 		target_time_offsets = [10,15,30,45,60,75,90]
-		input_time_offsets_for_sequential_input = [0,1,2,3,4]
+		input_time_offsets_for_sequential_input = list(range(0,31,1))
 		for io in all_ios:
 			io.set_target_time_offsets_list(target_time_offsets)
 			io.set_input_time_offsets_list(input_time_offsets_for_sequential_input)
-
 		self.set_input_output_parameters_list(all_ios)
 
 def main():
-	experiment_path = PATH_OUTPUT
 	exp = Experiment_17_06_09_Redo_December_Experiment()
-	exp.set_experiment_root_path(experiment_path)
+	exp.set_experiment_root_path(PATH_OUTPUT)
 	exp.run_experiment()
-
 
 if __name__=="__main__":
 	main()

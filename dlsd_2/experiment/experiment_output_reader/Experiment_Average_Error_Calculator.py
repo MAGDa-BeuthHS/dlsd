@@ -39,10 +39,14 @@ class Experiment_Average_Error_Calculator:
     def _iterate_over_all_sensors_summing_error(self):
         for i in range(1,len(self.directory_helper.all_sensor_dirs)):
             sensor = self.directory_helper.all_sensor_dirs[i]
+            print(sensor)
             error_dir = self._get_current_error_dir_for_sensor(sensor)
             for error_func_type in self.error_function_average_helpers:
                 error_func_type.set_current_error_dir_path(error_dir)
-                error_func_type.add_current_dir_values_to_sum()
+                try:
+                    error_func_type.add_current_dir_values_to_sum()
+                except:
+                    print("There was  aproblem with directory")
             
     def _get_current_error_dir_for_sensor(self, sensor):
         self.directory_helper.set_current_sensor_directory_with_sensor(sensor)
