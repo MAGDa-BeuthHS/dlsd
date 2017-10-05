@@ -47,7 +47,7 @@ class Experiment_Error_Calculator:
         for i in range(1,len(dicts_for_model)):
             preds = dicts_for_model[i]['df']
             targ = dicts_for_model[i]['target']
-            mae = self.analysis_function.calc_error_with_prediction_and_target(preds,targ.values) # sometimes problems here
+            mae = self.analysis_function.calc_error_with_prediction_and_target(preds,targ.values[0:preds.shape[0]]) # sometimes problems here
             self.current_table.iloc[i-1,:] = mae.values # i-1 because first in list is the target(made by reader)
     
     def _check_or_make_dir(self, dir_name):

@@ -1,0 +1,49 @@
+Log
+
+27.09.2017
+		Using new time adjacency matrix that
+		LSTM 50 hidden layers
+		target_time_offsets = [10,15,30,45,60,75,90]
+		input_time_offsets_for_sequential_input = [range(0,31,1)]
+		number_hidden_nodes(50)
+		learning_rate(.1)
+		batch_size(20)
+		num_epochs(20)
+
+27.09.2017
+		Using new time adjacency matrix that
+		LSTM 50 hidden layers
+		target_time_offsets = [10,15,30,45,60,75,90]
+		input_time_offsets_for_sequential_input = [range(0,31,5)]
+		number_hidden_nodes(50)
+		learning_rate(.1)
+		batch_size(20)
+		num_epochs(20)
+
+26.09.2017
+		Using new time adjacency matrix that
+		LSTM 50 hidden layers
+		target_time_offsets = [10,15,30,45,60,75,90]
+		input_time_offsets_for_sequential_input = [range(0,61,10)]
+		number_hidden_nodes(50)
+		learning_rate(.1)
+		batch_size(20)
+		num_epochs(20)
+
+22.09.2017
+
+		Using new time adjacency matrix that
+		LSTM 50 hidden layers
+		target_time_offsets = [10,15,30,45,60,75,90]
+		input_time_offsets_for_sequential_input = [0,5,10,15,20,25,30,35,40,45,50,55,60] # range(0,61,5)
+		number_hidden_nodes(50)
+		learning_rate(.1)
+		batch_size(20)
+		num_epochs(20)
+
+08.09.2017
+
+		LSTM 50 hidden layers
+		Using new time adjacency matrix that
+		target_time_offsets = [10,15,30,45,60,75,90]
+		input_time_offsets_for_sequential_input = [0,1,2,3,4]

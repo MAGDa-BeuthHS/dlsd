@@ -63,7 +63,7 @@ class Experiment:
 
 	def _iterate_over_io_params(self):
 		for input_output_parameter in self.model_input_output_parameters:
-			self.current_io_param = input_output_parameter			
+			self.current_io_param = input_output_parameter
 			self._create_current_experiment_helper()
 			self._create_input_and_target_to_current_io_params()
 			self._train_and_test_all_models_and_write_predictions_to_file()
