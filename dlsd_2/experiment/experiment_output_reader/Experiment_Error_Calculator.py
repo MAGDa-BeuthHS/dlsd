@@ -30,6 +30,7 @@ class Experiment_Error_Calculator:
         model_names = self.reader.get_model_names()
         for model_name in model_names:
             dicts_for_model = self.reader.get_predictions_and_target_for_model_name(model_name)
+            print(model_name)
             self._make_empty_tables_for_current_model(dicts_for_model)
             self._iterate_over_all_io_params_for_single_model_doing_analysis(dicts_for_model)
             self.current_table.to_csv(os.path.join(self.path_output,model_name+".csv"))
@@ -47,9 +48,16 @@ class Experiment_Error_Calculator:
         for i in range(1,len(dicts_for_model)):
             preds = dicts_for_model[i]['df']
             targ = dicts_for_model[i]['target']
-            mae = self.analysis_function.calc_error_with_prediction_and_target(preds,targ.values[0:preds.shape[0]]) # sometimes problems here
+            l = self._get_length_of_array(preds,targ)
+            mae = self.analysis_function.calc_error_with_prediction_and_target(preds[0:l],targ.values[0:l]) # sometimes problems here
             self.current_table.iloc[i-1,:] = mae.values # i-1 because first in list is the target(made by reader)
+            print(i)
     
+    def _get_length_of_array(self, preds, targ):
+        if preds.shape[0] < targ.shape[0]:
+            return preds.shape[0]
+        return targ.shape[0]
+
     def _check_or_make_dir(self, dir_name):
         if not os.path.exists(dir_name):
             os.makedirs(dir_name)

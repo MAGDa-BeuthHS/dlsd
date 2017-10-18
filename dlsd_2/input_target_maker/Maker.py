@@ -12,6 +12,11 @@ class Maker:
 		self.top_padding = 0
 		self.bottom_padding = 0
 
+	def print(self):
+		print(self.sensor_idxs_list)
+		print(self.time_offsets_list)
+		print(self.dataset_object.df.shape)
+
 	def extract_desired_sensors_and_row_names_from_source_dataset_object(self,source_dataset_object):
 		if self.sensor_idxs_list is None:
 			self._set_sensor_idxs_to_use_all_sensors_from_source(source_dataset_object)

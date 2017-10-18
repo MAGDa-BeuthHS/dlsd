@@ -20,6 +20,8 @@ class Neural_Network_Model(Model):
 		self.epochs = None
 		self.use_epochs = True
 		self.predictions = None
+		self.use_cross_validation = False
+		self.fill_output_timegaps = True
 	
 	def define_model_input(self):
 		self.model_input = Neural_Network_Model_Input()
@@ -50,6 +52,8 @@ class Neural_Network_Model(Model):
 		raise NotImplementedError
 
 	def _train(self):
+		if self.use_cross_validation : self.model_input.status = 'train'
+
 		if self.use_epochs:
 			self._train_with_epochs_and_ordered_feed_dict()
 		else:
@@ -109,13 +113,13 @@ class Neural_Network_Model(Model):
 			super(Neural_Network_Model,self).set_model_output_with_predictions_numpy_array(prediction)
 
 	def _test(self):
-		self.predictions = None
 		self._build_model()
+		self.predictions = None
 		with tf.Session(graph = self.graph) as sess:
 			self.saver.restore(sess,self.path_saved_tf_session)
+			print(sess.run(self.model_content.global_step))
 			logging.info("Restored session for testing")
 			self._iterate_over_data_in_batches_for_testing(sess)
-		print(self.predictions)
 		print(self.predictions.shape)
 		super(Neural_Network_Model,self).set_model_output_with_predictions_numpy_array(self.predictions)
 
@@ -133,13 +137,13 @@ class Neural_Network_Model(Model):
 			self.predictions = np.concatenate((self.predictions,predicted), axis = 0)
 
 	def get_target_and_predictions_df(self):
-		self.model_output.fill_time_gaps_in_target_and_predictions_using_time_format(self.current_input_target_maker.time_format)
+		if self.fill_output_timegaps : self.model_output.fill_time_gaps_in_target_and_predictions_using_time_format(self.current_input_target_maker.time_format)
 		targs_preds = super(Neural_Network_Model,self).get_target_and_predictions_df()
 		targs_preds = self.train_input_target_maker.denormalizer_used_in_training.denormalize(targs_preds)
 		return targs_preds
 
 	def get_prediction_df(self):
-		self.model_output.fill_time_gaps_in_predictions_using_time_format(self.current_input_target_maker.time_format)
+		if self.fill_output_timegaps : self.model_output.fill_time_gaps_in_predictions_using_time_format(self.current_input_target_maker.time_format)
 		preds = self.model_output.get_prediction_df()
 		preds = self.train_input_target_maker.denormalizer_used_in_training.denormalize(preds)
 		return preds

@@ -17,7 +17,7 @@ class Source_Maker:
 		self.train = None
 		self.test = None
 	
-	def create_train_and_test_data(self):
+	def prepare_source_data(self):
 		self.read_data_from_csv()
 		self.apply_modifications_defined_in_parameters()
 

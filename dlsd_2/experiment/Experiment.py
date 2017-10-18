@@ -50,7 +50,7 @@ class Experiment:
 		raise NotImplementedError
 
 	def _prepare_source_data_and_input_target_makers(self):
-		self.source_maker.create_train_and_test_data()
+		self.source_maker.prepare_source_data()
 		self._create_input_and_target_makers()
 
 	def _create_input_and_target_makers(self):
@@ -85,6 +85,7 @@ class Experiment:
 
 	def _train_and_test_single_model(self, model):
 		model.set_experiment_helper(self.current_experiment_helper)
+		print("_train_and_test_single_model in experiment !!")
 		model.train_with_prepared_input_target_maker(self.train_input_and_target_maker)
 		model.test_with_prepared_input_target_maker(self.test_input_and_target_maker)
 		model.write_predictions_using_experiment_helper()

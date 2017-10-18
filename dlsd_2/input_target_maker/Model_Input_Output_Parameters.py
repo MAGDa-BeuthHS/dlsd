@@ -24,3 +24,9 @@ class Model_Input_Output_Parameters:
 	
 	def set_use_adjacency_matrix(self, the_boolean):
 		self.use_adjacency_matrix = the_boolean
+
+	def print(self):
+		print(self.input_time_offsets_list)
+		print(self.input_sensor_idxs_list)
+		print(self.target_time_offsets_list)
+		print(self.target_sensor_idxs_list)

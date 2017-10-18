@@ -55,8 +55,9 @@ class NN_One_Hidden_Layer_Content(Model_Content):
     @tf_attributeLock
     def optimize(self):
         logging.debug("Adding Optimize nodes to the graph")
+        self.global_step = tf.Variable(0,trainable=False)
         optimizer = tf.train.GradientDescentOptimizer(self.learningRate, name = "gradientDescent")
-        optimizer_op = optimizer.minimize(self.error,name="minimizeGradientDescent")
+        optimizer_op = optimizer.minimize(self.error,name="minimizeGradientDescent",global_step = self.global_step)
         return optimizer_op
     
     @tf_attributeLock

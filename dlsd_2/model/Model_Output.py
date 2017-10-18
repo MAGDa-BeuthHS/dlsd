@@ -17,6 +17,7 @@ class Model_Output:
 		self.target_dataset_object = dataset_object
 
 	def get_prediction_df(self):
+		self.prediction_dataset_object.df.index = self.target_dataset_object.df.index.values[0:self.prediction_dataset_object.df.shape[0]]
 		return self.prediction_dataset_object.df
 
 	def calc_mae(self):
@@ -32,6 +33,8 @@ class Model_Output:
 		new_df.index = self.target_dataset_object.df.index.values
 		names_target = ["target_%d"%x for x in self.target_dataset_object.df.columns.values]
 		names_predict = ["predict_%d"%x for x in self.prediction_dataset_object.df.columns.values]
+		print(self.target_dataset_object.index.values)
+		print("IN MODEL OUTPUT")
 		new_df.columns = names_target + names_predict
 		return new_df
 

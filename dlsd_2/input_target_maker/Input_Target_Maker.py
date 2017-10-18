@@ -72,6 +72,8 @@ class Input_And_Target_Maker_2:
 		self.target_maker.time_offsets_list = the_list
 
 	def set_input_sensor_idxs_list(self, the_list):
+		print("set_input_sensor_idxs_list ")
+		print(the_list)
 		self.input_maker.sensor_idxs_list = the_list
 
 	def set_target_sensor_idxs_list(self, the_list):
@@ -112,3 +114,9 @@ class Input_And_Target_Maker_2:
 	def set_source_dataset_object(self, dataset_object):
 		self.source_dataset_object = dataset_object
 		self.denormalizer_used_in_training = self.source_dataset_object.denormalizer
+
+	def print(self):
+		print("INPUT MAKER : ")
+		self.input_maker.print()
+		print("TARGET MAKER")
+		self.target_maker.print()

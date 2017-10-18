@@ -83,6 +83,7 @@ class Model:
 		path = self.experiment_helper.make_new_model_prediction_file_path_with_model_name(self.name)
 		logging.info("Writing Predictions to %s"%path)
 		predictions = self.get_prediction_df()
+		print(predictions.index.values)
 		predictions.to_csv(path)
 
 	def set_model_output_with_predictions_numpy_array(self, predictions_numpy_array):
