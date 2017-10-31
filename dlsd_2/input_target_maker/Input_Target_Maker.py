@@ -23,6 +23,8 @@ class Input_And_Target_Maker_2:
 		self._make_input()
 		self._make_target()
 		self._set_input_target_row_names()
+		print("IN HERE YOU ARE!!!")
+		print(self.input_maker.dataset_object.df.shape)
 
 	def _calc_clip_range_so_input_target_same_size(self):
 		'''
@@ -72,8 +74,6 @@ class Input_And_Target_Maker_2:
 		self.target_maker.time_offsets_list = the_list
 
 	def set_input_sensor_idxs_list(self, the_list):
-		print("set_input_sensor_idxs_list ")
-		print(the_list)
 		self.input_maker.sensor_idxs_list = the_list
 
 	def set_target_sensor_idxs_list(self, the_list):

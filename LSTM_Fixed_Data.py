@@ -7,15 +7,19 @@ import logging
 
 logging.basicConfig(level=logging.INFO)#filename='17_05_04_dlsd_2_trials.log',)
 
-# PATH_TRAIN = '/Users/ahartens/Desktop/Work/16_11_25_PZS_Belegung_augustFull.csv'
-# PATH_TEST = '/Users/ahartens/Desktop/Work/16_11_25_PZS_Belegung_September_Full.csv'
-# PATH_ADJACENCY = '/Users/ahartens/Desktop/Work/AdjacencyMatrix_repaired.csv'
-# PATH_OUTPUT = '/Users/ahartens/Desktop/Work/dlsd_2_trials/trial_4'
-
-PATH_DATA = '/hartensa/Repair/first_500_fixed.csv'
+PATH_DATA = '/hartensa/Repair/all_fixed.csv'
 PATH_ADJACENCY = '/hartensa/data_other/Time_Adjacency_Matrix.csv'
-PATH_OUTPUT = '/hartensa/experiment_output/scratch_5'
-PATH_AVERAGE_WEEK = '/hartensa/data_other/Average_Week_One_Year.csv'
+PATH_OUTPUT = '/hartensa/experiment_output/lstm_experiment'
+PATH_AVERAGE_WEEK = '/hartensa/data_other/Average_Week_One_Year_Fixed.csv'
+
+
+def main():
+	exp = LSTM_Fixed_Data()
+	exp.k = 5
+	exp.validation_percentage = 10
+	exp.set_experiment_root_path(PATH_OUTPUT)
+	#exp._calculate_accuracy_of_models()
+	exp.run_experiment()
 
 class LSTM_Fixed_Data(Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output_With_K_Fold_Validation):
 	def _define_source_maker(self):
@@ -29,12 +33,17 @@ class LSTM_Fixed_Data(Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Ou
 		self.set_source_maker(source_maker)
 
 	def _define_models(self):
+		model = Average_Week()
+		model.name = "Average_Week"
+		model.set_average_data_from_csv_file_path(PATH_AVERAGE_WEEK)
+		self.add_model(model)
+
 		model = LSTM_One_Hidden_Layer()
 		model.name = "lstm_one_hidden_layer_content_with_time_adjacency_matrix_17_09_28_(0,31,1)"
 		model.set_number_hidden_nodes(50)
 		model.set_learning_rate(.1)
 		model.set_batch_size(20)
-		model.set_num_epochs(2)
+		model.set_num_epochs(1)
 		model.fill_output_timegaps = False
 		self.add_model(model)
 
@@ -62,19 +71,12 @@ class LSTM_Fixed_Data(Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Ou
 
 		io_2.include_output_sensor_in_adjacency = False
 
-		target_time_offsets = [1]
-		input_time_offsets_for_sequential_input = [0]
+		target_time_offsets = [2,3,6,9,12,15,18]
+		input_time_offsets_for_sequential_input = list(range(0,7))
 		for io in all_ios:
 			io.set_target_time_offsets_list(target_time_offsets)
 			io.set_input_time_offsets_list(input_time_offsets_for_sequential_input)
-		self.set_input_output_parameters_list([io_1])
-
-def main():
-	exp = LSTM_Fixed_Data()
-	exp.k = 5
-	exp.validation_percentage = 10
-	exp.set_experiment_root_path(PATH_OUTPUT)
-	exp.run_experiment()
+		self.set_input_output_parameters_list([io_4])
 
 if __name__=="__main__":
 	main()

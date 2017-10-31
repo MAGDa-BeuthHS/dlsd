@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import datetime
 
-LEN_DAY = 1440
+LEN_DAY = 288
 LEN_WEEK = 7*LEN_DAY
 
 def calculate_average_week_from_numpy_array(data):

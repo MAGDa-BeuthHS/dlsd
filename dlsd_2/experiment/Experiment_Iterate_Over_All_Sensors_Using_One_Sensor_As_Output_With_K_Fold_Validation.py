@@ -1,5 +1,6 @@
 from .Experiment_With_K_Fold_Validation import *
 from .experiment_helper.Experiment_Helper_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output import Experiment_Helper_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output
+from dlsd_2.experiment.experiment_output_reader.Experiment_Error_Calculator_For_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output_With_K_Fold_Validation import *
 
 import os
 class Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output_With_K_Fold_Validation(Experiment_With_K_Fold_Validation):
@@ -14,7 +15,7 @@ class Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output_With_K_Fold
 	def _iterate_over_all_sensors_test_and_train_using_one_sensor_as_target(self):
 		available_sensors = self.source_maker.get_all_sensors() # bc of type remove inefficient sensors, get available sensors
 		#for self.current_sensor_used_as_model_output in available_sensors:
-		for i in range(5):
+		for i in range(2):
 			self.current_sensor_used_as_model_output = available_sensors[i]
 			self.target_for_current_sensor_written_to_file = False
 			#self.current_sensor_used_as_model_output = available_sensors[i]
@@ -38,3 +39,7 @@ class Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output_With_K_Fold
 		self.current_io_param.set_target_sensor_idxs_list([self.current_sensor_used_as_model_output])
 		if self.current_io_param.use_single_sensor_as_input: # if single input/single output
 			self.current_io_param.set_input_sensor_idxs_list([self.current_sensor_used_as_model_output])
+
+	def define_error_calculator(self):
+		return Experiment_Error_Calculator_For_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output_With_K_Fold_Validation()
+

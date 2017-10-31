@@ -11,15 +11,11 @@ class Average_Week(Model):
 		self.model_content = Average_Week_Content()
 		self.name = "Average_Week"
 
-	def train_with_prepared_input_target_maker(self,itm):
-		if self.average_week_externally_set is False:
-			super(Average_Week,self).train_with_prepared_input_target_maker(itm)
-		else:
-			self._set_global_itms_for_training(itm)
-			self.model_input.set_input_and_target_from_input_target_maker(itm)
+	def create_average_week_with_source_maker(self, source_maker):
+		self.model_content.create_average_week_with_source_maker(source_maker)
 
 	def _train(self):
-		self.model_content.create_source_average_data_with_input_target_maker(self.current_input_target_maker)
+		pass
 
 	def _test(self):
 		self.model_content.set_input_target_maker(self.current_input_target_maker)

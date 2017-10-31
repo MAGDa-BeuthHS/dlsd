@@ -9,14 +9,8 @@ class LSTM_One_Hidden_Layer_Content(NN_One_Hidden_Layer_Content):
     @tf_attributeLock
     def prediction(self):
         logging.info("Adding LSTM Prediction nodes to the graph")
-        
         cell = tf.contrib.rnn.BasicLSTMCell(num_units = self.n_hidden, state_is_tuple = True)
-        
-        print(self.data_placeholder.get_shape())
         outputs,last_states = tf.nn.dynamic_rnn(cell = cell, inputs = self.data_placeholder, dtype = tf.float32)
-
-        print('HERE OUTPUTS')
-        print(outputs.get_shape())
         last_output = outputs[:,self.num_rnn_steps-1,:]
         # outputs contains an tensor with shape ( batch size, rnn_sequence_length , n_hidden)
         # only the rnn layers are connected! to create the output layer of proper size need a new activation function!

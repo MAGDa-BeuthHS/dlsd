@@ -129,6 +129,13 @@ class Neural_Network_Model(Model):
 			feed_dict = self.model_input.fill_feed_dict_in_order(self.input_pl, self.target_pl, self.batch_size, step)
 			predicted = sess.run(self.model_content.prediction, feed_dict = feed_dict)
 			self._add_predicted_to_predictions(predicted)
+		self._test_last_batch(sess, num_batches)
+
+	def _test_last_batch(self, sess, num_batches):
+		if num_batches*self.batch_size < self.model_input.get_number_datapoints() :
+			feed_dict = self.model_input.fill_last_feed_dict_in_order(self.input_pl, self.target_pl, self.batch_size, num_batches)
+			predicted = sess.run(self.model_content.prediction, feed_dict = feed_dict)
+			self._add_predicted_to_predictions(predicted)
 
 	def _add_predicted_to_predictions(self, predicted):
 		if self.predictions is None:

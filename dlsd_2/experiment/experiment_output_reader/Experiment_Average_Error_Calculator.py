@@ -21,7 +21,7 @@ class Experiment_Average_Error_Calculator:
         self._write_averages_to_file()
     
     def _write_averages_to_file(self):
-        dir_path = os.path.join(self.directory_helper.root_experiment_directory,"avg_errors")
+        dir_path = os.path.join(self.directory_helper.root_experiment_directory,"error")
         self.directory_helper._check_or_make_dir(dir_path)
         for error_directory in self.error_function_average_helpers:
             error_directory.write_averages_to_file(dir_path)
@@ -39,7 +39,6 @@ class Experiment_Average_Error_Calculator:
     def _iterate_over_all_sensors_summing_error(self):
         for i in range(1,len(self.directory_helper.all_sensor_dirs)):
             sensor = self.directory_helper.all_sensor_dirs[i]
-            print(sensor)
             error_dir = self._get_current_error_dir_for_sensor(sensor)
             for error_func_type in self.error_function_average_helpers:
                 error_func_type.set_current_error_dir_path(error_dir)

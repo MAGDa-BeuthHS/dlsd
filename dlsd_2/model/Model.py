@@ -79,11 +79,9 @@ class Model:
 		new_df = self.get_target_and_predictions_df()
 		new_df.to_csv(file_path)
 
-	def write_predictions_using_experiment_helper(self):
-		path = self.experiment_helper.make_new_model_prediction_file_path_with_model_name(self.name)
+	def write_predictions_to_path(self, path):
 		logging.info("Writing Predictions to %s"%path)
 		predictions = self.get_prediction_df()
-		print(predictions.index.values)
 		predictions.to_csv(path)
 
 	def set_model_output_with_predictions_numpy_array(self, predictions_numpy_array):

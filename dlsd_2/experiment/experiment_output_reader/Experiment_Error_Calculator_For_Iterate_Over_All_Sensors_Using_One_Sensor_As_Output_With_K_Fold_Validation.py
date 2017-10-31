@@ -1,6 +1,7 @@
-from dlsd_2.experiment.experiment_output_reader.Many_Sensor_Directory_Helper import Many_Sensor_Directory_Helper
+from dlsd_2.experiment.experiment_output_reader.Many_Sensor_Directory_Helper import Many_Sensor_Directory_Helper_With_K_Fold_Validation
 from dlsd_2.experiment.experiment_output_reader.Experiment_Output_Reader import Experiment_Output_Reader
 from dlsd_2.experiment.experiment_output_reader.Experiment_Error_Calculator_For_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output import *
+from dlsd_2.experiment.experiment_output_reader.Experiment_Average_Error_Calculator import *
 import logging
 
 class Experiment_Error_Calculator_For_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output_With_K_Fold_Validation(Experiment_Error_Calculator_For_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output):
@@ -18,11 +19,12 @@ class Experiment_Error_Calculator_For_Iterate_Over_All_Sensors_Using_One_Sensor_
     def analyze_all_sensors(self):
         self.directory_helper.prepare_list_of_all_sensors_to_analyze()
         self.directory_helper.prepare_list_of_level_0_dirs()
-        self._iterate_over_all_sensors_calculating_error()
+        self._iterate_over_all_sensors_calculating_k_fold_error()
+        self._iterate_over_all_sensors_calculating_avg_error()
     
-    def _iterate_over_all_sensors_calculating_error(self):
+    def _iterate_over_all_sensors_calculating_k_fold_error(self):
         for sensor in self.directory_helper.all_sensor_dirs:
-            for level_0_directory in self.directory_helper.all_level_0_dirs:
+            for level_0_dir in self.directory_helper.level_0_dirs:
                 self.reader = Experiment_Output_Reader()
                 self._extract_data_from_level_0_dir_in_current_sensor(level_0_dir, sensor)
                 self._iterate_over_error_functions()
@@ -40,3 +42,9 @@ class Experiment_Error_Calculator_For_Iterate_Over_All_Sensors_Using_One_Sensor_
         analyzer.set_analysis_function(error_function)
         analyzer.do_analysis()
 
+    def _iterate_over_all_sensors_calculating_avg_error(self):
+        for sensor in self.directory_helper.all_sensor_dirs:
+            self.directory_helper.set_current_sensor_directory_with_sensor(sensor)
+            avg = Experiment_Average_Error_Calculator()
+            avg.set_root_experiment_directory(self.directory_helper.current_sensor_dir)
+            avg.calculate_average()

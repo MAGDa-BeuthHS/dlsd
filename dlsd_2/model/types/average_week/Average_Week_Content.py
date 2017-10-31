@@ -7,7 +7,8 @@ import numpy as np
 import pandas as pd
 import datetime
 
-LEN_WEEK = 7*1440
+LEN_DAY = 288
+LEN_WEEK = 7*LEN_DAY
 
 
 class Average_Week_Content(Model_Content):
@@ -42,22 +43,22 @@ class Average_Week_Content(Model_Content):
 		self.source_average_dataset_object = Dataset()
 		self.source_average_dataset_object.read_csv(file_path,index_col=0)
 
-	def create_source_average_data_with_input_target_maker(self, input_target_maker):
-		source = input_target_maker.source_dataset_object
-		idx = self._get_idx_first_midnight(input_target_maker)
+	def create_average_week_with_source_maker(self, source_maker):
+		source = source_maker.all_data 
+		idx = self._get_idx_first_midnight(source_maker)
 		average_data = calculate_average_week_from_numpy_array(source.df.iloc[idx:source.df.shape[0],:].values)
-		current_weekday_start_int = get_weekday_int_from_timestamp_string_with_format(source.df.index.values[0], input_target_maker.time_format) if self.weekday_int_source is None else self.weekday_int_source
+		current_weekday_start_int = get_weekday_int_from_timestamp_string_with_format(source.df.index.values[0], source_maker.time_format_train) if self.weekday_int_source is None else self.weekday_int_source
 		average_data = rearrange_week_starting_to_start_on_monday_with_current_day_start_int(average_data, current_weekday_start_int)
 		self.source_average_dataset_object.set_numpy_array(average_data)
 		self.source_average_dataset_object.set_row_names(make_week_starting_on_monday_timestamps(weekday_begin_int = 0))
 		self.source_average_dataset_object.set_column_names(source.get_column_names())
 
-	def _get_idx_first_midnight(self,itm):
+	def _get_idx_first_midnight(self,source_maker):
 		idx = 0
-		the_datetime = convert_string_to_datetime(itm.source_dataset_object.df.index.values[idx],itm.time_format)
+		the_datetime = convert_string_to_datetime(source_maker.all_data.df.index.values[idx],source_maker.time_format_train)
 		while(the_datetime.hour!=0):
 			idx = idx + 1
-			the_datetime = convert_string_to_datetime(itm.source_dataset_object.df.index.values[idx],itm.time_format)
+			the_datetime = convert_string_to_datetime(source_maker.all_data.df.index.values[idx],source_maker.time_format_train)
 		return 0
 
 	def make_prediction_dataset_object(self):
@@ -70,7 +71,6 @@ class Average_Week_Content(Model_Content):
 
 	def _extract_sensors_currently_being_used_as_output_from_source_data(self):
 		self.subset_avg_week_array = self.source_average_dataset_object.df[self.input_target_maker.get_target_sensor_idxs_list()].values
-
 
 	def _iterate_over_target_time_offsets_replicating_average_week(self,array):
 		'''
@@ -90,7 +90,7 @@ class Average_Week_Content(Model_Content):
 			Average Weeks are standardized to start on mondays, and then rearranged to fit the target beginning day
 		'''
 		current_time_offset = self._target_time_offset_at_index(idx_current_time_offset)
-		weekday_begin_in_minutes = self.target_begin_weekday_int * 1440
+		weekday_begin_in_minutes = self.target_begin_weekday_int * LEN_DAY
 		return current_time_offset + weekday_begin_in_minutes + self._max_input_time_offset()
 
 	def _fill_prediction_with_copies_of_avg_week_at_timeoffset_index(self, avg_week_starting_at_time, idx_current_time_offset,array):

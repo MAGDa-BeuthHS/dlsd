@@ -76,8 +76,26 @@ class Experiment_Helper_With_K_Fold_Validation:
 	def get_target_file_path(self):
 		return os.path.join(self.path_io_param,"target.csv")
 
+	def get_train_target_file_path(self):
+		return os.path.join(self.path_io_param,"target_train.csv")
+
+	def get_validation_target_file_path(self):
+		return os.path.join(self.path_io_param,"target_validation.csv")
+
 	def make_new_model_prediction_file_path_with_model_name(self,model_name):
 		filename = model_name+".csv"
 		filepath = os.path.join(self.predictions_dir_path,filename)
 		return filepath
+
+	def make_new_model_train_prediction_file_path_with_model_name(self,model_name):
+		filename = model_name+".csv"
+		filepath = os.path.join(self.predictions_train_dir_path,filename)
+		return filepath
+
+	def make_new_model_validation_prediction_file_path_with_model_name(self,model_name):
+		filename = model_name+".csv"
+		filepath = os.path.join(self.predictions_validation_dir_path,filename)
+		return filepath
+
+
 

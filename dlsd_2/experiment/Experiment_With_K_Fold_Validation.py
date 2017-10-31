@@ -6,6 +6,7 @@ from dlsd_2.experiment.experiment_output_reader.Experiment_Error_Calculator_For_
 from dlsd_2.experiment.experiment_output_reader.Experiment_Average_Error_Calculator import Experiment_Average_Error_Calculator
 from .experiment_helper.Experiment_Helper_With_K_Fold_Validation import *
 from dlsd_2.dataset.Dataset_With_Time_Offset import *
+from dlsd_2.input_target_maker.Source_Maker_With_K_Fold_Validation import *
 
 class Experiment_With_K_Fold_Validation(Experiment):
 	"""
@@ -95,13 +96,23 @@ class Experiment_With_K_Fold_Validation(Experiment):
 		itm.target_maker.dataset_object.set_denormalizer(self.train_input_and_target_maker.denormalizer_used_in_training)
 		itm.target_maker.dataset_object.normalize()
 
+	def _write_target_data_to_file(self):
+		self._write_itm_target_data_to_file(self.test_input_and_target_maker, self.current_experiment_helper.get_target_file_path())
+		self._write_itm_target_data_to_file(self.train_input_and_target_maker, self.current_experiment_helper.get_train_target_file_path())
+		self._write_itm_target_data_to_file(self.validation_input_target_maker, self.current_experiment_helper.get_validation_target_file_path())
+
+
 	def _train_and_test_single_model(self, model):
 		model.set_experiment_helper(self.current_experiment_helper)
-		print("_train_and_test_single_model in experiment !!")
 		model.train_with_prepared_input_target_maker(self.train_input_and_target_maker)
-		model.test_with_prepared_input_target_maker(self.test_input_and_target_maker)
-		model.write_predictions_using_experiment_helper()
-		print("done with k_fold_validation")
+		self._test_model_with_input_target_maker(model, self.test_input_and_target_maker, self.current_experiment_helper.make_new_model_prediction_file_path_with_model_name)
+		self._test_model_with_input_target_maker(model, self.train_input_and_target_maker, self.current_experiment_helper.make_new_model_train_prediction_file_path_with_model_name)
+		self._test_model_with_input_target_maker(model, self.validation_input_target_maker, self.current_experiment_helper.make_new_model_validation_prediction_file_path_with_model_name)
+
+	def _test_model_with_input_target_maker(self, model, itm, path_generator_func):
+		model.test_with_prepared_input_target_maker(itm)
+		output_path = path_generator_func(model.name)
+		model.write_predictions_to_path(output_path)
 
 	def calc_prediction_error(self):
 		calc = super(Experiment_With_K_Fold_Validation,self).calc_prediction_error()
@@ -153,13 +164,15 @@ class Train_Test_Splitter:
 		self._idxs_train = [x for x in idxs_test_train if x not in idxs_test]
 
 	def _create_separate_test_and_train_input_target_makers(self):
-		self._test_input_target_maker = self._subset_traintest_itm_with_idxs(self._idxs_train)
-		self._train_input_target_maker = self._subset_traintest_itm_with_idxs(self._idxs_test)
+		self._test_input_target_maker = self._subset_traintest_itm_with_idxs(self._idxs_test)
+		self._train_input_target_maker = self._subset_traintest_itm_with_idxs(self._idxs_train)
 
 	def _subset_traintest_itm_with_idxs(self, idxs):
 		itm = Input_And_Target_Maker_2()
 		itm.input_maker.dataset_object = self._subset_maker_with_idxs(self.combined_train_test_itm.input_maker, idxs)
 		itm.target_maker.dataset_object = self._subset_maker_with_idxs(self.combined_train_test_itm.target_maker, idxs)
+		itm.source_dataset_object = self.combined_train_test_itm.source_dataset_object
+		itm.time_format = self.combined_train_test_itm.time_format
 		return itm
 
 	def _subset_maker_with_idxs(self, maker, idxs):

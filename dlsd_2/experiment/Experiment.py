@@ -85,10 +85,10 @@ class Experiment:
 
 	def _train_and_test_single_model(self, model):
 		model.set_experiment_helper(self.current_experiment_helper)
-		print("_train_and_test_single_model in experiment !!")
 		model.train_with_prepared_input_target_maker(self.train_input_and_target_maker)
 		model.test_with_prepared_input_target_maker(self.test_input_and_target_maker)
-		model.write_predictions_using_experiment_helper()
+		output_path = self.current_experiment_helper.make_new_model_prediction_file_path_with_model_name(model.name)
+		model.write_predictions_to_path(output_path)
 
 	def _set_input_target_makers_to_current_model_input_output_parameters(self):
 		self.train_input_and_target_maker.set_all_sensor_idxs_and_time_offsets_using_parameters_object(self.current_io_param)
@@ -99,9 +99,12 @@ class Experiment:
 		self.test_input_and_target_maker.make_input_and_target()
 
 	def _write_target_data_to_file(self):
-		test_df = self.test_input_and_target_maker.get_target_df()
-		test_df.to_csv(self.current_experiment_helper.get_target_file_path())
+		self._write_itm_target_data_to_file(self.test_input_and_target_maker, self.current_experiment_helper.get_target_file_path())
 
+	def _write_itm_target_data_to_file(self, itm, output_file):
+		target_df = itm.get_target_df()
+		target_df.to_csv(output_file)
+	
 	def _collect_all_model_accuracies(self):
 		model_prediction_accuracies = []
 		for model in self.models:
@@ -110,7 +113,7 @@ class Experiment:
 
 	def _calculate_accuracy_of_models(self):
 		logging.debug("calculating average error")
-		analyzer = Experiment_Error_Calculator_For_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output()
+		analyzer = self.define_error_calculator()
 		analyzer.set_root_experiment_directory(self.root_path)
 		analyzer.set_analysis_functions([MAE()])
 		analyzer.analyze_all_sensors()
@@ -118,6 +121,9 @@ class Experiment:
 		avg = Experiment_Average_Error_Calculator()
 		avg.set_root_experiment_directory(self.root_path)
 		avg.calculate_average()
+
+	def define_error_calculator(self):
+		return Experiment_Error_Calculator()
 
 	def add_model(self, model):
 		self.models.append(model)
@@ -130,3 +136,10 @@ class Experiment:
 
 	def set_source_maker(self, source_maker):
 		self.source_maker = source_maker
+	
+	def create_average_week(self):
+		self._define_source_maker()
+		self.source_maker.prepare_source_data()
+		model = Average_Week()
+		model.create_average_week_with_source_maker(self.source_maker)
+		model.write_average_week_to_filepath(PATH_AVERAGE_WEEK)

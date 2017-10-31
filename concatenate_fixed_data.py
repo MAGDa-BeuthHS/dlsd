@@ -28,8 +28,8 @@ def make_empty_array(files, path_dir):
 
 def read_data_file_in_dir(file, path_dir):
 	path_file = os.path.join(path_dir, file)
-	data = pd.read_csv(path_file, header=None)
-	return data.iloc[:,3].values
+	data = pd.read_csv(path_file,header=None)
+	return data.iloc[:,2].values
 
 
 if __name__ == '__main__':

@@ -30,10 +30,10 @@ class Experiment_Error_Calculator:
         model_names = self.reader.get_model_names()
         for model_name in model_names:
             dicts_for_model = self.reader.get_predictions_and_target_for_model_name(model_name)
-            print(model_name)
             self._make_empty_tables_for_current_model(dicts_for_model)
             self._iterate_over_all_io_params_for_single_model_doing_analysis(dicts_for_model)
-            self.current_table.to_csv(os.path.join(self.path_output,model_name+".csv"))
+            path = os.path.join(self.path_output,model_name+".csv")
+            self.current_table.to_csv(path)
 
     def _make_empty_tables_for_current_model(self,dicts_for_model):
         self.col_num = dicts_for_model[0]['df'].shape[1]
