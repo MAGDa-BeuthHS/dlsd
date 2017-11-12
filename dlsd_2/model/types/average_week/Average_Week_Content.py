@@ -9,6 +9,7 @@ import datetime
 
 LEN_DAY = 288
 LEN_WEEK = 7*LEN_DAY
+TIME_INTERVAL_IN_SECONDS = 60*5
 
 
 class Average_Week_Content(Model_Content):
@@ -50,7 +51,7 @@ class Average_Week_Content(Model_Content):
 		current_weekday_start_int = get_weekday_int_from_timestamp_string_with_format(source.df.index.values[0], source_maker.time_format_train) if self.weekday_int_source is None else self.weekday_int_source
 		average_data = rearrange_week_starting_to_start_on_monday_with_current_day_start_int(average_data, current_weekday_start_int)
 		self.source_average_dataset_object.set_numpy_array(average_data)
-		self.source_average_dataset_object.set_row_names(make_week_starting_on_monday_timestamps(weekday_begin_int = 0))
+		self.source_average_dataset_object.set_row_names(make_week_starting_on_monday_timestamps(weekday_begin_int = 0,time_interval_in_seconds=TIME_INTERVAL_IN_SECONDS))
 		self.source_average_dataset_object.set_column_names(source.get_column_names())
 
 	def _get_idx_first_midnight(self,source_maker):

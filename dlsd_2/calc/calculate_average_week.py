@@ -35,11 +35,11 @@ def get_weekday_int_from_timestamp_string_with_format(time_stamp, time_format):
 	first_datetime = datetime.datetime.strptime(time_stamp,time_format)
 	return first_datetime.weekday()
 
-def make_week_starting_on_monday_timestamps(weekday_begin_int=0, time_format='%Y-%m-%d %H:%M:%S'):
+def make_week_starting_on_monday_timestamps(weekday_begin_int=0, time_format='%Y-%m-%d %H:%M:%S', time_interval_in_seconds=60):
 	the_datetime = get_real_datetime_starting_on_given_weekday_int(weekday_begin_int,time_format)
 	datetimes = [the_datetime]
 	while len(datetimes) < LEN_WEEK :
-		the_datetime = the_datetime + datetime.timedelta(0,60)
+		the_datetime = the_datetime + datetime.timedelta(0,time_interval_in_seconds)
 		datetimes.append(datetime.datetime.strftime(the_datetime,time_format))
 	return datetimes
 
