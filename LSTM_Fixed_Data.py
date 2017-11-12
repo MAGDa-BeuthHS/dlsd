@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO)#filename='17_05_04_dlsd_2_trials.log',)
 
 PATH_DATA = '/hartensa/Repair/all_fixed.csv'
 PATH_ADJACENCY = '/hartensa/data_other/Time_Adjacency_Matrix.csv'
-PATH_OUTPUT = '/hartensa/experiment_output/lstm_experiment'
+PATH_OUTPUT = '/hartensa/experiment_output/lstm_experiment_fixed_data'
 PATH_AVERAGE_WEEK = '/hartensa/data_other/Average_Week_One_Year_Fixed.csv'
 
 
@@ -18,8 +18,9 @@ def main():
 	exp.k = 5
 	exp.validation_percentage = 10
 	exp.set_experiment_root_path(PATH_OUTPUT)
-	#exp._calculate_accuracy_of_models()
 	exp.run_experiment()
+	#exp._calculate_accuracy_of_models()
+
 
 class LSTM_Fixed_Data(Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output_With_K_Fold_Validation):
 	def _define_source_maker(self):

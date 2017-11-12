@@ -3,10 +3,8 @@
 from dlsd_2.input_target_maker.Source_Maker_With_K_Fold_Validation import *
 from dlsd_2.model.types.average_week.Average_Week import Average_Week
 
-#PATH_DATA = '/hartensa/Repair/all_fixed.csv'
-#PATH_AVERAGE_WEEK = '/hartensa/data_other/Average_Week_One_Year_Fixed.csv'
-PATH_AVERAGE_WEEK = '/Users/ahartens/Desktop/Average_Week_One_Year_Fixed.csv'
-PATH_DATA = '/Users/ahartens/Desktop/all_fixed.csv'
+PATH_DATA = '/hartensa/Repair/all_fixed.csv'
+PATH_AVERAGE_WEEK = '/hartensa/data_other/Average_Week_One_Year_Fixed.csv'
 
 def main():
 	print("starting")
