@@ -1,5 +1,6 @@
 import logging
 from dlsd_2.dataset.Dataset import *
+import pandas as pd
 
 from dlsd_2.calc import error
 

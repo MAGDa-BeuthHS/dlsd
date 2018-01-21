@@ -23,7 +23,6 @@ class Input_And_Target_Maker_2:
 		self._make_input()
 		self._make_target()
 		self._set_input_target_row_names()
-		print("IN HERE YOU ARE!!!")
 		print(self.input_maker.dataset_object.df.shape)
 
 	def _calc_clip_range_so_input_target_same_size(self):

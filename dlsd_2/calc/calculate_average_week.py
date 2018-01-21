@@ -20,7 +20,7 @@ def calculate_average_week_from_numpy_array(data):
 
 def rearrange_week_to_start_at_time(week, time):
 	week_starting_on_n = np.zeros([LEN_WEEK,week.shape[1]])
-	week_starting_on_n[ 0 : (LEN_WEEK-time) , : ] = week[ time:LEN_WEEK , : ]
+	week_starting_on_n[ 0:(LEN_WEEK-time) , : ] = week[ time:LEN_WEEK , : ]
 	week_starting_on_n[ (LEN_WEEK-time) : LEN_WEEK , : ] = week[0:time , : ]
 	return week_starting_on_n
 
@@ -34,6 +34,10 @@ def rearrange_week_starting_to_start_on_monday_with_current_day_start_int(week, 
 def get_weekday_int_from_timestamp_string_with_format(time_stamp, time_format):
 	first_datetime = datetime.datetime.strptime(time_stamp,time_format)
 	return first_datetime.weekday()
+
+def get_time_int_from_timestamp_string_with_format(time_stamp, time_format, time_interval_in_minutes=1):
+	first_datetime = datetime.datetime.strptime(time_stamp,time_format)
+	return first_datetime.minute + int(first_datetime.hour*(60/time_interval_in_minutes))
 
 def make_week_starting_on_monday_timestamps(weekday_begin_int=0, time_format='%Y-%m-%d %H:%M:%S', time_interval_in_seconds=60):
 	the_datetime = get_real_datetime_starting_on_given_weekday_int(weekday_begin_int,time_format)

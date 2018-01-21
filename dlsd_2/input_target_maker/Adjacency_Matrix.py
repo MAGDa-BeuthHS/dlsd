@@ -14,8 +14,9 @@ class Adjacency_Matrix:
         self.subset_df = self.df[list_of_strs]
     
     def get_adjacency_for_sensor(self, sensor):
-        row = self.subset_df.loc[sensor]
+        row = self.subset_df.loc[sensor].values
         row = row.reshape([1,-1])
+        print(row)
         return row
 
     def convert_idx_and_cols_of_df_to_string(self, the_df):

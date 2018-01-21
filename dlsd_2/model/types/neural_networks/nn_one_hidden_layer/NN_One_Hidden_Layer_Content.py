@@ -66,7 +66,7 @@ class NN_One_Hidden_Layer_Content(Model_Content):
         # using l2 norm (sum of) square error
         final_error = tf.square(tf.subtract(self.target_placeholder,self.prediction),name="myError")
         #tf.histogram_summary("final_error",final_error)
-        mean = tf.reduce_mean(final_error,0)
+        mean = tf.reduce_mean(final_error)# IF DOING AN LSTM NEED TO DO REDUCE_MEAN(FINAL_ERROR, 0)
         #tf.histogram_summary("mean_error",mean)
         return final_error
 

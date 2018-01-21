@@ -1,4 +1,5 @@
 from dlsd_2.model.types.neural_networks.LSTM.LSTM_One_Hidden_Layer import LSTM_One_Hidden_Layer
+from dlsd_2.model.types.neural_networks.nn_one_hidden_layer.NN_One_Hidden_Layer import NN_One_Hidden_Layer
 
 from dlsd_2.input_target_maker.Source_Maker_With_K_Fold_Validation import *
 from dlsd_2.model.types.average_week.Average_Week import Average_Week
@@ -7,10 +8,10 @@ import logging
 
 logging.basicConfig(level=logging.INFO)#filename='17_05_04_dlsd_2_trials.log',)
 
-PATH_DATA = '/hartensa/Repair/all_fixed.csv'
-PATH_ADJACENCY = '/hartensa/data_other/Time_Adjacency_Matrix.csv'
-PATH_OUTPUT = '/hartensa/experiment_output/lstm_experiment_fixed_data'
-PATH_AVERAGE_WEEK = '/hartensa/data_other/Average_Week_One_Year_Fixed.csv'
+PATH_DATA = '/alex/Repair/all_fixed.csv'
+PATH_ADJACENCY = '/alex/data_other/Time_Adjacency_Matrix.csv'
+PATH_OUTPUT = '/alex/experiment_output/lstm_experiment_fixed_data_average_week_all_together'#fixed'
+PATH_AVERAGE_WEEK = '/alex/data_other/Average_Week_One_Year_Fixed.csv'
 
 
 def main():
@@ -19,7 +20,7 @@ def main():
 	exp.validation_percentage = 10
 	exp.set_experiment_root_path(PATH_OUTPUT)
 	exp.run_experiment()
-	#exp._calculate_accuracy_of_models()
+	exp._calculate_accuracy_of_models()
 
 
 class LSTM_Fixed_Data(Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output_With_K_Fold_Validation):
@@ -40,11 +41,20 @@ class LSTM_Fixed_Data(Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Ou
 		self.add_model(model)
 
 		model = LSTM_One_Hidden_Layer()
-		model.name = "lstm_one_hidden_layer_content_with_time_adjacency_matrix_17_09_28_(0,31,1)"
+		model.name = "lstm_model"
 		model.set_number_hidden_nodes(50)
-		model.set_learning_rate(.1)
-		model.set_batch_size(20)
-		model.set_num_epochs(1)
+		model.set_learning_rate(.01)
+		model.set_batch_size(256)
+		model.set_num_epochs(30)
+		model.fill_output_timegaps = False
+		self.add_model(model)
+
+		model = NN_One_Hidden_Layer()
+		model.name = "ffnn_model"
+		model.set_number_hidden_nodes(50)
+		model.set_learning_rate(.01)
+		model.set_batch_size(256)
+		model.set_num_epochs(30)
 		model.fill_output_timegaps = False
 		self.add_model(model)
 
@@ -77,7 +87,7 @@ class LSTM_Fixed_Data(Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Ou
 		for io in all_ios:
 			io.set_target_time_offsets_list(target_time_offsets)
 			io.set_input_time_offsets_list(input_time_offsets_for_sequential_input)
-		self.set_input_output_parameters_list([io_4])
+		self.set_input_output_parameters_list([io_1, io_4])
 
 if __name__=="__main__":
 	main()

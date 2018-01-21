@@ -18,6 +18,7 @@ class Experiment_With_K_Fold_Validation(Experiment):
 		self.test_single_k = False
 		self.validation_percentage = None
 		self.k = None
+		self.do_single_k = False
 
 	def run_experiment(self):
 		self._gather_experiment()
@@ -35,6 +36,7 @@ class Experiment_With_K_Fold_Validation(Experiment):
 			self.validation_input_target_maker = copy.deepcopy(self.original_validation_input_target_maker) # normalizer from training data
 			self._create_combined_traintest_input_target_maker()
 			self._iterate_over_io_params()
+			if self.do_single_k : break
 
 	def _create_validation_input_target_maker(self):
 		self.original_validation_input_target_maker = Input_And_Target_Maker_2()
@@ -48,13 +50,12 @@ class Experiment_With_K_Fold_Validation(Experiment):
 
 	def _create_current_experiment_helper(self):
 		self.current_experiment_helper = Experiment_Helper_With_K_Fold_Validation()
-		self.current_experiment_helper.set_level_0_name('k_'+str(self.current_k))
 		self.current_experiment_helper.set_experiment_output_path(self.root_path)
+		self.current_experiment_helper.set_level_0_name('k_'+str(self.current_k))
 		self.current_experiment_helper.set_io_parameters_name(self.current_io_param.name)
 		self.current_experiment_helper.setup_directory()
 
 	def _create_input_and_target_to_current_io_params(self):
-		self._modify_current_input_output_parameters_to_reflect_current_sensor()
 		self._set_up_combined_train_test_validaton_makers()
 		self._prepare_combined_traintest_and_validation_inputs_and_targets()
 		self._split_combined_traintest_input_target_maker_into_train_and_test()

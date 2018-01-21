@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import numpy as np
+
 class Experiment_Error_Calculator:
     def __init__(self):
         self.reader = None
@@ -39,19 +40,31 @@ class Experiment_Error_Calculator:
         self.col_num = dicts_for_model[0]['df'].shape[1]
         columns = dicts_for_model[0]['df'].columns.values
         index = self.reader.get_io_param_names()
+
         self.current_table = pd.DataFrame(np.zeros((len(dicts_for_model)-1,self.col_num)))
-        self.current_table.columns = columns
-        self.current_table.index = index
-    
+        try :
+            self.current_table.columns = columns
+            self.current_table.index = index
+        except :
+            print(self.current_table.shape)
+            print(self.reader.__dict__)
+            print(index)
+            print("TABLE DID NOT FIT")
+            pass
+
     def _iterate_over_all_io_params_for_single_model_doing_analysis(self,dicts_for_model):
         target = dicts_for_model[0]['df'].values
         for i in range(1,len(dicts_for_model)):
             preds = dicts_for_model[i]['df']
             targ = dicts_for_model[i]['target']
             l = self._get_length_of_array(preds,targ)
-            mae = self.analysis_function.calc_error_with_prediction_and_target(preds[0:l],targ.values[0:l]) # sometimes problems here
+            try :
+                mae = self.analysis_function.calc_error_with_prediction_and_target(preds[0:l],targ.values[0:l]) # sometimes problems here
+            except :
+                print("CALCULATING MAE DID NOT WORK")
+                print(dicts_for_model.keys())
+                mae = pd.DataFrame(np.zeros([1,7]))
             self.current_table.iloc[i-1,:] = mae.values # i-1 because first in list is the target(made by reader)
-            print(i)
     
     def _get_length_of_array(self, preds, targ):
         if preds.shape[0] < targ.shape[0]:

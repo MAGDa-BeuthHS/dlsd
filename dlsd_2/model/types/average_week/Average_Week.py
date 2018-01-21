@@ -12,12 +12,14 @@ class Average_Week(Model):
 		self.name = "Average_Week"
 
 	def create_average_week_with_source_maker(self, source_maker):
+		self.source_maker = source_maker
 		self.model_content.create_average_week_with_source_maker(source_maker)
 
 	def _train(self):
 		pass
 
 	def _test(self):
+		print("CALLING TEST")
 		self.model_content.set_input_target_maker(self.current_input_target_maker)
 		predictions = self.model_content.make_prediction_dataset_object()
 		super(Average_Week,self).set_model_output_with_predictions_numpy_array(predictions.df.values) # TODO check works

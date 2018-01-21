@@ -9,7 +9,8 @@ import datetime
 
 LEN_DAY = 288
 LEN_WEEK = 7*LEN_DAY
-TIME_INTERVAL_IN_SECONDS = 60*5
+TIME_INTERVAL_IN_MINUTES = 5
+TIME_INTERVAL_IN_SECONDS = 60*TIME_INTERVAL_IN_MINUTES
 
 
 class Average_Week_Content(Model_Content):
@@ -37,8 +38,9 @@ class Average_Week_Content(Model_Content):
 		self.num_target_rows = self.input_target_maker.get_target_dataset_object().get_number_rows()
 
 	def set_source_weekday_begin_int(self):
-		first_day_timestamp_string = self.input_target_maker.source_dataset_object.df.index.values[0]
-		self.target_begin_weekday_int = get_weekday_int_from_timestamp_string_with_format(first_day_timestamp_string,self.input_target_maker.time_format) if self.target_begin_weekday_int is None else self.target_begin_weekday_int
+		first_day_timestamp_string = self.input_target_maker.target_maker.dataset_object.df.index.values[0]
+		self.target_begin_weekday_int = get_weekday_int_from_timestamp_string_with_format(first_day_timestamp_string,self.input_target_maker.time_format) 
+		self.target_begin_time_int = get_time_int_from_timestamp_string_with_format(first_day_timestamp_string,self.input_target_maker.time_format, time_interval_in_minutes = TIME_INTERVAL_IN_MINUTES)
 
 	def set_average_data_from_csv_file_path(self,file_path):
 		self.source_average_dataset_object = Dataset()
@@ -83,7 +85,7 @@ class Average_Week_Content(Model_Content):
 			cur_time_offset = self._calculate_time_offset_in_min_relative_to_input_time_offsets(i)
 			avg_week_starting_at_time = rearrange_week_to_start_at_time(self.subset_avg_week_array, cur_time_offset)
 			self._fill_prediction_with_copies_of_avg_week_at_timeoffset_index(avg_week_starting_at_time, i, array)
-				
+	
 	def _calculate_time_offset_in_min_relative_to_input_time_offsets(self,idx_current_time_offset):
 		'''
 			All time offsets are all relative to time 0 of the input time offset. 
@@ -91,7 +93,7 @@ class Average_Week_Content(Model_Content):
 			Average Weeks are standardized to start on mondays, and then rearranged to fit the target beginning day
 		'''
 		current_time_offset = self._target_time_offset_at_index(idx_current_time_offset)
-		weekday_begin_in_minutes = self.target_begin_weekday_int * LEN_DAY
+		weekday_begin_in_minutes = self.target_begin_weekday_int * LEN_DAY + self.target_begin_time_int
 		return current_time_offset + weekday_begin_in_minutes + self._max_input_time_offset()
 
 	def _fill_prediction_with_copies_of_avg_week_at_timeoffset_index(self, avg_week_starting_at_time, idx_current_time_offset,array):

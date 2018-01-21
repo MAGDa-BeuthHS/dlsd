@@ -29,6 +29,8 @@ class Experiment_Helper_With_K_Fold_Validation:
 		self.root_path = path
 
 	def set_level_0_name(self, name):
+		print(self.root_path)
+		print(name)
 		self.path_level_0 = os.path.join(self.root_path, name)
 
 	def set_io_parameters_name(self, name):

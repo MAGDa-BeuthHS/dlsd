@@ -9,6 +9,7 @@ class Model_Input_Output_Parameters:
 		self.use_single_sensor_as_input = False
 		self.adjacency_matrix = None
 		self.include_output_sensor_in_adjacency = True
+		self.name = 'io'
 
 	def set_input_time_offsets_list(self, the_list):
 		self.input_time_offsets_list = the_list

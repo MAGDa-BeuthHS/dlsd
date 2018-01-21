@@ -14,11 +14,9 @@ class Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output_With_K_Fold
 
 	def _iterate_over_all_sensors_test_and_train_using_one_sensor_as_target(self):
 		available_sensors = self.source_maker.get_all_sensors() # bc of type remove inefficient sensors, get available sensors
-		#for self.current_sensor_used_as_model_output in available_sensors:
-		for i in range(2):
+		for i in range(2):#self.current_sensor_used_as_model_output in available_sensors:
 			self.current_sensor_used_as_model_output = available_sensors[i]
 			self.target_for_current_sensor_written_to_file = False
-			#self.current_sensor_used_as_model_output = available_sensors[i]
 			logging.info("Starting experiment with sensor "+self.current_sensor_used_as_model_output)
 			self._iterate_over_k_fold_validation()
 

@@ -51,10 +51,13 @@ class Maker:
 	def multiply_by_adjacency_of_target_sensor_including_target_sensor(self, adjacency_matrix, target_sensor_idxs_list, include_target_sensor):
 		target_sensor = target_sensor_idxs_list[0]
 		target_adjacency = self._get_adjacency_for_target_sensor(adjacency_matrix, target_sensor, self.sensor_idxs_list)
+		print(target_adjacency)
 		if not include_target_sensor:
 			target_sensor_idx_in_input = self.sensor_idxs_list.index(target_sensor)
 			target_adjacency[target_sensor_idx_in_input] = 0
 		self.selected_source_numpy_data = self.selected_source_numpy_data * target_adjacency
+		print(self.selected_source_numpy_data)
+		print("******")
 
 	def _get_adjacency_for_target_sensor(self,adjacency_matrix, target_sensor, input_sensor_idxs_list):
 		adjacency_matrix.subset_sensors(input_sensor_idxs_list)
