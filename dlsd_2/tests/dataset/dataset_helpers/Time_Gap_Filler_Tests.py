@@ -1,9 +1,11 @@
-from dlsd_2.dataset.dataset_helpers.Time_Gap_Filler import Time_Gap_Filler
-import pandas as pd
-import numpy as np
 import datetime
-import logging
 import unittest
+
+import numpy as np
+import pandas as pd
+
+from dlsd_2.src.io.dataset import Time_Gap_Filler
+
 
 class Time_Gap_Filler_Tests(unittest.TestCase):
 	def setUp(self):

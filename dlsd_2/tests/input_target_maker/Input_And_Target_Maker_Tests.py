@@ -1,10 +1,10 @@
-import unittest
 import logging
-import pandas as pd
+import unittest
+
 import numpy as np
+
 from dlsd_2.tests.input_target_maker.Input_Target_Correct_Output_Table import Correct_Output_Table
 
-from dlsd_2.input_target_maker.Input_And_Target_Maker import *
 
 class Input_And_Target_Maker_Tests(unittest.TestCase):
 	def setUp(self):

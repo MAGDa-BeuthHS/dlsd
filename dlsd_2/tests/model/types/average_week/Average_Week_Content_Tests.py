@@ -1,12 +1,11 @@
-from dlsd_2.model.types.average_week.Average_Week_Content import Average_Week_Content
-from dlsd_2.input_target_maker.ITM_Fill_Time_Gaps_Normalized_Moving_Average import ITM_Fill_Time_Gaps_Normalized_Moving_Average
-import pandas as pd
-import numpy as np
-import datetime
-import logging
 import unittest
 
-from dlsd_2.dataset.Dataset_From_SQL import Dataset_From_SQL
+import pandas as pd
+from dlsd_2.input_target_maker.ITM_Fill_Time_Gaps_Normalized_Moving_Average import ITM_Fill_Time_Gaps_Normalized_Moving_Average
+from dlsd_2.model.types.average_week.Average_Week_Content import Average_Week_Content
+
+from dlsd_2.src.io.dataset import Dataset_From_SQL
+
 
 class AWC_Tests(unittest.TestCase):
 	def setUp(self):

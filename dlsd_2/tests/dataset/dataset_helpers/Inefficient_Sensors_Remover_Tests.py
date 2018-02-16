@@ -1,9 +1,9 @@
-from dlsd_2.dataset.dataset_helpers.Inefficient_Sensors_Remover import Inefficient_Sensors_Remover
-import pandas as pd
-import numpy as np
-import datetime
-import logging
 import unittest
+
+import pandas as pd
+
+from dlsd_2.src.io.dataset import Inefficient_Sensors_Remover
+
 
 class Inefficient_Sensors_Remover_Tests(unittest.TestCase):
 	def setUp(self):

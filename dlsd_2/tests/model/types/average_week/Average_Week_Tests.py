@@ -1,11 +1,9 @@
-from dlsd_2.model.types.average_week.Average_Week import Average_Week
-from dlsd_2.input_target_maker.ITM_Fill_Time_Gaps import ITM_Fill_Time_Gaps
-import pandas as pd
-import numpy as np
-import datetime
-import logging
 import unittest
-from dlsd_2.dataset.Dataset_From_SQL import Dataset_From_SQL
+
+import pandas as pd
+from dlsd_2.input_target_maker.ITM_Fill_Time_Gaps import ITM_Fill_Time_Gaps
+from dlsd_2.model.types.average_week.Average_Week import Average_Week
+
 
 class Average_Week_Tests(unittest.TestCase):
 	def setUp(self):
