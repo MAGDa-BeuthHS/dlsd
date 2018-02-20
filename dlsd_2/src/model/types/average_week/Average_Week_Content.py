@@ -1,8 +1,8 @@
 import logging
 
 import numpy as np
-from dlsd_2.calc.calculate_average_week import *
-from dlsd_2.dataset.Dataset import Dataset
+from dlsd_2.src.calc.calculate_average_week import *
+from dlsd_2.src.io.dataset.Dataset import Dataset
 
 from dlsd_2.src.model.Model_Content import Model_Content
 

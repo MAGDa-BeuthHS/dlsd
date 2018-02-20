@@ -26,7 +26,7 @@ def create_source_maker():
 
 def create_average_week_with_source_maker(source_maker):
 	model = Average_Week()
-	model.create_average_week_with_source_maker(source_maker)
+	model.build(source_maker)
 	model.write_average_week_to_filepath(PATH_AVERAGE_WEEK)
 
 if __name__ == "__main__":

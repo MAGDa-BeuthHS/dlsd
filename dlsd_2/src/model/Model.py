@@ -56,7 +56,7 @@ class Model:
 		self.current_input_target_maker = itm
 		self.train_input_target_maker = itm
 
-	def _build(self):
+	def _build(self, source_maker):
 		raise NotImplementedError
 
 	def _train(self):
