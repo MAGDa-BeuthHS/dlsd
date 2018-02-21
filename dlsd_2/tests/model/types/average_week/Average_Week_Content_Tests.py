@@ -66,8 +66,8 @@ class AWC_Test_Opening_Preaveraged_Week_And_Creating_Target_Dataset(AWC_Test_Ope
 		self.incorrect_data = pd.read_csv(self.test_csv_dir+incorrect_name,index_col=0)
 
 	def replicate_model__set_model_content_parameters(self):
-		self.input_target_maker.set_input_sensor_idxs_and_timeoffsets_lists(None,[0,1440])
-		self.input_target_maker.set_target_sensor_idxs_and_timeoffsets_lists([0],[1440,2880,4320])
+		self.input_target_maker.set_input_sensor_idxs_and_time_offsets(None,[0,1440])
+		self.input_target_maker.set_target_sensor_idxs_and_time_offsets([0],[1440,2880,4320])
 		self.average_week_content.target_begin_weekday_int = 0
 		self.average_week_content.target_time_offsets_list = [1440,2880,4320]
 		self.average_week_content.input_time_offsets_list = [0,1440]
@@ -157,7 +157,7 @@ class AWC_Test_Labels(AWC_Tests):
 		self.data_obj = Dataset_From_SQL()
 		self.data_obj.read_csv(path)
 		self.data_obj.pivot()
-		self.data_obj.fill_time_gaps_using_time_format('%Y-%m-%d %H:%M:%S')
+		self.data_obj.fill_time_gaps('%Y-%m-%d %H:%M:%S')
 		self.average_week_content.calculate_average_data_from_dataset_object(self.data_obj)
 
 	def test_calculated(self):

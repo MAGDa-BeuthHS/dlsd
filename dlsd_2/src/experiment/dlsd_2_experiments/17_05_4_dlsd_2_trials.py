@@ -25,8 +25,8 @@ def main():
 	train_input_and_target_maker.set_source_file_path(file_path_train)
 	train_input_and_target_maker.set_moving_average_window(15)
 	train_input_and_target_maker.set_efficiency_threshold(1.0)
-	train_input_and_target_maker.set_input_sensor_idxs_and_timeoffsets_lists(None,[0]) # use all sensors, no time offset for input
-	train_input_and_target_maker.set_target_sensor_idxs_and_timeoffsets_lists([0],[30,45,60]) # use sensor
+	train_input_and_target_maker.set_input_sensor_idxs_and_time_offsets(None,[0]) # use all sensors, no time offset for input
+	train_input_and_target_maker.set_target_sensor_idxs_and_time_offsets([0],[30,45,60]) # use sensor
 	train_input_and_target_maker.prepare_source_data_and_make_input_and_target()
 	train_input_and_target_maker.set_time_format('%Y-%m-%d %H:%M:%S')
 

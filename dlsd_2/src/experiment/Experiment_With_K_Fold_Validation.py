@@ -64,8 +64,8 @@ class Experiment_With_K_Fold_Validation(Experiment):
 		self._write_target_data_to_file()
 
 	def _set_up_combined_train_test_validaton_makers(self):
-		self.train_test_input_target_maker.set_all_sensor_idxs_and_time_offsets_using_parameters_object(self.current_io_param)
-		self.validation_input_target_maker.set_all_sensor_idxs_and_time_offsets_using_parameters_object(self.current_io_param)
+		self.train_test_input_target_maker.set_all_sensor_idxs_and_time_offsets(self.current_io_param)
+		self.validation_input_target_maker.set_all_sensor_idxs_and_time_offsets(self.current_io_param)
 	
 	def _prepare_combined_traintest_and_validation_inputs_and_targets(self):
 		self.train_test_input_target_maker.make_input_and_target()

@@ -17,8 +17,8 @@ class Many_Sensor_Input__One_Target_Small_Test_All_Sensors(Many_Sensors_Input__O
 
 	def test_input_target_made_correctly_small_sensor_1(self):
 		self.set_correct_output_file_path('small_sensors_0_1_2_target_offset_2.csv')
-		self.input_target_maker.set_input_sensor_idxs_and_timeoffsets_lists([0,1,2],[0])
-		self.input_target_maker.set_target_sensor_idxs_and_timeoffsets_lists([0,1,2],[2])
+		self.input_target_maker.set_input_sensor_idxs_and_time_offsets([0,1,2],[0])
+		self.input_target_maker.set_target_sensor_idxs_and_time_offsets([0,1,2],[2])
 		self.make_input_and_target_and_check_if_correct()
 
 class Many_Sensor_input__One_Target_Large_Tests(Many_Sensors_Input__One_Target_Tests):
@@ -32,8 +32,8 @@ class Many_Sensor_input__One_Target_Large_Tests(Many_Sensors_Input__One_Target_T
 
 	def test_input_target_made_correctly_sensor_1_shift_10(self):
 		self.set_correct_output_file_path('large_sensor__input_s_1_2_no_offset__target_s_1_2_offset_20.csv')
-		self.input_target_maker.set_input_sensor_idxs_and_timeoffsets_lists([0,1],[0])
-		self.input_target_maker.set_target_sensor_idxs_and_timeoffsets_lists([0,1],[20])
+		self.input_target_maker.set_input_sensor_idxs_and_time_offsets([0,1],[0])
+		self.input_target_maker.set_target_sensor_idxs_and_time_offsets([0,1],[20])
 		self.make_input_and_target_and_check_if_correct()
 
 class Many_Sensor_Time_Offset_One_Target(Many_Sensors_Input__One_Target_Tests):
@@ -47,8 +47,8 @@ class Many_Sensor_Time_Offset_One_Target(Many_Sensors_Input__One_Target_Tests):
 
 	def test_input_target_made_correctly_sensor_1_shift_10(self):
 		self.set_correct_output_file_path('large_sensor__input_s_1_2_no_offset__target_s_1_2_offset_20.csv')
-		self.input_target_maker.set_input_sensor_idxs_and_timeoffsets_lists([0,1],[0])
-		self.input_target_maker.set_target_sensor_idxs_and_timeoffsets_lists([0,1],[20])
+		self.input_target_maker.set_input_sensor_idxs_and_time_offsets([0,1],[0])
+		self.input_target_maker.set_target_sensor_idxs_and_time_offsets([0,1],[20])
 		self.make_input_and_target_and_check_if_correct()
 
 
@@ -63,6 +63,6 @@ class Many_Sensor_Time_Offset_One_Sensor_Target(Many_Sensors_Input__One_Target_T
 
 	def test_input_target_made_correctly_sensor_1_shift_10(self):
 		self.set_correct_output_file_path('large_s_1_2_3_nooffset_input_s_1_offset_20_target.csv')
-		self.input_target_maker.set_input_sensor_idxs_and_timeoffsets_lists([0,1,2],[0])
-		self.input_target_maker.set_target_sensor_idxs_and_timeoffsets_lists([0],[20])
+		self.input_target_maker.set_input_sensor_idxs_and_time_offsets([0,1,2],[0])
+		self.input_target_maker.set_target_sensor_idxs_and_time_offsets([0],[20])
 		self.make_input_and_target_and_check_if_correct()

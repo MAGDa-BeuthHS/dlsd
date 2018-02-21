@@ -16,20 +16,20 @@ class One_Sensor_Input__One_Target_Small_Tests(One_Sensor_Input__One_Target_Test
 
 	def test_input_target_made_correctly_small_sensor_1(self):
 		self.set_correct_output_file_path('sensor_1_offset_2.csv')
-		self.input_target_maker.set_input_sensor_idxs_and_timeoffsets_lists([0],[0])
-		self.input_target_maker.set_target_sensor_idxs_and_timeoffsets_lists([0],[2])
+		self.input_target_maker.set_input_sensor_idxs_and_time_offsets([0],[0])
+		self.input_target_maker.set_target_sensor_idxs_and_time_offsets([0],[2])
 		self.make_input_and_target_and_check_if_correct()
 		
 	def test_input_target_made_correctly_small_sensor_2(self):
 		self.set_correct_output_file_path('sensor_2_offset_2.csv')
-		self.input_target_maker.set_input_sensor_idxs_and_timeoffsets_lists([1],[0])
-		self.input_target_maker.set_target_sensor_idxs_and_timeoffsets_lists([1],[2])
+		self.input_target_maker.set_input_sensor_idxs_and_time_offsets([1],[0])
+		self.input_target_maker.set_target_sensor_idxs_and_time_offsets([1],[2])
 		self.make_input_and_target_and_check_if_correct()
 		
 	def test_input_target_made_correctly_small_sensor_3(self):
 		self.set_correct_output_file_path('sensor_3_offset_2.csv')
-		self.input_target_maker.set_input_sensor_idxs_and_timeoffsets_lists([2],[0])
-		self.input_target_maker.set_target_sensor_idxs_and_timeoffsets_lists([2],[2])
+		self.input_target_maker.set_input_sensor_idxs_and_time_offsets([2],[0])
+		self.input_target_maker.set_target_sensor_idxs_and_time_offsets([2],[2])
 		self.make_input_and_target_and_check_if_correct()
 
 class One_Sensor_Input__One_Target_Large_Tests(One_Sensor_Input__One_Target_Tests):
@@ -39,20 +39,20 @@ class One_Sensor_Input__One_Target_Large_Tests(One_Sensor_Input__One_Target_Test
 
 	def test_input_target_made_correctly_sensor_1_shift_10(self):
 		self.set_correct_output_file_path('large_sensor_1_offset_10.csv')
-		self.input_target_maker.set_input_sensor_idxs_and_timeoffsets_lists([0],[0])
-		self.input_target_maker.set_target_sensor_idxs_and_timeoffsets_lists([0],[10])
+		self.input_target_maker.set_input_sensor_idxs_and_time_offsets([0],[0])
+		self.input_target_maker.set_target_sensor_idxs_and_time_offsets([0],[10])
 		self.make_input_and_target_and_check_if_correct()
 	
 	def test_input_target_made_correctly_sensor_2_shift_10(self):
 		self.set_correct_output_file_path('large_sensor_2_offset_10.csv')
-		self.input_target_maker.set_input_sensor_idxs_and_timeoffsets_lists([1],[0])
-		self.input_target_maker.set_target_sensor_idxs_and_timeoffsets_lists([1],[10])
+		self.input_target_maker.set_input_sensor_idxs_and_time_offsets([1],[0])
+		self.input_target_maker.set_target_sensor_idxs_and_time_offsets([1],[10])
 		self.make_input_and_target_and_check_if_correct()
 	
 	def test_input_target_made_correctly_sensor_3_shift_10(self):
 		self.set_correct_output_file_path('large_sensor_3_offset_10.csv')
-		self.input_target_maker.set_input_sensor_idxs_and_timeoffsets_lists([2],[0])
-		self.input_target_maker.set_target_sensor_idxs_and_timeoffsets_lists([2],[10])
+		self.input_target_maker.set_input_sensor_idxs_and_time_offsets([2],[0])
+		self.input_target_maker.set_target_sensor_idxs_and_time_offsets([2],[10])
 		self.make_input_and_target_and_check_if_correct()
 
 class One_Sensor_Input__One_Target_Large_Test_Offsets(One_Sensor_Input__One_Target_Tests):
@@ -62,12 +62,12 @@ class One_Sensor_Input__One_Target_Large_Test_Offsets(One_Sensor_Input__One_Targ
 
 	def test_input_target_made_correctly_sensor_3_shift_40(self):
 		self.set_correct_output_file_path('large_sensor_1_offset_40.csv')
-		self.input_target_maker.set_input_sensor_idxs_and_timeoffsets_lists([0],[0])
-		self.input_target_maker.set_target_sensor_idxs_and_timeoffsets_lists([0],[40])
+		self.input_target_maker.set_input_sensor_idxs_and_time_offsets([0],[0])
+		self.input_target_maker.set_target_sensor_idxs_and_time_offsets([0],[40])
 		self.make_input_and_target_and_check_if_correct()
 
 	def test_input_target_made_correctly_sensor_3_shift_5(self):
 		self.set_correct_output_file_path('large_sensor_1_offset_5.csv')
-		self.input_target_maker.set_input_sensor_idxs_and_timeoffsets_lists([0],[0])
-		self.input_target_maker.set_target_sensor_idxs_and_timeoffsets_lists([0],[5])
+		self.input_target_maker.set_input_sensor_idxs_and_time_offsets([0],[0])
+		self.input_target_maker.set_target_sensor_idxs_and_time_offsets([0],[5])
 		self.make_input_and_target_and_check_if_correct()
