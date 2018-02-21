@@ -21,11 +21,11 @@ class Time_Gap_Filler_Tests(unittest.TestCase):
 
 	def fill_single_time_gap(self):
 		self.df_single_gap = pd.read_csv(self.dir + 'single_gap_at_idx_10_to_15.csv',index_col=0)
-		self.df_filled_single_gap = self.time_gap_filler.fill_time_gaps_in_dataframe(self.df_single_gap)
+		self.df_filled_single_gap = self.time_gap_filler.fill_time_gaps(self.df_single_gap)
 
 	def fill_double_time_gap(self):
 		self.df_double_gap = pd.read_csv(self.dir + 'double_gap_at_idx_1_to_5_and_15_to_19.csv',index_col=0)
-		self.df_filled_double_gap = self.time_gap_filler.fill_time_gaps_in_dataframe(self.df_double_gap)
+		self.df_filled_double_gap = self.time_gap_filler.fill_time_gaps(self.df_double_gap)
 
 	def test_if_filled_correct_size(self):
 		self.assertEqual(self.df_filled_single_gap.shape[0],self.df_no_gap.shape[0])

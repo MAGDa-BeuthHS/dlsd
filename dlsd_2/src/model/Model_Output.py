@@ -39,11 +39,11 @@ class Model_Output:
 		return new_df
 
 	def fill_time_gaps_in_target_and_predictions_using_time_format(self, time_format):
-		self.target_dataset_object.fill_time_gaps_using_time_format(time_format)
+		self.target_dataset_object.fill_time_gaps(time_format)
 		self.fill_time_gaps_in_predictions_using_time_format(time_format)
 
 	def fill_time_gaps_in_predictions_using_time_format(self,time_format):
 		print(self.prediction_dataset_object.df.shape)
 		print(self.target_dataset_object.df.shape)
 		self.prediction_dataset_object.df.index = self.target_dataset_object.df.index.values[0:self.prediction_dataset_object.df.shape[0]]
-		self.prediction_dataset_object.fill_time_gaps_using_time_format(time_format)
+		self.prediction_dataset_object.fill_time_gaps(time_format)

@@ -20,8 +20,8 @@ class Average_Week_Tests(unittest.TestCase):
 		self.input_target_maker.set_source_file_path(self.file_path_train)
 		self.input_target_maker.source_is_sql_output = False
 		self.input_target_maker.set_time_format('%Y-%m-%d %H:%M:%S')
-		self.input_target_maker.set_input_sensor_idxs_and_timeoffsets_lists(None,[0]) # use all sensors, no time offset for input
-		self.input_target_maker.set_target_sensor_idxs_and_timeoffsets_lists([0],[1440,2880,4320]) 
+		self.input_target_maker.set_input_sensor_idxs_and_time_offsets(None,[0]) # use all sensors, no time offset for input
+		self.input_target_maker.set_target_sensor_idxs_and_time_offsets([0],[1440,2880,4320]) 
 		self.model.prepare_data_and_train_with_input_target_maker(self.input_target_maker)
 
 	def test_source_average_week_generation(self):

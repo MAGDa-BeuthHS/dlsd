@@ -7,7 +7,7 @@ from dlsd_2.src.calc.time_series_analysis import *
 from dlsd_2.src.io.dataset.Dataset import Dataset
 from dlsd_2.src.model.Model_Content import Model_Content
 from pySTARMA import starma_model as stm
-from pySTARMA import utils
+from pySTARMA import utils as util
 
 
 class STARMA_Content(Model_Content):
@@ -39,8 +39,8 @@ class STARMA_Content(Model_Content):
 
     def set_pystarma_time_series(self, file_path):
         self.ts_matrix = Dataset()
-        self.ts_matrix.read_csv(file_path, header=0, lineterminator='\n', parse_dates=['date'],
-                                date_parser=lambda dates: pd.datetime.strptime(dates, '%Y-%m-%d %H:%M:%S'))
+        self.ts_matrix = pd.read_csv(file_path, header=0, lineterminator='\n', parse_dates=['date'],
+                                     date_parser=lambda dates: pd.datetime.strptime(dates, '%Y-%m-%d %H:%M:%S'))
 
     def set_pystarma_weight_matrices(self, file_path, file_names):
         for f in range(file_names):
@@ -50,20 +50,20 @@ class STARMA_Content(Model_Content):
 
     def preprocess_pystarma_model_with_source_maker(self, source_maker):
         source = source_maker.all_data
-        _preprocessing(self.ts_matrix.as_matrix(), self.wa_matrices, self.max_t_lag, self.sample_size)
+        self._preprocessing(self.ts_matrix.as_matrix(), self.wa_matrices, self.max_t_lag, self.sample_size)
 
         # make time serie stationar
         diff = (1, 288)
         self.ts_matrix = np.log1p(self.ts_matrix)
-        self.ts_matrix = set_stationary(self.ts_matrix, diff)
+        self.ts_matrix = util.set_stationary(self.ts_matrix, diff)
 
         # re-run preprocessing
-        _preprocessing(self.ts_matrix.as_matrix(), self.wa_matrices, self.max_t_lag, self.sample_size)
+        self._preprocessing(self.ts_matrix.as_matrix(), self.wa_matrices, self.max_t_lag, self.sample_size)
 
-        _model_identification(self.ts_matrix, self.wa_matrices, max_lag=25)
+        self._model_identification(self.ts_matrix, self.wa_matrices, max_lag=25)
 
     def _preprocessing(self, ts_matrix, wa_matrices=0, max_lag=25, sample_size=0.1):
-        stationary_test = _preprocess(ts_matrix, max_lag, sample_size)
+        stationary_test = self._preprocess(ts_matrix, max_lag, sample_size)
 
         adf_test = stationary_test['test_stat']
         print('Test Statistic:\t%s' % adf_test['Test_Statistic'])
@@ -76,11 +76,11 @@ class STARMA_Content(Model_Content):
 
         plt.subplot(121)
         plt.title('Autocorrelation Function')
-        _plot_acf(stationary_test['acf_mean'], max_lag, len(ts_matrix))
+        self._plot_acf(stationary_test['acf_mean'], max_lag, len(ts_matrix))
 
         plt.subplot(122)
         plt.title('Partial Autocorrelation Function')
-        _plot_acf(stationary_test['pacf_mean'], max_lag, len(ts_matrix))
+        self._plot_acf(stationary_test['pacf_mean'], max_lag, len(ts_matrix))
         plt.show()
 
         if wa_matrices != 0:
@@ -91,7 +91,7 @@ class STARMA_Content(Model_Content):
                 cvm.append(-1.96 / np.sqrt(len(ts_matrix) - tlag))
 
             stacf = stm.Stacf(ts_matrix, wa_matrices, max_lag).estimate()
-            _plot_stacf(stacf, max_lag, len(ts_matrix))
+            self._plot_stacf(stacf, max_lag, len(ts_matrix))
             plt.title('Space-Time Autocorrelation Function')
             plt.show()
 
@@ -138,12 +138,12 @@ class STARMA_Content(Model_Content):
 
         stacf = stm.Stacf(ts_matrix, wa_matrices, max_lag).estimate()
         plt.subplot(211)
-        _plot_stacf(stacf, max_lag, len(ts_matrix))
+        self.__plot_stacf(stacf, max_lag, len(ts_matrix))
         plt.title('Space-Time Autocorrelation Function')
 
         stpacf = stm.Stpacf(ts_matrix, wa_matrices, max_lag).estimate()
         plt.subplot(212)
-        _plot_stacf(stpacf, max_lag, len(ts_matrix))
+        self._plot_stacf(stpacf, max_lag, len(ts_matrix))
         plt.title('Space-Time Partial Autocorrelation Function')
         plt.show()
 
@@ -179,7 +179,7 @@ class STARMA_Content(Model_Content):
 
     def create_pystarma_model_from_source_maker(self, source_maker):
         source = source_maker.all_data
-        self.pystarma_model = _create_pystarma_model(self.ts_matrix, self.wa_matrices, self.ar, self.ma, self.lags,
+        self.pystarma_model = self._create_pystarma_model(self.ts_matrix, self.wa_matrices, self.ar, self.ma, self.lags,
                                                      self.iterations)
 
     def _create_pystarma_model(self, ts_matrix, wa_matrices, ar=0, ma=0, lags='', iterations=2):

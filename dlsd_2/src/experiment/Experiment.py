@@ -87,8 +87,8 @@ class Experiment:
 		model.write_predictions_to_path(output_path)
 
 	def _set_input_target_makers_to_current_model_input_output_parameters(self):
-		self.train_input_and_target_maker.set_all_sensor_idxs_and_time_offsets_using_parameters_object(self.current_io_param)
-		self.test_input_and_target_maker.set_all_sensor_idxs_and_time_offsets_using_parameters_object(self.current_io_param)
+		self.train_input_and_target_maker.set_all_sensor_idxs_and_time_offsets(self.current_io_param)
+		self.test_input_and_target_maker.set_all_sensor_idxs_and_time_offsets(self.current_io_param)
 
 	def _make_input_and_target(self):
 		self.train_input_and_target_maker.make_input_and_target()

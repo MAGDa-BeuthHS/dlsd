@@ -17,6 +17,6 @@ class Many_Sensor_Time_Offset_Timeoffset_Sensor_Target(Many_Sensors_Input__Timeo
 
 	def test_input_target_made_correctly_sensor_1_shift_10(self):
 		self.set_correct_output_file_path('large_s_1_3_nooffset_input_s_1_3_offset_5_15_target.csv')
-		self.input_target_maker.set_input_sensor_idxs_and_timeoffsets_lists([0,2],[0])
-		self.input_target_maker.set_target_sensor_idxs_and_timeoffsets_lists([0,2],[5,15])
+		self.input_target_maker.set_input_sensor_idxs_and_time_offsets([0,2],[0])
+		self.input_target_maker.set_target_sensor_idxs_and_time_offsets([0,2],[5,15])
 		self.make_input_and_target_and_check_if_correct()
