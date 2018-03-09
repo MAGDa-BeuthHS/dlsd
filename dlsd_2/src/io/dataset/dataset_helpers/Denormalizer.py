@@ -1,4 +1,4 @@
-class Denormalizer(object):
+class Denormalizer:
 
     @staticmethod
     def normalize(data, max_value):

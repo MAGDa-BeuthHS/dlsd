@@ -1,8 +1,8 @@
 import unittest
 
 import pandas as pd
-from dlsd_2.input_target_maker.ITM_Fill_Time_Gaps_Normalized_Moving_Average import ITM_Fill_Time_Gaps_Normalized_Moving_Average
-from dlsd_2.model.types.average_week.Average_Week_Content import Average_Week_Content
+from dlsd_2.src.io.input_target_maker.ITM_Fill_Time_Gaps_Normalized_Moving_Average import ITM_Fill_Time_Gaps_Normalized_Moving_Average
+from dlsd_2.src.model.types.average_week.Average_Week_Content import Average_Week_Content
 
 from dlsd_2.src.io.dataset import Dataset_From_SQL
 

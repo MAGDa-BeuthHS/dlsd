@@ -1,5 +1,5 @@
 import tensorflow as tf
-from dlsd_2.model.types.neural_networks.Neural_Network_Model_Input import *
+from dlsd_2.src.model.types.neural_networks.Neural_Network_Model_Input import *
 
 from dlsd_2.src.model.Model import *
 

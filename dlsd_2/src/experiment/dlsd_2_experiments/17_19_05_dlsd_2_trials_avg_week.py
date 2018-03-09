@@ -1,6 +1,6 @@
 import logging
 
-from dlsd_2.input_target_maker.ITM_Fill_Time_Gaps_Moving_Average import ITM_Fill_Time_Gaps_Moving_Average
+from dlsd_2.src.io.input_target_maker.ITM_Fill_Time_Gaps_Moving_Average import ITM_Fill_Time_Gaps_Moving_Average
 
 from dlsd_2.src.model.types.average_week.Average_Week import Average_Week
 

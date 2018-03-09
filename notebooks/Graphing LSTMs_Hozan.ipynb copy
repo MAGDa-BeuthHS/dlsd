@@ -17,7 +17,7 @@
     "import math\n",
     "import sys\n",
     "sys.path.append('/Users/ahartens/Dropbox/Work/Analysis/')\n",
-    "from dlsd_2.experiment.experiment_output_reader.Experiment_Output_Reader import *"
+    "from dlsd_2.src.experiment.experiment_output_reader.Experiment_Output_Reader import *"
    ]
   },
   {

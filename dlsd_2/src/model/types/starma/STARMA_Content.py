@@ -6,8 +6,8 @@ from matplotlib import pyplot as plt
 from dlsd_2.src.calc.time_series_analysis import *
 from dlsd_2.src.io.dataset.Dataset import Dataset
 from dlsd_2.src.model.Model_Content import Model_Content
-from pySTARMA import starma_model as stm
-from pySTARMA import utils as util
+from pySTARMA.starma_model import *
+from pySTARMA.utils import set_stationary
 
 
 class STARMA_Content(Model_Content):
@@ -55,7 +55,7 @@ class STARMA_Content(Model_Content):
         # make time serie stationar
         diff = (1, 288)
         self.ts_matrix = np.log1p(self.ts_matrix)
-        self.ts_matrix = util.set_stationary(self.ts_matrix, diff)
+        self.ts_matrix = set_stationary(self.ts_matrix, diff)
 
         # re-run preprocessing
         self._preprocessing(self.ts_matrix.as_matrix(), self.wa_matrices, self.max_t_lag, self.sample_size)
@@ -90,7 +90,7 @@ class STARMA_Content(Model_Content):
                 cv.append(1.96 / np.sqrt(len(ts_matrix) - tlag))
                 cvm.append(-1.96 / np.sqrt(len(ts_matrix) - tlag))
 
-            stacf = stm.Stacf(ts_matrix, wa_matrices, max_lag).estimate()
+            stacf = Stacf(ts_matrix, wa_matrices, max_lag).estimate()
             self._plot_stacf(stacf, max_lag, len(ts_matrix))
             plt.title('Space-Time Autocorrelation Function')
             plt.show()
@@ -136,12 +136,12 @@ class STARMA_Content(Model_Content):
             cv.append(1.96 / np.sqrt(len(ts_matrix) - tlag))
             cvm.append(-1.96 / np.sqrt(len(ts_matrix) - tlag))
 
-        stacf = stm.Stacf(ts_matrix, wa_matrices, max_lag).estimate()
+        stacf = Stacf(ts_matrix, wa_matrices, max_lag).estimate()
         plt.subplot(211)
         self.__plot_stacf(stacf, max_lag, len(ts_matrix))
         plt.title('Space-Time Autocorrelation Function')
 
-        stpacf = stm.Stpacf(ts_matrix, wa_matrices, max_lag).estimate()
+        stpacf = Stpacf(ts_matrix, wa_matrices, max_lag).estimate()
         plt.subplot(212)
         self._plot_stacf(stpacf, max_lag, len(ts_matrix))
         plt.title('Space-Time Partial Autocorrelation Function')
@@ -184,9 +184,9 @@ class STARMA_Content(Model_Content):
 
     def _create_pystarma_model(self, ts_matrix, wa_matrices, ar=0, ma=0, lags='', iterations=2):
         if lags == '':
-            pystarma_model = stm.STARMA(ar, ma, ts_matrix.copy(), wa_matrices, iterations)
+            pystarma_model = STARMA(ar, ma, ts_matrix.copy(), wa_matrices, iterations)
         else:
-            pystarma_model = stm.STARIMA(ar, ma, lags, ts_matrix.copy(), wa_matrices,
+            pystarma_model = STARIMA(ar, ma, lags, ts_matrix.copy(), wa_matrices,
                                          iterations)
         return pystarma_model
 

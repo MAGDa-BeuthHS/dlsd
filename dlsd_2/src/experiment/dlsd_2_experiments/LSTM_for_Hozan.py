@@ -1,8 +1,8 @@
 import logging
 
-from dlsd_2.experiment.Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output_With_K_Fold_Validation import *
-from dlsd_2.input_target_maker.Source_Maker_With_K_Fold_Validation import *
-from dlsd_2.model.types.neural_networks.LSTM.LSTM_One_Hidden_Layer import LSTM_One_Hidden_Layer
+from dlsd_2.src.experiment.Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output_With_K_Fold_Validation import *
+from dlsd_2.src.io.input_target_maker.Source_Maker_With_K_Fold_Validation import *
+from dlsd_2.src.model.types.neural_networks.LSTM.LSTM_One_Hidden_Layer import LSTM_One_Hidden_Layer
 
 logging.basicConfig(level=logging.INFO)#filename='17_05_04_dlsd_2_trials.log',)
 

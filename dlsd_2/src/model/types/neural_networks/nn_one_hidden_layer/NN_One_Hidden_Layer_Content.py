@@ -1,5 +1,5 @@
 import tensorflow as tf
-from dlsd_2.model.types.neural_networks.decorators import tf_attributeLock
+from dlsd_2.src.model.types.neural_networks.decorators import tf_attributeLock
 
 from dlsd_2.src.model.Model_Content import *
 

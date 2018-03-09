@@ -1,9 +1,9 @@
 import logging
 
-from dlsd_2.experiment.Experiment_With_K_Fold_Validation import *
-from dlsd_2.input_target_maker.Source_Maker_With_K_Fold_Validation import *
-from dlsd_2.model.types.average_week.Average_Week import Average_Week
-from dlsd_2.model.types.neural_networks.LSTM.LSTM_One_Hidden_Layer import LSTM_One_Hidden_Layer
+from dlsd_2.src.experiment.Experiment_With_K_Fold_Validation import *
+from dlsd_2.src.io.input_target_maker.Source_Maker_With_K_Fold_Validation import *
+from dlsd_2.src.model.types.average_week.Average_Week import Average_Week
+from dlsd_2.src.model.types.neural_networks.LSTM.LSTM_One_Hidden_Layer import LSTM_One_Hidden_Layer
 
 from dlsd_2.src.model.types.neural_networks.nn_one_hidden_layer import NN_One_Hidden_Layer
 

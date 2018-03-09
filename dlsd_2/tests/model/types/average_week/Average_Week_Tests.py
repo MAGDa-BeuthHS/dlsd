@@ -1,8 +1,8 @@
 import unittest
 
 import pandas as pd
-from dlsd_2.input_target_maker.ITM_Fill_Time_Gaps import ITM_Fill_Time_Gaps
-from dlsd_2.model.types.average_week.Average_Week import Average_Week
+from dlsd_2.src.io.input_target_maker.ITM_Fill_Time_Gaps import ITM_Fill_Time_Gaps
+from dlsd_2.src.model.types.average_week.Average_Week import Average_Week
 
 
 class Average_Week_Tests(unittest.TestCase):

@@ -1,6 +1,6 @@
 # Alex Hartenstein 2017
 
-from dlsd_2.input_target_maker.Source_Maker_With_K_Fold_Validation import *
+from dlsd_2.src.io.input_target_maker.Source_Maker_With_K_Fold_Validation import *
 
 from dlsd_2.src.model.types.average_week.Average_Week import Average_Week
 

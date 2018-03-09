@@ -1,4 +1,4 @@
-from dlsd_2.experiment.Experiment_Vary_Input_Output_Parameters_And_Iterate_Over_All_Sensors_For_One_Sensor_Output import *
+from dlsd_2.src.experiment.Experiment_Vary_Input_Output_Parameters_And_Iterate_Over_All_Sensors_For_One_Sensor_Output import *
 import logging
 
 logging.basicConfig(level=logging.DEBUG)#filename='17_05_04_dlsd_2_trials.log',)

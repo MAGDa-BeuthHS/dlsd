@@ -2,9 +2,9 @@
 
 import copy
 
-from dlsd_2.experiment.Experiment import *
-from dlsd_2.experiment.experiment_output_reader.Experiment_Error_Calculator_For_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output import *
-from dlsd_2.input_target_maker.Source_Maker_With_K_Fold_Validation import *
+from dlsd_2.src.experiment.Experiment import *
+from dlsd_2.src.experiment.experiment_output_reader.Experiment_Error_Calculator_For_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output import *
+from dlsd_2.src.io.input_target_maker.Source_Maker_With_K_Fold_Validation import *
 
 from .experiment_helper.Experiment_Helper_With_K_Fold_Validation import *
 

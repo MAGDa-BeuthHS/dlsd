@@ -1,12 +1,14 @@
+from .Maker import *
+
 class Input_And_Target_Maker_2:
-    def __init__(self):
-        self.source_dataset_object = None
+    def __init__(self, source_dataset_object, io_param, time_format, clip_range=None):
+        self.source_dataset_object = source_dataset_object
+        self.io_param = io_param
+        self.time_format = time_format
+        self.clip_range = clip_range
         self.input_maker = Maker()
         self.target_maker = Maker()
-        self.clip_range = None
-        self.denormalizer_used_in_training = None  # if none given, this is set during training
-        self.io_param = None
-        self.time_format = None
+
 
     def set_all_sensor_idxs_and_time_offsets(self, params):
         self.io_param = params

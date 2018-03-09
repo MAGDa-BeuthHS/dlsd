@@ -1,5 +1,5 @@
-from dlsd_2.experiment.experiment_output_reader.Experiment_Output_Reader import Experiment_Output_Reader
-from dlsd_2.experiment.experiment_output_reader.Many_Sensor_Directory_Helper import Many_Sensor_Directory_Helper
+from dlsd_2.src.experiment.experiment_output_reader.Experiment_Output_Reader import Experiment_Output_Reader
+from dlsd_2.src.experiment.experiment_output_reader.Many_Sensor_Directory_Helper import Many_Sensor_Directory_Helper
 
 from dlsd_2.src.experiment.experiment_output_reader.Experiment_Error_Calculator import Experiment_Error_Calculator
 
