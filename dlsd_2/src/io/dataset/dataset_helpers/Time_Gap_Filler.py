@@ -178,10 +178,10 @@ class Time_Gap_Filler:
 
         return total_gap_size
 
-    def _get_gaps_start_pos(self, vector_of_time_stamps):
+    def _get_gaps_start_pos(self, time_stamp_vector):
         idxs_gaps = []
-        for i in range(1, vector_of_time_stamps.shape[0]):
-            delta = vector_of_time_stamps[i] - vector_of_time_stamps[i - 1]
+        for i in range(1, time_stamp_vector.shape[0]):
+            delta = time_stamp_vector[i] - time_stamp_vector[i - 1]
             if (delta.seconds != 60 or delta.days != 0):
                 idxs_gaps.append(i - 1)
         return idxs_gaps

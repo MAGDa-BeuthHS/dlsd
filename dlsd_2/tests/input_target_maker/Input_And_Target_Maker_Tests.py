@@ -3,12 +3,13 @@ import unittest
 
 import numpy as np
 
+from dlsd_2.src.io.input_target_maker.Input_Target_Maker import Input_And_Target_Maker_2
 from dlsd_2.tests.input_target_maker.Input_Target_Correct_Output_Table import Correct_Output_Table
 
 
 class Input_And_Target_Maker_Tests(unittest.TestCase):
     def setUp(self):
-        self.input_target_maker = Input_And_Target_Maker()
+        self.input_target_maker = Input_And_Target_Maker_2()
         self.input_target_maker.source_file_path = self.source_file_path
         self.correct_output_reader = Correct_Output_Table()
         self.define_correct_output_input_target_columns()

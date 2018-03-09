@@ -1,7 +1,7 @@
 import unittest
 
 import pandas as pd
-from dlsd_2.src.io.input_target_maker.ITM_Fill_Time_Gaps import ITM_Fill_Time_Gaps
+from dlsd_2.src.io.input_target_maker.Input_Target_Maker import Input_And_Target_Maker_2
 
 from dlsd_2.src.model.types.average_week.Average_Week import Average_Week
 
@@ -16,7 +16,7 @@ class Average_Week_Tests(unittest.TestCase):
 
     def make_average_week_model_and_input_target_maker(self):
         self.model = Average_Week()
-        self.input_target_maker = ITM_Fill_Time_Gaps()
+        self.input_target_maker = Input_And_Target_Maker_2()
         self.input_target_maker.set_source_file_path(self.file_path_train)
         self.input_target_maker.source_is_sql_output = False
         self.input_target_maker.set_time_format('%Y-%m-%d %H:%M:%S')
@@ -59,7 +59,7 @@ class AWT_1_Source_Data_Prediction_Data_Generated_Correctly_Source_Week_Starting
 
         correct_predictions = pd.read_csv(
             self.test_csv_dir + 'weeks_3_avg_correct_predictions_if_target_begins_mon.csv', index_col=0)
-        TEST_input_target_maker = ITM_Fill_Time_Gaps()
+        TEST_input_target_maker = Input_And_Target_Maker_2()
         TEST_input_target_maker.source_is_sql_output = False
         TEST_input_target_maker.set_source_file_path(self.file_path_train)
         self.model.prepare_data_and_test_with_input_target_maker(TEST_input_target_maker)
@@ -87,7 +87,7 @@ class AWT_2_Source_Data_Starts_Thursday_Average_Week_Starts_Monday_Then_Predicti
     def test_prediction_generation_target_starts_monday(self):
         correct = pd.read_csv(self.test_csv_dir + 'weeks_3_avg_correct_predictions_if_target_begins_mon.csv',
                               index_col=0)
-        TEST_input_target_maker = ITM_Fill_Time_Gaps()
+        TEST_input_target_maker = Input_And_Target_Maker_2()
         TEST_input_target_maker.source_is_sql_output = False
         TEST_input_target_maker.set_source_file_path(self.file_path_monday)
         self.model.prepare_data_and_test_with_input_target_maker(TEST_input_target_maker)
@@ -98,7 +98,7 @@ class AWT_2_Source_Data_Starts_Thursday_Average_Week_Starts_Monday_Then_Predicti
     def test_prediction_generation_target_starts_wednesday(self):
         correct = pd.read_csv(self.test_csv_dir + 'weeks_3_avg_correct_predictions_if_target_begins_thurs.csv',
                               index_col=0)
-        TEST_input_target_maker = ITM_Fill_Time_Gaps()
+        TEST_input_target_maker = Input_And_Target_Maker_2()
         TEST_input_target_maker.source_is_sql_output = False
         TEST_input_target_maker.set_source_file_path(self.file_path_thursday)
         self.model.prepare_data_and_test_with_input_target_maker(TEST_input_target_maker)
@@ -134,7 +134,7 @@ class AWT_3_Same_As_1_But_With_Time_Gaps(Average_Week_Tests):
 
         correct_predictions = pd.read_csv(
             self.test_csv_dir + 'weeks_3_avg_correct_predictions_if_target_begins_thurs_with_gaps.csv', index_col=0)
-        TEST_input_target_maker = ITM_Fill_Time_Gaps()
+        TEST_input_target_maker = Input_And_Target_Maker_2()
         TEST_input_target_maker.source_is_sql_output = False
         TEST_input_target_maker.set_source_file_path(self.file_path_thursday)
         self.model.prepare_data_and_test_with_input_target_maker(TEST_input_target_maker)

@@ -55,8 +55,8 @@ class Input_Target_Maker_Testmaker:
         self.test_suite.addTest(unittest.makeSuite(One_Sensor_Input__One_Target_Large_Test_Offsets))
         self.test_suite.addTest(unittest.makeSuite(One_Sensor_Input__Timeoffset_Target_Large_Tests_Simple))
 
-    def _3_one_sensor_timeoffset_INPUT__one_TARGET__tests(self):
-        self.test_suite.addTest(unittest.makeSuite(one_sensor_in_one_out_no_time_offset))
+    #def _3_one_sensor_timeoffset_INPUT__one_TARGET__tests(self):
+        #self.test_suite.addTest(unittest.makeSuite(One_Sensor_In_One_Out_No_Time_Offset))
 
     def _4_one_sensor_timeoffset_INPUT__timeoffset_TARGET__tests(self):
         self.test_suite.addTest(unittest.makeSuite(One_Sensor_Timeoffset_Input__Timeoffset_Target_Small_Tests))

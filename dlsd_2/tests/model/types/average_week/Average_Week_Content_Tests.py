@@ -3,7 +3,7 @@ import unittest
 import pandas as pd
 
 from dlsd_2.src.io.dataset.Dataset_From_SQL import Dataset_From_SQL
-from dlsd_2.src.io.input_target_maker.Input_Target_Maker import ITM_Fill_Time_Gaps_Normalized_Moving_Average
+from dlsd_2.src.io.input_target_maker.Input_Target_Maker import Input_And_Target_Maker_2
 from dlsd_2.src.model.types.average_week.Average_Week_Content import Average_Week_Content
 
 
@@ -11,7 +11,7 @@ class AWC_Tests(unittest.TestCase):
     def setUp(self):
         self.test_csv_dir = '/Users/ahartens/Dropbox/Work/Analysis/dlsd_2/tests/model/types/average_week/average_week_test_csvs/'
         self.average_week_content = Average_Week_Content()
-        self.input_target_maker = ITM_Fill_Time_Gaps_Normalized_Moving_Average()
+        self.input_target_maker = Input_And_Target_Maker_2()
         self.input_target_maker.set_time_format('%Y-%m-%d %H:%M:%S')
 
 

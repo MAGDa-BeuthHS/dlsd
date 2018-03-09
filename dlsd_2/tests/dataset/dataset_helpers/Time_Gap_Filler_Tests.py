@@ -4,7 +4,7 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from dlsd_2.src import Time_Gap_Filler
+from dlsd_2.src.io.dataset.dataset_helpers.Time_Gap_Filler import Time_Gap_Filler
 
 
 class Time_Gap_Filler_Tests(unittest.TestCase):
@@ -15,6 +15,7 @@ class Time_Gap_Filler_Tests(unittest.TestCase):
         self.read_no_gap()
         self.fill_single_time_gap()
         self.fill_double_time_gap()
+        self.time_stamp_vector = None
 
     def read_no_gap(self):
         self.df_no_gap = pd.read_csv(self.dir + 'no_time_gap.csv', index_col=0)
@@ -69,11 +70,11 @@ class Time_Gap_Filler_Tests(unittest.TestCase):
 
     def test_if_timestamps_correct(self):
         for i in range(0, self.df_no_gap.shape[0]):
-            # filled_stamp = datetime.datetime.stfptime(time_stamps[i],self.time_format)
+            # filled_stamp = datetime.datetime.stfptime(self.time_stamp_vector[i],self.time_format)
             pass
 
     # self.assertEqual(self.df_no_gap.index.values[i],self.df_filled_single_gap.index.values[i])
     # self.assertEqual(self.df_no_gap.index.values[i],self.df_filled_double_gap.index.values[i])
 
     def get_stamp_for_string(self, stamp):
-        time_stamps[i] = datetime.datetime.stfptime(time_stamps[i], self.time_format)
+        self.time_stamp_vector[stamp] = datetime.datetime.stfptime(self.time_stamp_vector[stamp], self.time_format)
