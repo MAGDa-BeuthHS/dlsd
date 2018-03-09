@@ -1,7 +1,8 @@
 import unittest
 
 import pandas as pd
-from dlsd_2.src.io.dataset import Inefficient_Sensors_Remover
+
+from dlsd_2.src import Inefficient_Sensors_Remover
 
 
 class Inefficient_Sensors_Remover_Tests(unittest.TestCase):

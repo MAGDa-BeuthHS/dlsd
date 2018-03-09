@@ -1,6 +1,7 @@
 import os
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 
 
 class Experiment_Error_Calculator:
@@ -64,7 +65,7 @@ class Experiment_Error_Calculator:
         l = self._get_length_of_array(prediction, target)
         try:
             mae = self.analysis_function.calc_error_with_prediction_and_target(prediction[0:l], target.values[
-                                                                                           0:l])  # sometimes problems here
+                                                                                                0:l])  # sometimes problems here
         except:
             print("CALCULATING MAE DID NOT WORK")
             print(dict_for_model.keys())

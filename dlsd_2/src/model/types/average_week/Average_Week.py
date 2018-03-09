@@ -1,7 +1,7 @@
-from dlsd_2.src.io.input_target_maker.Maker import *
-from dlsd_2.src.model.types.average_week.Average_Week_Content import *
-from dlsd_2.src.model.Model import *
 import datetime as dt
+
+from dlsd_2.src.model.Model import Model
+from dlsd_2.src.model.types.average_week.Average_Week_Content import *
 
 
 class Average_Week(Model):
@@ -23,12 +23,13 @@ class Average_Week(Model):
         print("CALLING TEST")
         self.model_content.set_input_target_maker(self.current_input_target_maker)
         predictions = self.model_content.make_prediction_dataset_object()
-        super(Average_Week, self).set_model_output_with_predictions_numpy_array(predictions.df.values)  # TODO check works
+        super(Average_Week, self).set_model_output_with_predictions_numpy_array(
+            predictions.df.values)  # TODO check works
 
     def _get_day_begin_integer_from_target_dataset(self):
         first_time_stamp_string = self.current_input_target_maker.target_dataset_object.df.index.values[0, 0]
         first_timestampe_datetime = dt.datetime.strptime(first_time_stamp_string,
-                                                     self.current_input_target_maker.time_format)
+                                                         self.current_input_target_maker.time_format)
 
     def set_average_data_from_csv_file_path(self, file_path):
         ''' Single average week is provided : training doesn't have to occur '''

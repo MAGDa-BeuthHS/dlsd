@@ -1,5 +1,8 @@
-from .Dataset import Dataset
 import logging
+
+import numpy as np
+
+from .Dataset import Dataset
 
 
 class Dataset_From_SQL(Dataset):

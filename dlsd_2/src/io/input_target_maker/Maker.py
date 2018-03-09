@@ -1,4 +1,4 @@
-from dlsd_2.src.io.dataset import Dataset_With_Time_Offset
+import dlsd_2.src.io.dataset.Dataset_With_Time_Offset
 
 
 class Maker:
@@ -28,7 +28,7 @@ class Maker:
     def make_clipped_dataset_object(self, clip_range):
         if self.time_offsets_list is None:
             raise Exception('no time offsets are set')
-        self.dataset_object = Dataset_With_Time_Offset()
+        self.dataset_object = dlsd_2.src.io.dataset.Dataset_With_Time_Offset()
         self.dataset_object.set_source_numpy_array(self.selected_source_numpy_data)
         self.dataset_object.set_top_padding(self.top_padding)
         self.dataset_object.set_bottom_padding(self.bottom_padding)

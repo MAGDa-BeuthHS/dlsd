@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import pandas as pd
 
-import dlsd_2.src.io.dataset.dataset_helpers.Denormalizer
+from .dataset_helpers.Denormalizer import Denormalizer
 from .dataset_helpers.Inefficient_Sensors_Remover import Inefficient_Sensors_Remover
 from .dataset_helpers.Time_Gap_Filler import Time_Gap_Filler
 

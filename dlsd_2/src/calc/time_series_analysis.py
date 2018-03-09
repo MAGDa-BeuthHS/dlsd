@@ -16,6 +16,7 @@ def test_stationarity(timeserie, max_lags=10):
         test_results['Crit_Value_%s' % key] = value
     return test_results
 
+
 def estimate_acf_pacf(timeserie, max_lags=10):
     """
     Calculates and plots the autocorrelation function of one timeserie

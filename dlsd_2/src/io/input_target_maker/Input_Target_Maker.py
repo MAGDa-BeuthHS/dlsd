@@ -1,5 +1,6 @@
 from .Maker import *
 
+
 class Input_And_Target_Maker_2:
     def __init__(self, source_dataset_object, io_param, time_format, clip_range=None):
         self.source_dataset_object = source_dataset_object
@@ -8,7 +9,6 @@ class Input_And_Target_Maker_2:
         self.clip_range = clip_range
         self.input_maker = Maker()
         self.target_maker = Maker()
-
 
     def set_all_sensor_idxs_and_time_offsets(self, params):
         self.io_param = params

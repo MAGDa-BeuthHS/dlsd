@@ -1,13 +1,14 @@
 import logging
 
-import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+from pySTARMA.stacf_stpacf import *
+from pySTARMA.starma_model import *
+from pySTARMA.utils import set_stationary
+
 from dlsd_2.src.calc.time_series_analysis import *
 from dlsd_2.src.io.dataset.Dataset import Dataset
 from dlsd_2.src.model.Model_Content import Model_Content
-from pySTARMA.starma_model import *
-from pySTARMA.utils import set_stationary
 
 
 class STARMA_Content(Model_Content):
@@ -180,14 +181,14 @@ class STARMA_Content(Model_Content):
     def create_pystarma_model_from_source_maker(self, source_maker):
         source = source_maker.all_data
         self.pystarma_model = self._create_pystarma_model(self.ts_matrix, self.wa_matrices, self.ar, self.ma, self.lags,
-                                                     self.iterations)
+                                                          self.iterations)
 
     def _create_pystarma_model(self, ts_matrix, wa_matrices, ar=0, ma=0, lags='', iterations=2):
         if lags == '':
             pystarma_model = STARMA(ar, ma, ts_matrix.copy(), wa_matrices, iterations)
         else:
             pystarma_model = STARIMA(ar, ma, lags, ts_matrix.copy(), wa_matrices,
-                                         iterations)
+                                     iterations)
         return pystarma_model
 
     def fit_model(self):

@@ -2,12 +2,11 @@ import logging
 
 from dlsd_2.src.calc.error import MAE
 from dlsd_2.src.experiment.Experiment_Config import *
-from dlsd_2.src.experiment.experiment_output_reader.Experiment_Average_Error_Calculator import \
+from dlsd_2.src.experiment.experiment_helper.Experiment_Helper import Experiment_Helper
+from dlsd_2.src.experiment.experiment_output_reader import \
     Experiment_Average_Error_Calculator
-from dlsd_2.src.experiment.experiment_output_reader.Experiment_Error_Calculator_For_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output import *
-
+from dlsd_2.src.experiment.experiment_output_reader.Experiment_Error_Calculator import Experiment_Error_Calculator
 from dlsd_2.src.io.input_target_maker.Input_Target_Maker import Input_And_Target_Maker_2
-from .experiment_helper.Experiment_Helper import Experiment_Helper
 
 logging.basicConfig(level=logging.DEBUG)  # filename='17_05_04_dlsd_2_trials.log',)
 
@@ -61,8 +60,10 @@ class Experiment:
         self.config.io_param_name = io_param
         self.current_exp_helper = Experiment_Helper(self.config)
         self.current_exp_helper.setup_directory()
-        self.current_maker_train = Input_And_Target_Maker_2(self.source_maker.train, io_param, self.source_maker.time_format_train)
-        self.current_maker_test = Input_And_Target_Maker_2(self.source_maker.test, io_param, self.source_maker.time_format_test)
+        self.current_maker_train = Input_And_Target_Maker_2(self.source_maker.train, io_param,
+                                                            self.source_maker.time_format_train)
+        self.current_maker_test = Input_And_Target_Maker_2(self.source_maker.test, io_param,
+                                                           self.source_maker.time_format_test)
         self.current_maker_train.make_input_and_target()
         self.current_maker_test.make_input_and_target()
         self._write_maker_target_data_to_file(self.current_maker_test, self.config.get_predictions_dir_path())

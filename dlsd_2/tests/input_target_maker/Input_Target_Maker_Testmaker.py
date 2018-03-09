@@ -1,12 +1,9 @@
-import logging
-import unittest
-
-from .One_Sensor_Input__One_Target_Tests import *
-from .One_Sensor_Input__Timeoffset_Target_Tests import *
-from .One_Sensor_Timeoffset_Input__Timeoffset_Target_Tests import *
 from .Many_Sensors_Input__One_Target_Tests import *
 from .Many_Sensors_Input__Timeoffset_Target_Tests import *
 from .Many_Sensors_Timeoffset_Input__Timeoffset_Target_Tests import *
+from .One_Sensor_Input__One_Target_Tests import *
+from .One_Sensor_Input__Timeoffset_Target_Tests import *
+from .One_Sensor_Timeoffset_Input__Timeoffset_Target_Tests import *
 
 '''
 	If add a new Model_Input class
@@ -27,50 +24,51 @@ from .Many_Sensors_Timeoffset_Input__Timeoffset_Target_Tests import *
 
 '''
 
+
 class Input_Target_Maker_Testmaker:
-	
-	def make_tests(self):
-		logging.info('Making all INPUT_TARGET tests')
-		self.test_suite = unittest.TestSuite()
-		self.add_all_tests_to_suite()
-		return self.test_suite
 
-	def add_fast_tests_to_suite(self, test_suite):
-		logging.info('Adding all INPUT_TARGET tests to test suite')
-		self.test_suite = test_suite
-		
-		self._1_one_sensor_INPUT__one_TARGET_tests()
-		self._2_one_sensor_INPUT__timeoffset_TARGET_tests()
-		#self._3_one_sensor_timeoffset_INPUT__one_TARGET__tests()
-		self._4_one_sensor_timeoffset_INPUT__timeoffset_TARGET__tests()
-		self._5_many_sensors_INPUT__one_TARGET__tests()
-		self._6_many_sensors_timeoffset_INPUT__timeoffset_TARGET__tests()
+    def make_tests(self):
+        logging.info('Making all INPUT_TARGET tests')
+        self.test_suite = unittest.TestSuite()
+        self.add_all_tests_to_suite()
+        return self.test_suite
 
-	def _1_one_sensor_INPUT__one_TARGET_tests(self):
-		self.test_suite.addTest(unittest.makeSuite(One_Sensor_Input__One_Target_Small_Tests))
-		self.test_suite.addTest(unittest.makeSuite(One_Sensor_Input__One_Target_Large_Tests))
-		self.test_suite.addTest(unittest.makeSuite(One_Sensor_Input__One_Target_Large_Test_Offsets))
+    def add_fast_tests_to_suite(self, test_suite):
+        logging.info('Adding all INPUT_TARGET tests to test suite')
+        self.test_suite = test_suite
 
-	def _2_one_sensor_INPUT__timeoffset_TARGET_tests(self):
-		self.test_suite.addTest(unittest.makeSuite(One_Sensor_Input__Timeoffset_Target_Small_Tests))
-		self.test_suite.addTest(unittest.makeSuite(One_Sensor_Input__Timeoffset_Target_Large_Tests))
-		self.test_suite.addTest(unittest.makeSuite(One_Sensor_Input__One_Target_Large_Test_Offsets))
-		self.test_suite.addTest(unittest.makeSuite(One_Sensor_Input__Timeoffset_Target_Large_Tests_Simple))
+        self._1_one_sensor_INPUT__one_TARGET_tests()
+        self._2_one_sensor_INPUT__timeoffset_TARGET_tests()
+        # self._3_one_sensor_timeoffset_INPUT__one_TARGET__tests()
+        self._4_one_sensor_timeoffset_INPUT__timeoffset_TARGET__tests()
+        self._5_many_sensors_INPUT__one_TARGET__tests()
+        self._6_many_sensors_timeoffset_INPUT__timeoffset_TARGET__tests()
 
-	def _3_one_sensor_timeoffset_INPUT__one_TARGET__tests(self):
-		self.test_suite.addTest(unittest.makeSuite(one_sensor_in_one_out_no_time_offset))
+    def _1_one_sensor_INPUT__one_TARGET_tests(self):
+        self.test_suite.addTest(unittest.makeSuite(One_Sensor_Input__One_Target_Small_Tests))
+        self.test_suite.addTest(unittest.makeSuite(One_Sensor_Input__One_Target_Large_Tests))
+        self.test_suite.addTest(unittest.makeSuite(One_Sensor_Input__One_Target_Large_Test_Offsets))
 
-	def _4_one_sensor_timeoffset_INPUT__timeoffset_TARGET__tests(self):
-		self.test_suite.addTest(unittest.makeSuite(One_Sensor_Timeoffset_Input__Timeoffset_Target_Small_Tests))
-		self.test_suite.addTest(unittest.makeSuite(One_Sensor_Timeoffset_Input__Timeoffset_Target_Medium_Tests))
-		self.test_suite.addTest(unittest.makeSuite(One_Sensor_Timeoffset_Input__Timeoffset_Target_Large_Tests_Simple))
-		self.test_suite.addTest(unittest.makeSuite(One_Sensor_Timeoffset_Input__Timeoffset_Target_Large_Tests_Simple2))
+    def _2_one_sensor_INPUT__timeoffset_TARGET_tests(self):
+        self.test_suite.addTest(unittest.makeSuite(One_Sensor_Input__Timeoffset_Target_Small_Tests))
+        self.test_suite.addTest(unittest.makeSuite(One_Sensor_Input__Timeoffset_Target_Large_Tests))
+        self.test_suite.addTest(unittest.makeSuite(One_Sensor_Input__One_Target_Large_Test_Offsets))
+        self.test_suite.addTest(unittest.makeSuite(One_Sensor_Input__Timeoffset_Target_Large_Tests_Simple))
 
-	def _5_many_sensors_INPUT__one_TARGET__tests(self):
-		self.test_suite.addTest(unittest.makeSuite(Many_Sensor_Input__One_Target_Small_Test_All_Sensors))
-		self.test_suite.addTest(unittest.makeSuite(Many_Sensor_input__One_Target_Large_Tests))
-		self.test_suite.addTest(unittest.makeSuite(Many_Sensor_Time_Offset_One_Sensor_Target))
-		self.test_suite.addTest(unittest.makeSuite(Many_Sensor_Time_Offset_Timeoffset_Sensor_Target))
-	
-	def _6_many_sensors_timeoffset_INPUT__timeoffset_TARGET__tests(self):
-		self.test_suite.addTest(unittest.makeSuite(Many_Sensor_Time_Offset_Timeoffset_Sensor_Target))
+    def _3_one_sensor_timeoffset_INPUT__one_TARGET__tests(self):
+        self.test_suite.addTest(unittest.makeSuite(one_sensor_in_one_out_no_time_offset))
+
+    def _4_one_sensor_timeoffset_INPUT__timeoffset_TARGET__tests(self):
+        self.test_suite.addTest(unittest.makeSuite(One_Sensor_Timeoffset_Input__Timeoffset_Target_Small_Tests))
+        self.test_suite.addTest(unittest.makeSuite(One_Sensor_Timeoffset_Input__Timeoffset_Target_Medium_Tests))
+        self.test_suite.addTest(unittest.makeSuite(One_Sensor_Timeoffset_Input__Timeoffset_Target_Large_Tests_Simple))
+        self.test_suite.addTest(unittest.makeSuite(One_Sensor_Timeoffset_Input__Timeoffset_Target_Large_Tests_Simple2))
+
+    def _5_many_sensors_INPUT__one_TARGET__tests(self):
+        self.test_suite.addTest(unittest.makeSuite(Many_Sensor_Input__One_Target_Small_Test_All_Sensors))
+        self.test_suite.addTest(unittest.makeSuite(Many_Sensor_input__One_Target_Large_Tests))
+        self.test_suite.addTest(unittest.makeSuite(Many_Sensor_Time_Offset_One_Sensor_Target))
+        self.test_suite.addTest(unittest.makeSuite(Many_Sensor_Time_Offset_Timeoffset_Sensor_Target))
+
+    def _6_many_sensors_timeoffset_INPUT__timeoffset_TARGET__tests(self):
+        self.test_suite.addTest(unittest.makeSuite(Many_Sensor_Time_Offset_Timeoffset_Sensor_Target))

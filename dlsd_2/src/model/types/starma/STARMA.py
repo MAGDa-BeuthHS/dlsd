@@ -1,8 +1,7 @@
-from dlsd_2.src.io.input_target_maker.Maker import *
-from dlsd_2.src.model.types.starma.STARMA_Content import *
-from dlsd_2.src.model.Model import *
-from pySTARMA.starma_model import *
 import datetime as dt
+
+from dlsd_2.src.model.Model import *
+from dlsd_2.src.model.types.starma.STARMA_Content import *
 
 
 class STARMA(Model):

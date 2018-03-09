@@ -1,8 +1,9 @@
+import copy
 import datetime
+import logging
+
 import numpy as np
 import pandas as pd
-import logging
-import copy
 
 
 class Numpy_Datetime_Helper:
@@ -56,7 +57,6 @@ class Time_Gap_Filler:
         return self.new_df
 
     #	------------------------------------------------------------
-
 
     def _timestamp_to_datetime(self):
         self.orig_timestamps = (self._datetimes_array_to_string(copy.copy(self.orig_df.index.values)))
@@ -115,7 +115,7 @@ class Time_Gap_Filler:
         if count is 0:
             logging.debug("Time gaps successfully filled")
         else:
-            raise Exception("%d Gaps found!!!" %count)
+            raise Exception("%d Gaps found!!!" % count)
 
     # ------------------------------------------------------------
 

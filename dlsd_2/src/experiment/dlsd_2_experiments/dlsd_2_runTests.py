@@ -1,5 +1,6 @@
 import logging
 import unittest
+
 from dlsd_2.tests.Testmaker import Testmaker
 
 logging.basicConfig(level=logging.DEBUG)

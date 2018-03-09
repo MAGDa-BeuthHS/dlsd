@@ -1,3 +1,7 @@
+from dlsd_2.src.io.dataset.Dataset import Dataset
+from dlsd_2.src.io.input_target_maker.Source_Maker import Source_Maker
+
+
 class Source_Maker_With_Single_Input_File(Source_Maker):
     def __init__(self):
         super(Source_Maker_With_Single_Input_File, self).__init__()
