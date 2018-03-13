@@ -1,6 +1,7 @@
 import logging
 
 from dlsd_2.src.model.types.neural_networks.nn_one_hidden_layer import NN_One_Hidden_Layer
+from dlsd_2.src.io.input_target_maker.Input_Target_Maker import Input_And_Target_Maker_2
 
 logging.basicConfig(level=logging.DEBUG)  # filename='17_05_04_dlsd_2_trials.log',)
 
@@ -19,7 +20,7 @@ def main():
     model.set_path_tf_output('/Users/ahartens/Desktop/Work/dlsd_2_trials')
 
     # Make train data
-    train_input_and_target_maker = ITM_Normalized_Moving_Average_Remove_Inefficient_Sensors()
+    train_input_and_target_maker = Input_And_Target_Maker_2()
     train_input_and_target_maker.set_source_file_path(file_path_train)
     train_input_and_target_maker.set_moving_average_window(15)
     train_input_and_target_maker.set_efficiency_threshold(1.0)
@@ -30,7 +31,7 @@ def main():
     train_input_and_target_maker.set_time_format('%Y-%m-%d %H:%M:%S')
 
     # Make test data
-    test_input_and_target_maker = ITM_Normalized_Moving_Average()
+    test_input_and_target_maker = Input_And_Target_Maker_2()
     test_input_and_target_maker.set_source_file_path(file_path_test)
     test_input_and_target_maker.copy_parameters_from_maker(train_input_and_target_maker)
     test_input_and_target_maker.prepare_source_data_and_make_input_and_target()

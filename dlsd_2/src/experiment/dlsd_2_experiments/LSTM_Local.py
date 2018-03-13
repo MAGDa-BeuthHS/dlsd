@@ -1,4 +1,6 @@
 from dlsd_2.src.experiment.Experiment_Iterate_Over_All_Sensors_Using_One_Sensor_As_Output_With_K_Fold_Validation import *
+from dlsd_2.src.io.input_target_maker.Model_Input_Output_Parameters import *
+from dlsd_2.src.io.input_target_maker.Adjacency_Matrix import *
 from dlsd_2.src.model.types.average_week.Average_Week import Average_Week
 from dlsd_2.src.model.types.neural_networks.LSTM.LSTM_One_Hidden_Layer import LSTM_One_Hidden_Layer
 
@@ -7,7 +9,7 @@ logging.basicConfig(level=logging.INFO)  # filename='17_05_04_dlsd_2_trials.log'
 PATH_DATA = '/Users/ahartens/Desktop/all_fixed.csv'
 PATH_OUTPUT = '/Users/ahartens/Desktop/lstm_experiment'
 PATH_AVERAGE_WEEK = '/Users/ahartens/Desktop/Average_Week_One_Year_Fixed.csv'
-
+PATH_ADJACENCY = '/alex/data_other/Time_Adjacency_Matrix.csv'
 
 def main():
     exp = LSTM_Fixed_Data()

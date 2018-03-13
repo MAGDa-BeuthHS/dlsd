@@ -1,4 +1,4 @@
-from dlsd_2.src import Dataset
+from dlsd_2.src.io.dataset import Dataset
 from dlsd_2.src.io.dataset import Dataset_From_SQL
 
 
